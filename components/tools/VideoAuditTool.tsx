@@ -12,6 +12,8 @@ import {
   Info,
   ArrowRight,
   Play,
+  Sparkles,
+  Copy,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -21,6 +23,8 @@ import type {
 } from "@/lib/youtube/video-audit";
 import type { Signal, SignalKind } from "@/lib/youtube/title-score";
 import { track } from "@/lib/analytics/track";
+import type { FixPackage } from "@/app/api/youtube-audit-fix/route";
+import { TurnstileWidget } from "@/components/TurnstileWidget";
 
 const SIGNAL_ICON: Record<SignalKind, LucideIcon> = {
   good: Check,
@@ -154,6 +158,10 @@ export function VideoAuditTool() {
   );
 }
 
+type FixApiResponse =
+  | { output: FixPackage; cached?: boolean; remaining?: number }
+  | { error: string; code?: string };
+
 function AuditResults({ result, mode }: { result: VideoAuditResult; mode: AuditMode }) {
   const bs = BAND_STYLES[result.overallBand];
 
@@ -263,12 +271,235 @@ function AuditResults({ result, mode }: { result: VideoAuditResult; mode: AuditM
         </div>
       )}
 
+      {/* Fix-with-AI block — only when weaknesses exist */}
+      <FixWithAIBlock audit={result} />
+
       {/* Dimension cards */}
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {result.dimensions.map((d) => (
           <DimensionCard key={d.key} dimension={d} />
         ))}
       </div>
+    </div>
+  );
+}
+
+function FixWithAIBlock({ audit }: { audit: VideoAuditResult }) {
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fix, setFix] = useState<FixPackage | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const fixableDimensions = audit.dimensions.filter(
+    (d) => d.band === "weak" || d.band === "fair"
+  );
+  const hasWeaknesses = fixableDimensions.length > 0;
+  if (!hasWeaknesses) return null;
+
+  async function runFix() {
+    if (loading) return;
+    setError(null);
+    setFix(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/youtube-audit-fix", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          turnstileToken,
+          input: { audit },
+        }),
+      });
+      const data = (await res.json()) as FixApiResponse;
+      if (!res.ok || "error" in data) {
+        setError(("error" in data && data.error) || "Fix failed.");
+        return;
+      }
+      setFix(data.output);
+      track("tool_used", {
+        slug: "youtube-audit-fix",
+        cached: !!data.cached,
+        fixed_dimensions: [
+          data.output.title ? "title" : "",
+          data.output.description ? "description" : "",
+          data.output.tags ? "tags" : "",
+          data.output.hashtags ? "hashtags" : "",
+        ]
+          .filter(Boolean)
+          .join(","),
+      });
+    } catch {
+      setError("Network error — try again in a moment.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function copyValue(key: string, value: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedField(key);
+      setTimeout(() => setCopiedField((k) => (k === key ? null : k)), 1500);
+      track("tool_result_copied", { slug: "youtube-audit-fix", field: key });
+    } catch {
+      // ignore
+    }
+  }
+
+  return (
+    <div className="mt-6 rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50/70 via-white to-white p-5 sm:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white shadow-sm">
+          <Sparkles className="h-5 w-5" strokeWidth={2} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">
+            AI YouTube Coach
+          </p>
+          <h3 className="mt-0.5 text-base font-semibold text-gray-900 sm:text-lg">
+            Fix all {fixableDimensions.length}{" "}
+            {fixableDimensions.length === 1 ? "weakness" : "weaknesses"} with AI
+          </h3>
+          <p className="mt-0.5 text-sm text-gray-600">
+            Claude reads the audit and writes targeted replacements for{" "}
+            {fixableDimensions.map((d) => d.label.toLowerCase()).join(", ")} in
+            one click — aligned to your title.
+          </p>
+        </div>
+      </div>
+
+      {!fix && (
+        <>
+          <div className="mt-4">
+            <TurnstileWidget onToken={setTurnstileToken} />
+          </div>
+          <button
+            type="button"
+            onClick={runFix}
+            disabled={loading}
+            className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-40 transition"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
+                Fixing
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4" strokeWidth={2} />
+                Fix with AI
+              </>
+            )}
+          </button>
+        </>
+      )}
+
+      {error && (
+        <div className="mt-4 flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3">
+          <AlertCircle className="h-4 w-4 shrink-0 text-red-500 mt-0.5" strokeWidth={2} />
+          <p className="text-sm text-red-700">{error}</p>
+        </div>
+      )}
+
+      {fix && (
+        <div className="mt-5 space-y-4">
+          {fix.notes && (
+            <p className="rounded-md bg-brand-50/60 px-3 py-2 text-xs italic text-brand-800">
+              {fix.notes}
+            </p>
+          )}
+          {fix.title && (
+            <FixField
+              label="New title"
+              value={fix.title}
+              kind="title"
+              copied={copiedField === "title"}
+              onCopy={() => copyValue("title", fix.title!)}
+            />
+          )}
+          {fix.description && (
+            <FixField
+              label="New description"
+              value={fix.description}
+              kind="description"
+              copied={copiedField === "description"}
+              onCopy={() => copyValue("description", fix.description!)}
+            />
+          )}
+          {fix.tags && fix.tags.length > 0 && (
+            <FixField
+              label="New tags"
+              value={fix.tags.join(", ")}
+              kind="tags"
+              copied={copiedField === "tags"}
+              onCopy={() => copyValue("tags", fix.tags!.join(", "))}
+            />
+          )}
+          {fix.hashtags && fix.hashtags.length > 0 && (
+            <FixField
+              label="New hashtags"
+              value={fix.hashtags.join(" ")}
+              kind="hashtags"
+              copied={copiedField === "hashtags"}
+              onCopy={() => copyValue("hashtags", fix.hashtags!.join(" "))}
+            />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FixField({
+  label,
+  value,
+  kind,
+  copied,
+  onCopy,
+}: {
+  label: string;
+  value: string;
+  kind: "title" | "description" | "tags" | "hashtags";
+  copied: boolean;
+  onCopy: () => void;
+}) {
+  const isLong = kind === "description";
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white p-3">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+          {label}
+        </p>
+        <button
+          type="button"
+          onClick={onCopy}
+          className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition ${
+            copied
+              ? "bg-brand-50 text-brand-700"
+              : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+          }`}
+        >
+          {copied ? (
+            <>
+              <Check className="h-3 w-3" strokeWidth={2.5} />
+              Copied
+            </>
+          ) : (
+            <>
+              <Copy className="h-3 w-3" strokeWidth={2} />
+              Copy
+            </>
+          )}
+        </button>
+      </div>
+      <p
+        className={`mt-2 whitespace-pre-wrap text-sm text-gray-900 ${
+          isLong ? "leading-relaxed" : "leading-snug"
+        }`}
+      >
+        {value}
+      </p>
     </div>
   );
 }
