@@ -1,3 +1,18 @@
+import {
+  ImageDown,
+  Calculator,
+  Code2,
+  Fingerprint,
+  ListVideo,
+  WandSparkles,
+  PenLine,
+  Tags,
+  Hash,
+  Lightbulb,
+  Tv,
+  type LucideIcon,
+} from "lucide-react";
+
 /**
  * Master catalog of all tools on the site.
  *
@@ -32,8 +47,8 @@ export type Tool = {
   metaDescription: string;
   /** Primary category — drives filtering and homepage grouping */
   category: ToolCategory;
-  /** Emoji or short visual symbol for the card */
-  icon: string;
+  /** Lucide icon component — rendered by ToolCard/ToolLayout */
+  Icon: LucideIcon;
   /** Whether this tool calls Claude (incurs LLM cost — needs cost protection) */
   isAI: boolean;
   /** Approximate monthly US search volume for the primary keyword (planning only) */
@@ -57,7 +72,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free YouTube thumbnail downloader. Get HD, max resolution, and standard thumbnails from any YouTube URL. No signup, no watermark.",
     category: "downloader",
-    icon: "🖼️",
+    Icon: ImageDown,
     isAI: false,
     searchVolume: 100000,
     priority: 0.9,
@@ -72,7 +87,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free YouTube earnings calculator. Estimate revenue by views with niche-specific CPM rates (gaming, finance, tech, lifestyle).",
     category: "calculator",
-    icon: "💰",
+    Icon: Calculator,
     isAI: false,
     searchVolume: 80000,
     priority: 0.85,
@@ -87,7 +102,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Generate custom YouTube embed code. Set autoplay, start/end times, controls, captions, and loop with one click.",
     category: "generator",
-    icon: "📺",
+    Icon: Code2,
     isAI: false,
     searchVolume: 10000,
     priority: 0.7,
@@ -102,7 +117,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Find YouTube channel ID from any URL format — custom URLs, handles (@username), video links, or legacy channel URLs.",
     category: "utility",
-    icon: "🔎",
+    Icon: Fingerprint,
     isAI: false,
     searchVolume: 30000,
     priority: 0.75,
@@ -117,7 +132,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Format YouTube chapters and timestamps for descriptions. Validates ordering, the required 0:00 start, and minimum chapter length.",
     category: "generator",
-    icon: "⏱️",
+    Icon: ListVideo,
     isAI: false,
     searchVolume: 5000,
     priority: 0.7,
@@ -136,7 +151,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free AI YouTube title generator. Get 10 SEO-optimized titles in seconds — list, how-to, comparison, and curiosity styles.",
     category: "ai",
-    icon: "✨",
+    Icon: WandSparkles,
     isAI: true,
     searchVolume: 10000,
     priority: 0.85,
@@ -151,7 +166,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free AI YouTube description generator. Includes intro, body, CTA, hashtags, and chapter formatting in one click.",
     category: "ai",
-    icon: "📝",
+    Icon: PenLine,
     isAI: true,
     searchVolume: 15000,
     priority: 0.85,
@@ -166,7 +181,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free AI YouTube tag generator. Get 20+ relevant tags for any video — mix of broad and long-tail keywords.",
     category: "ai",
-    icon: "🏷️",
+    Icon: Tags,
     isAI: true,
     searchVolume: 30000,
     priority: 0.9,
@@ -181,7 +196,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free AI YouTube hashtag generator. 15 relevant hashtags ranked by competition for any niche or topic.",
     category: "ai",
-    icon: "#️⃣",
+    Icon: Hash,
     isAI: true,
     searchVolume: 25000,
     priority: 0.85,
@@ -196,7 +211,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free AI YouTube video idea generator. 10 fresh video ideas with premises for any niche or channel topic.",
     category: "ai",
-    icon: "💡",
+    Icon: Lightbulb,
     isAI: true,
     searchVolume: 20000,
     priority: 0.85,
@@ -211,7 +226,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free AI YouTube channel name generator. 10 creative, brandable channel name ideas for any niche.",
     category: "ai",
-    icon: "🎬",
+    Icon: Tv,
     isAI: true,
     searchVolume: 15000,
     priority: 0.8,

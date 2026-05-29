@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+import { Sparkles } from "lucide-react";
 import { Container } from "./Container";
 import type { Tool } from "@/lib/tools-catalog";
 import { siteConfig } from "@/lib/site-config";
@@ -10,10 +11,11 @@ type ToolLayoutProps = {
 };
 
 /**
- * Common chrome for every tool page: H1, description, structured data,
- * and a slot for the tool's actual UI. Wrap tool pages with this.
+ * Common chrome for every tool page: icon tile, H1, description,
+ * structured data, and a slot for the tool's actual UI. Wrap tool pages with this.
  */
 export function ToolLayout({ tool, children }: ToolLayoutProps) {
+  const Icon = tool.Icon;
   const schema = softwareApplicationSchema({
     name: tool.title,
     description: tool.description,
@@ -28,9 +30,26 @@ export function ToolLayout({ tool, children }: ToolLayoutProps) {
       />
 
       <header className="mx-auto max-w-3xl text-center">
-        <span className="text-4xl" aria-hidden="true">
-          {tool.icon}
-        </span>
+        <div className="flex justify-center">
+          <div
+            className={`flex h-16 w-16 items-center justify-center rounded-2xl ${
+              tool.isAI
+                ? "bg-gradient-to-br from-brand-100 to-brand-200 text-brand-700 ring-1 ring-inset ring-brand-200"
+                : "bg-brand-50 text-brand-600"
+            }`}
+            aria-hidden="true"
+          >
+            <Icon className="h-8 w-8" strokeWidth={2} />
+          </div>
+        </div>
+
+        {tool.isAI && (
+          <span className="mt-4 inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700 ring-1 ring-inset ring-brand-200">
+            <Sparkles className="h-3 w-3" strokeWidth={2.5} />
+            AI-powered
+          </span>
+        )}
+
         <h1 className="mt-4 text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
           {tool.title}
         </h1>
