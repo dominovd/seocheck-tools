@@ -68,7 +68,7 @@ export async function generateMetadata({
   const info = COMPETITORS[params.competitor];
   if (!info) return buildMetadata({ title: "Comparison", description: "" });
   return buildMetadata({
-    title: `${siteConfig.name} vs ${info.name}`,
+    title: `vs ${info.name}`,
     description: `Side-by-side comparison of ${siteConfig.name} and ${info.name} — features, pricing, and trade-offs.`,
     path: `compare/${info.slug}`,
   });

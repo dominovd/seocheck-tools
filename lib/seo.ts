@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import { siteConfig } from "./site-config";
 
 /**
- * Title-tag brand for sub-pages — includes "YouTube SEO" for keyword density
- * in Google SERPs. Home page skips this to avoid "YouTube" duplication with
- * the tagline ("Free YouTube SEO Toolkit"), which already carries the term.
- *
- * UI wordmark in Header/Footer stays as siteConfig.name ("SEO Check Tools")
- * for brand cleanliness — descriptive keywords belong in <title>, not the logo.
+ * Title-tag brand. Was previously "YouTube SEO Check Tools" on sub-pages for
+ * keyword density, but produced ugly duplication when the tool's own title
+ * also contained "YouTube" and "SEO" — e.g. "AI YouTube Tag Generator |
+ * YouTube SEO SEO Check Tools". Each tool name already includes "YouTube"
+ * and the brand contains "SEO", so the keyword pair still appears across
+ * the title without the redundant prefix.
  */
 const TITLE_BRAND_HOME = siteConfig.name; // "SEO Check Tools"
-const TITLE_BRAND_SUB = `YouTube SEO ${siteConfig.name}`; // "YouTube SEO Check Tools"
+const TITLE_BRAND_SUB = siteConfig.name; // "SEO Check Tools"
 
 type BuildMetadataInput = {
   title: string;
