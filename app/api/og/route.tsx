@@ -1,8 +1,8 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const contentType = "image/png";
-export const size = { width: 1200, height: 630 };
+
+const SIZE = { width: 1200, height: 630 };
 
 /**
  * Dynamic OG image endpoint.
@@ -148,6 +148,6 @@ export async function GET(req: Request) {
         </div>
       </div>
     ),
-    size
+    SIZE
   );
 }
