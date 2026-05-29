@@ -1,4 +1,5 @@
 import { Container } from "@/components/Container";
+import { BreadcrumbSchema } from "@/components/PageSchemas";
 import { buildMetadata } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
 
@@ -14,6 +15,12 @@ const EFFECTIVE_DATE = "May 29, 2026";
 export default function PrivacyPage() {
   return (
     <Container as="main" className="py-12 sm:py-16">
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: siteConfig.url },
+          { name: "Privacy Policy", url: `${siteConfig.url}/privacy` },
+        ]}
+      />
       <article className="mx-auto max-w-2xl">
         <h1 className="text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
           Privacy Policy

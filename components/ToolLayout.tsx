@@ -1,9 +1,10 @@
 import { type ReactNode } from "react";
 import { Sparkles } from "lucide-react";
 import { Container } from "./Container";
+import { JsonLd } from "./JsonLd";
 import type { Tool } from "@/lib/tools-catalog";
 import { siteConfig } from "@/lib/site-config";
-import { softwareApplicationSchema } from "@/lib/seo";
+import { softwareApplicationSchema, breadcrumbSchema } from "@/lib/seo";
 
 type ToolLayoutProps = {
   tool: Tool;
@@ -12,22 +13,29 @@ type ToolLayoutProps = {
 
 /**
  * Common chrome for every tool page: icon tile, H1, description,
- * structured data, and a slot for the tool's actual UI. Wrap tool pages with this.
+ * structured data (SoftwareApplication + BreadcrumbList), and a slot for
+ * the tool's actual UI.
  */
 export function ToolLayout({ tool, children }: ToolLayoutProps) {
   const Icon = tool.Icon;
-  const schema = softwareApplicationSchema({
-    name: tool.title,
-    description: tool.description,
-    url: `${siteConfig.url}/tools/${tool.slug}`,
-  });
+  const url = `${siteConfig.url}/tools/${tool.slug}`;
+
+  const schemas = [
+    softwareApplicationSchema({
+      name: tool.title,
+      description: tool.description,
+      url,
+    }),
+    breadcrumbSchema([
+      { name: "Home", url: siteConfig.url },
+      { name: "Tools", url: `${siteConfig.url}/tools` },
+      { name: tool.shortTitle, url },
+    ]),
+  ];
 
   return (
     <Container as="main" className="py-10 sm:py-14">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
+      <JsonLd data={schemas} />
 
       <header className="mx-auto max-w-3xl text-center">
         <div className="flex justify-center">

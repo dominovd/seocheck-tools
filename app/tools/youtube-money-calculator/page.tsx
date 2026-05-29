@@ -3,6 +3,7 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { MoneyCalculatorTool } from "@/components/tools/MoneyCalculatorTool";
 import { buildMetadata } from "@/lib/seo";
 import { getToolBySlug } from "@/lib/tools-catalog";
+import { FaqSchema } from "@/components/PageSchemas";
 
 const tool = getToolBySlug("youtube-money-calculator")!;
 
@@ -10,6 +11,7 @@ export const metadata = buildMetadata({
   title: tool.title,
   description: tool.metaDescription,
   path: `tools/${tool.slug}`,
+  ogVariant: tool.isAI ? { ai: true } : undefined,
 });
 
 const FAQS = [
@@ -42,6 +44,7 @@ const FAQS = [
 export default function YouTubeMoneyCalculatorPage() {
   return (
     <>
+      <FaqSchema faqs={FAQS} />
       <ToolLayout tool={tool}>
         <MoneyCalculatorTool />
       </ToolLayout>

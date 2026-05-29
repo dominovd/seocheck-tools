@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { FeaturedToolCard } from "@/components/FeaturedToolCard";
+import { FaqSchema } from "@/components/PageSchemas";
 import { ToolSpotlight } from "@/components/spotlights/ToolSpotlight";
 import { MockTitleGenerator } from "@/components/spotlights/MockTitleGenerator";
 import { MockTagExtractor } from "@/components/spotlights/MockTagExtractor";
@@ -125,6 +126,7 @@ export default function HomePage() {
 
   return (
     <>
+      <FaqSchema faqs={faqs} />
       {/* ───────── Hero ───────── */}
       <Container as="section" className="pt-20 pb-16 sm:pt-28 sm:pb-20 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">

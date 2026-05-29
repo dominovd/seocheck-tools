@@ -3,6 +3,7 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { ThumbnailDownloaderTool } from "@/components/tools/ThumbnailDownloaderTool";
 import { buildMetadata } from "@/lib/seo";
 import { getToolBySlug } from "@/lib/tools-catalog";
+import { FaqSchema } from "@/components/PageSchemas";
 
 const tool = getToolBySlug("youtube-thumbnail-downloader")!;
 
@@ -10,6 +11,7 @@ export const metadata = buildMetadata({
   title: tool.title,
   description: tool.metaDescription,
   path: `tools/${tool.slug}`,
+  ogVariant: tool.isAI ? { ai: true } : undefined,
 });
 
 const FAQS = [
@@ -38,6 +40,7 @@ const FAQS = [
 export default function YouTubeThumbnailDownloaderPage() {
   return (
     <>
+      <FaqSchema faqs={FAQS} />
       <ToolLayout tool={tool}>
         <ThumbnailDownloaderTool />
       </ToolLayout>

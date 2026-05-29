@@ -3,6 +3,7 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { HashtagGeneratorTool } from "@/components/tools/HashtagGeneratorTool";
 import { buildMetadata } from "@/lib/seo";
 import { getToolBySlug } from "@/lib/tools-catalog";
+import { FaqSchema } from "@/components/PageSchemas";
 
 const tool = getToolBySlug("youtube-hashtag-generator")!;
 
@@ -10,6 +11,7 @@ export const metadata = buildMetadata({
   title: tool.title,
   description: tool.metaDescription,
   path: `tools/${tool.slug}`,
+  ogVariant: tool.isAI ? { ai: true } : undefined,
 });
 
 const FAQS = [
@@ -46,6 +48,7 @@ const FAQS = [
 export default function YouTubeHashtagGeneratorPage() {
   return (
     <>
+      <FaqSchema faqs={FAQS} />
       <ToolLayout tool={tool}>
         <HashtagGeneratorTool />
       </ToolLayout>

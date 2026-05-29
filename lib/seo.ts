@@ -17,8 +17,13 @@ type BuildMetadataInput = {
   description: string;
   /** Path without leading slash. Empty string for home. */
   path?: string;
-  /** Override the OG image URL. Defaults to siteConfig.ogImage. */
+  /**
+   * Override the OG image URL. Defaults to a per-page dynamic image generated
+   * by /api/og from the title + description.
+   */
   ogImage?: string;
+  /** Pass `{ ai: true }` to render the "AI-powered" accent on the dynamic OG. */
+  ogVariant?: { ai?: boolean };
   /** Set to true on pages that should not be indexed. */
   noindex?: boolean;
 };
@@ -31,7 +36,8 @@ export function buildMetadata({
   title,
   description,
   path = "",
-  ogImage = siteConfig.ogImage,
+  ogImage,
+  ogVariant,
   noindex = false,
 }: BuildMetadataInput): Metadata {
   const url = `${siteConfig.url}/${path}`.replace(/\/$/, "") || siteConfig.url;
@@ -39,6 +45,15 @@ export function buildMetadata({
     path === ""
       ? `${title} — ${TITLE_BRAND_HOME}`
       : `${title} | ${TITLE_BRAND_SUB}`;
+
+  // Build a default dynamic OG image URL if no override was passed.
+  // Truncate the description so the query string stays reasonable.
+  const ogParams = new URLSearchParams({
+    title: title.slice(0, 80),
+    subtitle: description.slice(0, 120),
+  });
+  if (ogVariant?.ai) ogParams.set("ai", "1");
+  const resolvedOgImage = ogImage ?? `/api/og?${ogParams.toString()}`;
 
   return {
     title: fullTitle,
@@ -50,7 +65,7 @@ export function buildMetadata({
       description,
       url,
       siteName: siteConfig.name,
-      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
+      images: [{ url: resolvedOgImage, width: 1200, height: 630, alt: title }],
       locale: siteConfig.locale,
       type: "website",
     },
@@ -58,7 +73,7 @@ export function buildMetadata({
       card: "summary_large_image",
       title: fullTitle,
       description,
-      images: [ogImage],
+      images: [resolvedOgImage],
       creator: siteConfig.twitterCreator,
     },
     robots: {
@@ -80,10 +95,14 @@ export function buildMetadata({
   };
 }
 
-/**
- * JSON-LD SoftwareApplication schema for a tool page.
- * Drop this into a <script type="application/ld+json"> tag in the tool's layout.
- */
+/* ────────────────────────────────────────────────────────────────────
+ * Structured data (JSON-LD) helpers
+ *
+ * Each function returns a plain JS object that should be serialized into a
+ * <script type="application/ld+json"> tag via the <JsonLd /> component.
+ * ──────────────────────────────────────────────────────────────────── */
+
+/** JSON-LD schema for a tool page. */
 export function softwareApplicationSchema(opts: {
   name: string;
   description: string;
@@ -101,6 +120,98 @@ export function softwareApplicationSchema(opts: {
       "@type": "Offer",
       price: "0",
       priceCurrency: "USD",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url,
+    },
+  };
+}
+
+/** WebSite schema for the homepage — enables sitelinks search box when applicable. */
+export function websiteSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: siteConfig.name,
+    alternateName: siteConfig.tagline,
+    url: siteConfig.url,
+    description: siteConfig.description,
+  };
+}
+
+/** Organization schema — used site-wide for knowledge-graph readiness. */
+export function organizationSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: siteConfig.name,
+    url: siteConfig.url,
+    logo: `${siteConfig.url}/icon.svg`,
+    email: siteConfig.contactEmail,
+  };
+}
+
+/** FAQ Page schema — emits the rich result block in Google SERP. */
+export function faqPageSchema(faqs: { q: string; a: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map(({ q, a }) => ({
+      "@type": "Question",
+      name: q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: a,
+      },
+    })),
+  };
+}
+
+/** Breadcrumb list schema for tool/guide/legal pages. */
+export function breadcrumbSchema(items: { name: string; url: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+}
+
+/** Article schema — for guides. */
+export function articleSchema(opts: {
+  headline: string;
+  description: string;
+  url: string;
+  datePublished: string;
+  dateModified?: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: opts.headline,
+    description: opts.description,
+    url: opts.url,
+    datePublished: opts.datePublished,
+    dateModified: opts.dateModified ?? opts.datePublished,
+    author: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url,
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteConfig.url}/icon.svg`,
+      },
     },
   };
 }

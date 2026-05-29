@@ -1,4 +1,5 @@
 import { Container } from "@/components/Container";
+import { BreadcrumbSchema } from "@/components/PageSchemas";
 import { buildMetadata } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
 
@@ -35,6 +36,12 @@ const REACH_OUT_FOR = [
 export default function ContactPage() {
   return (
     <Container as="main" className="py-12 sm:py-16">
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: siteConfig.url },
+          { name: "Contact", url: `${siteConfig.url}/contact` },
+        ]}
+      />
       <article className="mx-auto max-w-2xl">
         <h1 className="text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
           Contact
