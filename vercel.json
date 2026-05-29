@@ -5,6 +5,15 @@
   "functions": {
     "app/api/**/*.ts": {
       "maxDuration": 30
+    },
+    "app/api/cron/refresh-tracked-channels/route.ts": {
+      "maxDuration": 300
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/refresh-tracked-channels",
+      "schedule": "0 9 * * 1"
+    }
+  ]
 }

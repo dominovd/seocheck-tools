@@ -7,6 +7,9 @@ import {
   AlertCircle,
   Sparkles,
   ExternalLink,
+  Bookmark,
+  BookmarkCheck,
+  History,
 } from "lucide-react";
 import { TurnstileWidget } from "@/components/TurnstileWidget";
 import { track } from "@/lib/analytics/track";
@@ -156,8 +159,65 @@ export function VisibilityScoreTool() {
   );
 }
 
+type HistoryEntry = {
+  ts: string;
+  visibility: number;
+  ctr: number;
+  metadata: number;
+  headroom: number;
+  trajectory: number;
+};
+
 function Results({ result }: { result: VisibilityScoreResult }) {
   const gs = GRADE_STYLES[result.grade];
+  const [tracked, setTracked] = useState(false);
+  const [tracking, setTracking] = useState(false);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+
+  // Load history + tracked state for this channel on mount/change
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(
+          `/api/channel-history?channelId=${encodeURIComponent(result.channel.id)}`
+        );
+        if (!res.ok) return;
+        const data = (await res.json()) as { tracked?: boolean; history?: HistoryEntry[] };
+        if (cancelled) return;
+        setTracked(Boolean(data.tracked));
+        setHistory(Array.isArray(data.history) ? data.history : []);
+      } catch {
+        // Silent — history is optional
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [result.channel.id]);
+
+  async function trackThis() {
+    if (tracking || tracked) return;
+    setTracking(true);
+    try {
+      const res = await fetch("/api/track-channel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ channelId: result.channel.id }),
+      });
+      if (res.ok) {
+        setTracked(true);
+        track("tool_used", {
+          slug: "track-channel",
+          action: "added",
+        });
+      }
+    } catch {
+      // ignore
+    } finally {
+      setTracking(false);
+    }
+  }
 
   return (
     <div className="mt-8 space-y-8">
@@ -233,6 +293,121 @@ function Results({ result }: { result: VisibilityScoreResult }) {
             evidence={sub.evidence}
           />
         ))}
+      </div>
+
+      {/* Track this channel + history */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <History className="h-4 w-4 text-gray-500" strokeWidth={2} />
+            <p className="text-sm font-semibold text-gray-900">
+              Channel history
+            </p>
+          </div>
+          {tracked ? (
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-700 ring-1 ring-brand-200">
+              <BookmarkCheck className="h-3.5 w-3.5" strokeWidth={2} />
+              Being tracked weekly
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={trackThis}
+              disabled={tracking}
+              className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:border-brand-300 hover:bg-brand-50/40 hover:text-brand-700 disabled:opacity-40 transition"
+            >
+              {tracking ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
+                  Adding
+                </>
+              ) : (
+                <>
+                  <Bookmark className="h-3.5 w-3.5" strokeWidth={2} />
+                  Track this channel
+                </>
+              )}
+            </button>
+          )}
+        </div>
+
+        {history.length === 0 ? (
+          <p className="mt-3 text-xs text-gray-500 leading-relaxed">
+            {tracked
+              ? "Tracking is active — the first history snapshot will be taken on the next Monday cron run. After a few weeks the timeline will show your trajectory."
+              : "Click “Track this channel” to add it to the weekly background re-audit. After 2-3 weeks you’ll see a Visibility Score timeline here."}
+          </p>
+        ) : (
+          <HistoryTimeline history={history} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HistoryTimeline({ history }: { history: HistoryEntry[] }) {
+  // history is newest-first; reverse to show chronologically (oldest left)
+  const ordered = [...history].reverse();
+  const latest = history[0];
+  const oldest = history[history.length - 1];
+  const delta = oldest ? latest.visibility - oldest.visibility : 0;
+  const deltaSign = delta > 0 ? "+" : "";
+
+  return (
+    <div className="mt-4">
+      {/* Delta line */}
+      {history.length >= 2 && (
+        <div className="mb-3 flex flex-wrap items-baseline gap-2 text-sm text-gray-700">
+          <span>
+            {oldest.ts}: <span className="font-mono font-semibold">{oldest.visibility}</span>
+          </span>
+          <span className="text-gray-400">→</span>
+          <span>
+            {latest.ts}: <span className="font-mono font-semibold">{latest.visibility}</span>
+          </span>
+          <span
+            className={`ml-1 inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold ${
+              delta > 0
+                ? "bg-brand-50 text-brand-700"
+                : delta < 0
+                ? "bg-red-50 text-red-700"
+                : "bg-gray-100 text-gray-600"
+            }`}
+          >
+            {deltaSign}
+            {delta}
+          </span>
+        </div>
+      )}
+
+      {/* Bar timeline */}
+      <div className="flex items-end gap-1.5 overflow-x-auto pb-2">
+        {ordered.map((h) => {
+          const heightPct = Math.max(4, h.visibility);
+          const color =
+            h.visibility >= 80
+              ? "bg-brand-500"
+              : h.visibility >= 60
+              ? "bg-brand-400"
+              : h.visibility >= 40
+              ? "bg-amber-400"
+              : "bg-red-400";
+          return (
+            <div
+              key={h.ts}
+              className="flex shrink-0 flex-col items-center"
+              title={`${h.ts}: ${h.visibility}`}
+            >
+              <div
+                className={`w-6 ${color} rounded-t-sm`}
+                style={{ height: `${heightPct * 0.8}px` }}
+              />
+              <span className="mt-1 font-mono text-[9px] tabular-nums text-gray-400">
+                {h.ts.slice(5)}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
