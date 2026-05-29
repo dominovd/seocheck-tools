@@ -73,6 +73,9 @@ export function buildMetadata({
     },
     verification: {
       google: siteConfig.googleSiteVerification,
+      other: {
+        "msvalidate.01": siteConfig.bingSiteVerification,
+      },
     },
   };
 }
