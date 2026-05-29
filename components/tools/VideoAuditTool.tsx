@@ -20,6 +20,7 @@ import type {
   AuditBand,
 } from "@/lib/youtube/video-audit";
 import type { Signal, SignalKind } from "@/lib/youtube/title-score";
+import { track } from "@/lib/analytics/track";
 
 const SIGNAL_ICON: Record<SignalKind, LucideIcon> = {
   good: Check,
@@ -74,6 +75,11 @@ export function VideoAuditTool() {
       }
       setResult(data.result);
       setMode(data.mode ?? "full");
+      track("tool_used", {
+        slug: "youtube-video-audit",
+        mode: data.mode ?? "full",
+        overall_score: data.result.overallScore,
+      });
     } catch {
       setError("Network error — try again in a moment.");
     } finally {
@@ -190,6 +196,13 @@ function AuditResults({ result, mode }: { result: VideoAuditResult; mode: AuditM
             href={result.videoUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() =>
+              track("external_link_clicked", {
+                destination: "youtube",
+                slug: "youtube-video-audit",
+                location: "audit_result_header",
+              })
+            }
             className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:text-brand-800"
           >
             <Play className="h-3 w-3" strokeWidth={2.5} />

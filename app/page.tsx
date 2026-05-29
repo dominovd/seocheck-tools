@@ -15,6 +15,7 @@ import { Container } from "@/components/Container";
 import { FeaturedToolCard } from "@/components/FeaturedToolCard";
 import { FaqSchema } from "@/components/PageSchemas";
 import { HeroAuditInput } from "@/components/HeroAuditInput";
+import { TrackedDetails } from "@/components/TrackedDetails";
 import { ToolSpotlight } from "@/components/spotlights/ToolSpotlight";
 import { MockTitleGenerator } from "@/components/spotlights/MockTitleGenerator";
 import { MockTagExtractor } from "@/components/spotlights/MockTagExtractor";
@@ -370,7 +371,12 @@ export default function HomePage() {
 
           <div className="mx-auto mt-12 max-w-3xl divide-y divide-gray-200">
             {faqs.map(({ q, a }) => (
-              <details key={q} className="group py-5">
+              <TrackedDetails
+                key={q}
+                question={q}
+                location="homepage"
+                className="group py-5"
+              >
                 <summary className="flex cursor-pointer items-center justify-between text-base font-medium text-gray-900 list-none">
                   {q}
                   <span className="ml-4 shrink-0 text-gray-400 transition-transform group-open:rotate-45 text-xl leading-none">
@@ -378,7 +384,7 @@ export default function HomePage() {
                   </span>
                 </summary>
                 <p className="mt-3 text-sm text-gray-600 leading-relaxed">{a}</p>
-              </details>
+              </TrackedDetails>
             ))}
           </div>
         </Container>

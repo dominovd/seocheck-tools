@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Check,
@@ -15,6 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { scoreTitle, type SignalKind, type Signal } from "@/lib/youtube/title-score";
+import { track } from "@/lib/analytics/track";
 
 const SAMPLE_TITLES = [
   "I quit React after 8 years — here's what I switched to",
@@ -54,6 +55,8 @@ export function TitleScoreTool() {
     { id: genId(), text: "" },
   ]);
   const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
+  // Fire tool_used at most once per page session
+  const toolUsedFiredRef = useRef(false);
 
   // Hydrate from ?title= query param (sent from Title Generator's "Score →" link)
   useEffect(() => {
@@ -78,6 +81,11 @@ export function TitleScoreTool() {
 
   function updateText(id: string, text: string) {
     setVariants((prev) => prev.map((v) => (v.id === id ? { ...v, text } : v)));
+    // Fire tool_used once per mount when meaningful content first appears
+    if (!toolUsedFiredRef.current && text.trim().length > 3) {
+      toolUsedFiredRef.current = true;
+      track("tool_used", { slug: "youtube-title-score-checker" });
+    }
   }
 
   function addVariant() {

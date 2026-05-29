@@ -13,6 +13,7 @@ import {
   Gauge,
 } from "lucide-react";
 import { TurnstileWidget } from "@/components/TurnstileWidget";
+import { track } from "@/lib/analytics/track";
 
 type Style =
   | "mixed"
@@ -84,6 +85,12 @@ export function TitleGeneratorTool() {
       setTitles(data.output.titles);
       setUsedCached(!!data.cached);
       setRemaining(typeof data.remaining === "number" ? data.remaining : null);
+      track("tool_used", {
+        slug: "youtube-title-generator",
+        style,
+        cached: !!data.cached,
+        count: data.output.titles.length,
+      });
     } catch {
       setError("Network error — try again in a moment.");
     } finally {
@@ -96,6 +103,10 @@ export function TitleGeneratorTool() {
       await navigator.clipboard.writeText(text);
       setCopiedIdx(idx);
       setTimeout(() => setCopiedIdx((i) => (i === idx ? null : i)), 1500);
+      track("tool_result_copied", {
+        slug: "youtube-title-generator",
+        index: idx,
+      });
     } catch {
       // ignore
     }
