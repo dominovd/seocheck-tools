@@ -118,6 +118,23 @@ export const TOOLS: Tool[] = [
     status: "live",
   },
   {
+    slug: "youtube-visibility-score",
+    title: "YouTube Visibility Score",
+    shortTitle: "Visibility Score",
+    taskLabel: "Get a channel's Visibility Score",
+    description:
+      "Paste a channel — get a 0-100 composite Visibility Score across CTR Potential, Metadata Quality, Niche Headroom, and Growth Trajectory.",
+    metaDescription:
+      "Free YouTube Visibility Score. Paste any channel — get a composite 0-100 score across CTR Potential, Metadata Quality, Niche Headroom, and Growth Trajectory, with AI summary.",
+    category: "ai",
+    stage: "analyze",
+    Icon: Gauge,
+    isAI: true,
+    searchVolume: 15000,
+    priority: 0.98,
+    status: "live",
+  },
+  {
     slug: "youtube-channel-audit",
     title: "YouTube Channel Audit",
     shortTitle: "Channel Audit",
