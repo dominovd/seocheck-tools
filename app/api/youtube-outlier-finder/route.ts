@@ -17,6 +17,7 @@ import {
   type OutlierAnalysis,
   type OutlierVideo,
 } from "@/lib/youtube/outlier-analysis";
+import { logAudit } from "@/lib/analytics/audit-log";
 
 export const runtime = "edge";
 
@@ -218,6 +219,14 @@ export async function POST(req: NextRequest) {
         patterns,
         analysisFailed,
       };
+
+      // Anonymous audit logging — foundation for YouTube Studies.
+      await logAudit("outlier-finder", channel.id, {
+        windowSize: ids.length,
+        medianViews: Math.round(medianViews),
+        outlierCount: outliers.length,
+        megaOutlierCount: megaOutliers.length,
+      }).catch(() => {});
 
       return { output: analysis, costUsd: llmCostUsd };
     },

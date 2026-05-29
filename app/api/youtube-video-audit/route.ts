@@ -9,6 +9,7 @@ import { auditVideo, type VideoAuditResult } from "@/lib/youtube/video-audit";
 import { fetchOembed, type OembedInfo } from "@/lib/youtube/oembed";
 import { fetchVideoFromApi } from "@/lib/youtube/youtube-api";
 import { scoreTitle } from "@/lib/youtube/title-score";
+import { logAudit } from "@/lib/analytics/audit-log";
 
 /**
  * Video Audit endpoint.
@@ -132,6 +133,14 @@ export async function POST(req: NextRequest) {
   // should re-attempt fresh on the next request once YouTube recovers.
   if (mode === "full") {
     await setCachedOutput(RATE_LIMIT_KEY, videoId, audit).catch(() => {});
+  }
+
+  // Anonymous audit logging — foundation for future YouTube Studies pages.
+  // Only logs full audits (degraded modes have incomplete data).
+  if (mode === "full") {
+    const dimScores: Record<string, number | null> = { overall: audit.overallScore };
+    for (const d of audit.dimensions) dimScores[d.key] = d.score;
+    await logAudit("video-audit", videoId, dimScores).catch(() => {});
   }
 
   return NextResponse.json({

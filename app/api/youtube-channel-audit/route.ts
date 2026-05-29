@@ -18,6 +18,7 @@ import {
   type ChannelAuditVideo,
   type DimensionStats,
 } from "@/lib/youtube/channel-audit";
+import { logAudit } from "@/lib/analytics/audit-log";
 
 export const runtime = "edge";
 
@@ -217,6 +218,11 @@ export async function POST(req: NextRequest) {
         recurringIssues,
         analysisFailed,
       };
+
+      // Anonymous audit logging — foundation for YouTube Studies.
+      const dimScores: Record<string, number | null> = { overall: averageScore };
+      for (const d of dimensions) dimScores[d.key] = d.averageScore;
+      await logAudit("channel-audit", channel.id, dimScores).catch(() => {});
 
       return { output: result, costUsd: llmCostUsd };
     },
