@@ -2,6 +2,7 @@ import { type ReactNode } from "react";
 import { Sparkles } from "lucide-react";
 import { Container } from "./Container";
 import { JsonLd } from "./JsonLd";
+import { NewsletterSignup } from "./NewsletterSignup";
 import type { Tool } from "@/lib/tools-catalog";
 import { siteConfig } from "@/lib/site-config";
 import { softwareApplicationSchema, breadcrumbSchema } from "@/lib/seo";
@@ -65,6 +66,16 @@ export function ToolLayout({ tool, children }: ToolLayoutProps) {
       </header>
 
       <div className="mx-auto mt-10 max-w-3xl">{children}</div>
+
+      {/* Subtle newsletter prompt directly below the tool UI — visible to anyone
+          who got value from the tool before they scroll into the SEO content. */}
+      <div className="mx-auto mt-12 max-w-2xl">
+        <NewsletterSignup
+          source={`tool:${tool.slug}`}
+          variant="inline"
+          className="rounded-xl border border-gray-200 bg-gray-50/50 p-4"
+        />
+      </div>
     </Container>
   );
 }

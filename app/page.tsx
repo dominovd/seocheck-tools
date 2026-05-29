@@ -16,6 +16,7 @@ import { FeaturedToolCard } from "@/components/FeaturedToolCard";
 import { FaqSchema } from "@/components/PageSchemas";
 import { HeroAuditInput } from "@/components/HeroAuditInput";
 import { TrackedDetails } from "@/components/TrackedDetails";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { ToolSpotlight } from "@/components/spotlights/ToolSpotlight";
 import { MockTitleGenerator } from "@/components/spotlights/MockTitleGenerator";
 import { MockTagExtractor } from "@/components/spotlights/MockTagExtractor";
@@ -353,6 +354,19 @@ export default function HomePage() {
                 <ArrowRight className="h-3.5 w-3.5 text-gray-400" strokeWidth={2} />
               </Link>
             ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* ───────── Newsletter ───────── */}
+      <section className="py-16">
+        <Container as="div">
+          <div className="mx-auto max-w-xl">
+            <NewsletterSignup
+              source="homepage"
+              title="Get notified when we ship new tools"
+              subtitle="Occasional emails — typically when a new tool ships or a major guide drops. No spam, never sold, unsubscribe in one click."
+            />
           </div>
         </Container>
       </section>
