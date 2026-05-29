@@ -97,7 +97,7 @@ export const TOOLS: Tool[] = [
     isAI: false,
     searchVolume: 80000,
     priority: 0.88,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "youtube-tag-extractor",
@@ -113,7 +113,7 @@ export const TOOLS: Tool[] = [
     isAI: false,
     searchVolume: 20000,
     priority: 0.87,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "youtube-keyword-tool",
@@ -129,7 +129,7 @@ export const TOOLS: Tool[] = [
     isAI: false,
     searchVolume: 15000,
     priority: 0.85,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "youtube-channel-id-finder",
@@ -145,7 +145,7 @@ export const TOOLS: Tool[] = [
     isAI: false,
     searchVolume: 30000,
     priority: 0.78,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "youtube-embed-code-generator",
@@ -161,7 +161,7 @@ export const TOOLS: Tool[] = [
     isAI: false,
     searchVolume: 10000,
     priority: 0.7,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "youtube-chapter-generator",
@@ -177,7 +177,7 @@ export const TOOLS: Tool[] = [
     isAI: false,
     searchVolume: 5000,
     priority: 0.7,
-    status: "coming-soon",
+    status: "live",
   },
 
   // ──────────────────────────────────────────────────────────
@@ -197,7 +197,7 @@ export const TOOLS: Tool[] = [
     isAI: true,
     searchVolume: 10000,
     priority: 0.86,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "youtube-description-generator",
@@ -213,7 +213,7 @@ export const TOOLS: Tool[] = [
     isAI: true,
     searchVolume: 15000,
     priority: 0.85,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "youtube-tag-generator",
@@ -229,7 +229,7 @@ export const TOOLS: Tool[] = [
     isAI: true,
     searchVolume: 30000,
     priority: 0.89,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "youtube-hashtag-generator",
@@ -245,7 +245,7 @@ export const TOOLS: Tool[] = [
     isAI: true,
     searchVolume: 25000,
     priority: 0.84,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "youtube-video-idea-generator",
@@ -261,7 +261,7 @@ export const TOOLS: Tool[] = [
     isAI: true,
     searchVolume: 20000,
     priority: 0.83,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "youtube-channel-name-generator",
@@ -277,7 +277,7 @@ export const TOOLS: Tool[] = [
     isAI: true,
     searchVolume: 15000,
     priority: 0.8,
-    status: "coming-soon",
+    status: "live",
   },
 ];
 

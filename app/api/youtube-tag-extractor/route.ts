@@ -1,0 +1,119 @@
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { getClientIp } from "@/lib/ai/get-client-ip";
+import { checkRateLimit } from "@/lib/ai/rate-limit";
+import { getCachedOutput, setCachedOutput } from "@/lib/ai/cache";
+import { extractVideoId, isValidVideoId } from "@/lib/youtube/extract-video-id";
+import { extractTagsFromHtml, type VideoTagInfo } from "@/lib/youtube/extract-tags";
+
+export const runtime = "edge";
+
+/**
+ * Tag extractor endpoint.
+ *
+ * Client sends { url: string }. We extract the video ID, fetch the video
+ * page, and parse out the tag list from the page source.
+ *
+ * Protected by:
+ *  - Per-IP daily rate limit (50/day — cheap lookup)
+ *  - 6-hour result cache keyed by video ID (tags don't change often)
+ *
+ * No Anthropic, no AI — just a fetch + regex.
+ */
+
+const DAILY_LIMIT = 50;
+const RATE_LIMIT_KEY = "youtube-tag-extractor";
+
+type Body = { url?: string };
+
+export async function POST(req: NextRequest) {
+  // Parse body
+  let body: Body;
+  try {
+    body = (await req.json()) as Body;
+  } catch {
+    return jsonError("invalid-input", "Request body is not valid JSON.", 400);
+  }
+
+  if (!body.url || typeof body.url !== "string") {
+    return jsonError("invalid-input", "Provide a `url` string.", 400);
+  }
+
+  const videoId = extractVideoId(body.url);
+  if (!isValidVideoId(videoId)) {
+    return jsonError(
+      "invalid-input",
+      "Couldn't find a YouTube video ID in that URL. Try a /watch?v= or /shorts/ link.",
+      400
+    );
+  }
+
+  // Rate limit
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(RATE_LIMIT_KEY, ip, DAILY_LIMIT);
+  if (!rl.allowed) {
+    return jsonError(
+      "rate-limited",
+      `You've used your daily ${DAILY_LIMIT} lookups for this tool. Resets at UTC midnight.`,
+      429,
+      { resetAt: rl.resetAt, limit: DAILY_LIMIT }
+    );
+  }
+
+  // Cache check
+  const cached = await getCachedOutput<VideoTagInfo>(RATE_LIMIT_KEY, videoId);
+  if (cached) {
+    return NextResponse.json({ result: cached, videoId, cached: true });
+  }
+
+  // Fetch the video page
+  let html: string;
+  try {
+    const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9",
+      },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      return jsonError(
+        "fetch-failed",
+        res.status === 404
+          ? "Video not found — it may be private, deleted, or region-restricted."
+          : `YouTube returned ${res.status} for that video.`,
+        res.status === 404 ? 404 : 502
+      );
+    }
+    html = await res.text();
+  } catch {
+    return jsonError(
+      "fetch-failed",
+      "Couldn't reach YouTube. Try again in a moment.",
+      502
+    );
+  }
+
+  const info = extractTagsFromHtml(html);
+
+  // Cache the result (even if tags array is empty — that's a valid answer)
+  await setCachedOutput(RATE_LIMIT_KEY, videoId, info).catch(() => {});
+
+  return NextResponse.json({
+    result: info,
+    videoId,
+    cached: false,
+    remaining: rl.remaining,
+  });
+}
+
+function jsonError(
+  code: string,
+  message: string,
+  status: number,
+  extra: Record<string, unknown> = {}
+): Response {
+  return NextResponse.json({ error: message, code, ...extra }, { status });
+}
