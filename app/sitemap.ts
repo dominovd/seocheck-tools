@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/site-config";
-import { liveTools } from "@/lib/tools-catalog";
+import { liveTools, STAGE_ORDER } from "@/lib/tools-catalog";
 import { GUIDES } from "@/lib/guides-catalog";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -51,6 +51,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
+  const stageHubPages: MetadataRoute.Sitemap = STAGE_ORDER.map((stage) => ({
+    url: `${siteConfig.url}/tools/${stage}`,
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.9,
+  }));
+
   const toolPages: MetadataRoute.Sitemap = liveTools().map((tool) => ({
     url: `${siteConfig.url}/tools/${tool.slug}`,
     lastModified: now,
@@ -65,5 +72,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  return [...staticPages, ...toolPages, ...guidePages];
+  return [...staticPages, ...stageHubPages, ...toolPages, ...guidePages];
 }

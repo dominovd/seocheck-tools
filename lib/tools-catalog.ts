@@ -39,6 +39,14 @@ export type ToolCategory =
   | "utility"
   | "ai";
 
+/**
+ * Workflow stage — how a YouTube creator's actual process maps to our tools.
+ * Used as the PRIMARY information architecture (header, footer, /tools page,
+ * hub pages /tools/research etc). Category is kept for legacy reasons but
+ * stage is what we organize around.
+ */
+export type ToolStage = "research" | "optimize" | "publish" | "analyze";
+
 export type Tool = {
   /** URL slug — also the folder name under app/tools/ */
   slug: string;
@@ -52,8 +60,10 @@ export type Tool = {
   description: string;
   /** SEO meta description (slightly longer than `description`, optimized for SERP) */
   metaDescription: string;
-  /** Primary category — drives filtering and grouping */
+  /** Primary category — kept for legacy filter UI (chip filter on /tools index). */
   category: ToolCategory;
+  /** Workflow stage — primary information architecture (hub pages, footer, nav). */
+  stage: ToolStage;
   /** Lucide icon component — rendered by ToolCard/ToolLayout/TaskChip */
   Icon: LucideIcon;
   /** Whether this tool calls Claude (incurs LLM cost — needs cost protection) */
@@ -80,6 +90,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free YouTube competitor analyzer. Paste a channel — see their top 10 videos by views with title scores, engagement metrics, and 3 concrete patterns their videos share.",
     category: "ai",
+    stage: "research",
     Icon: Users,
     isAI: true,
     searchVolume: 30000,
@@ -96,6 +107,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free YouTube video audit. Paste a URL and get a 0-100 score for title, description, tags, hashtags, and chapters with one-click fixes for every weakness.",
     category: "utility",
+    stage: "analyze",
     Icon: ClipboardCheck,
     isAI: false,
     searchVolume: 10000,
@@ -116,6 +128,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free YouTube thumbnail downloader. Get HD, max resolution, and standard thumbnails from any YouTube URL. No signup, no watermark.",
     category: "downloader",
+    stage: "optimize",
     Icon: ImageDown,
     isAI: false,
     searchVolume: 100000,
@@ -132,6 +145,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free YouTube earnings calculator. Estimate revenue by views with niche-specific CPM rates (gaming, finance, tech, lifestyle).",
     category: "calculator",
+    stage: "analyze",
     Icon: Calculator,
     isAI: false,
     searchVolume: 80000,
@@ -148,6 +162,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free YouTube tag extractor. See the tags any competitor's video is using by pasting a YouTube URL. No signup required.",
     category: "utility",
+    stage: "research",
     Icon: ScanLine,
     isAI: false,
     searchVolume: 20000,
@@ -164,6 +179,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free YouTube keyword tool. Get 20+ keyword suggestions from any seed term using YouTube's own autocomplete data.",
     category: "utility",
+    stage: "research",
     Icon: Search,
     isAI: false,
     searchVolume: 15000,
@@ -180,6 +196,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Find YouTube channel ID from any URL format — custom URLs, handles (@username), video links, or legacy channel URLs.",
     category: "utility",
+    stage: "research",
     Icon: Fingerprint,
     isAI: false,
     searchVolume: 30000,
@@ -196,6 +213,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Generate custom YouTube embed code. Set autoplay, start/end times, controls, captions, and loop with one click.",
     category: "generator",
+    stage: "publish",
     Icon: Code2,
     isAI: false,
     searchVolume: 10000,
@@ -212,6 +230,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Format YouTube chapters and timestamps for descriptions. Validates ordering, the required 0:00 start, and minimum chapter length.",
     category: "generator",
+    stage: "publish",
     Icon: ListVideo,
     isAI: false,
     searchVolume: 5000,
@@ -232,6 +251,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free AI YouTube title generator. Get 10 SEO-optimized titles in seconds — list, how-to, comparison, and curiosity styles.",
     category: "ai",
+    stage: "optimize",
     Icon: WandSparkles,
     isAI: true,
     searchVolume: 10000,
@@ -248,6 +268,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free AI YouTube description generator. Includes intro, body, CTA, hashtags, and chapter formatting in one click.",
     category: "ai",
+    stage: "publish",
     Icon: PenLine,
     isAI: true,
     searchVolume: 15000,
@@ -264,6 +285,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free AI YouTube tag generator. Get 20+ relevant tags for any video — mix of broad and long-tail keywords.",
     category: "ai",
+    stage: "optimize",
     Icon: Tags,
     isAI: true,
     searchVolume: 30000,
@@ -280,6 +302,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free AI YouTube hashtag generator. 15 relevant hashtags ranked by competition for any niche or topic.",
     category: "ai",
+    stage: "optimize",
     Icon: Hash,
     isAI: true,
     searchVolume: 25000,
@@ -296,6 +319,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free AI YouTube video idea generator. 10 fresh video ideas with premises for any niche or channel topic.",
     category: "ai",
+    stage: "research",
     Icon: Lightbulb,
     isAI: true,
     searchVolume: 20000,
@@ -312,6 +336,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free YouTube title score checker. Evaluate any title against length, structure, angle, and clickbait-risk heuristics. Compare variants side-by-side.",
     category: "utility",
+    stage: "optimize",
     Icon: Gauge,
     isAI: false,
     searchVolume: 5000,
@@ -328,6 +353,7 @@ export const TOOLS: Tool[] = [
     metaDescription:
       "Free AI YouTube channel name generator. 10 creative, brandable channel name ideas for any niche.",
     category: "ai",
+    stage: "research",
     Icon: Tv,
     isAI: true,
     searchVolume: 15000,
@@ -366,6 +392,55 @@ export const categoryLabel = (c: ToolCategory): string => {
       return "Utilities";
   }
 };
+
+/** Display label for a workflow stage. */
+export const stageLabel = (s: ToolStage): string => {
+  switch (s) {
+    case "research": return "Research";
+    case "optimize": return "Optimize";
+    case "publish":  return "Publish";
+    case "analyze":  return "Analyze";
+  }
+};
+
+/** Short tagline shown in nav, hub headers, footer column subtitles. */
+export const stageTagline = (s: ToolStage): string => {
+  switch (s) {
+    case "research": return "Find what to make";
+    case "optimize": return "Titles, tags & thumbnails";
+    case "publish":  return "Descriptions & format";
+    case "analyze":  return "Audit & earnings";
+  }
+};
+
+/** Longer description for the stage hub page hero. */
+export const stageDescription = (s: ToolStage): string => {
+  switch (s) {
+    case "research":
+      return "Before you press record. Tools for finding what to make, scouting competitors, and validating that a topic is worth your time.";
+    case "optimize":
+      return "After you've shot it, before you upload. Tools that shape the surfaces viewers actually click — titles, thumbnails, tags, and hashtags.";
+    case "publish":
+      return "The final mile before you hit publish. Tools that format the description, chapters, and embeds the way YouTube expects.";
+    case "analyze":
+      return "After your video is live, or before you make the next bet. Tools that score what's working, surface what's broken, and project earnings.";
+  }
+};
+
+/** Group tools by stage for hub-page rendering. */
+export const toolsByStage = (): Record<ToolStage, Tool[]> => {
+  const groups: Record<ToolStage, Tool[]> = {
+    research: [],
+    optimize: [],
+    publish: [],
+    analyze: [],
+  };
+  for (const t of allToolsSorted()) groups[t.stage].push(t);
+  return groups;
+};
+
+/** Display order of stages — matches the creator's actual workflow. */
+export const STAGE_ORDER: ToolStage[] = ["research", "optimize", "publish", "analyze"];
 
 /** Group tools by category for grid/index display. */
 export const toolsByCategory = (): Record<ToolCategory, Tool[]> => {

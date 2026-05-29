@@ -1,17 +1,21 @@
 import Link from "next/link";
 import { Container } from "./Container";
 import { siteConfig } from "@/lib/site-config";
-import { toolsByCategory } from "@/lib/tools-catalog";
+import {
+  toolsByStage,
+  stageLabel,
+  stageTagline,
+  STAGE_ORDER,
+} from "@/lib/tools-catalog";
 
 /**
- * Programmatic-SEO style footer (Mictoo-pattern).
- *
- * As deep pages are built — comparison pages (vs TubeBuddy, vs VidIQ),
- * per-niche pages (gaming tags, cooking tags), language pages — they
- * get added here for crawl coverage. For MVP we only link to what exists.
+ * Workflow-stage footer. Mirrors the /tools page information architecture
+ * (Research / Optimize / Publish / Analyze) so header, /tools index, and
+ * footer all reinforce the same mental model. Each stage column doubles
+ * as an internal-linking hub for the stage's hub page.
  */
 export function Footer() {
-  const groups = toolsByCategory();
+  const groups = toolsByStage();
 
   return (
     <footer className="mt-24 border-t border-gray-100 bg-gray-50/60">
@@ -27,29 +31,20 @@ export function Footer() {
           </p>
         </div>
 
-        {/* Multi-column link sections */}
-        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
-          <FooterColumn
-            heading="AI Tools"
-            links={groups.ai.map((t) => ({
-              href: `/tools/${t.slug}`,
-              label: t.shortTitle,
-            }))}
-          />
-          <FooterColumn
-            heading="Utilities"
-            links={[...groups.utility, ...groups.downloader].map((t) => ({
-              href: `/tools/${t.slug}`,
-              label: t.shortTitle,
-            }))}
-          />
-          <FooterColumn
-            heading="Generators"
-            links={[...groups.generator, ...groups.calculator].map((t) => ({
-              href: `/tools/${t.slug}`,
-              label: t.shortTitle,
-            }))}
-          />
+        {/* Stage columns + site + legal */}
+        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+          {STAGE_ORDER.map((s) => (
+            <FooterColumn
+              key={s}
+              heading={stageLabel(s)}
+              subheading={stageTagline(s)}
+              hubHref={`/tools/${s}`}
+              links={groups[s].map((t) => ({
+                href: `/tools/${t.slug}`,
+                label: t.shortTitle,
+              }))}
+            />
+          ))}
           <FooterColumn
             heading="Site"
             links={[
@@ -81,15 +76,30 @@ export function Footer() {
 
 type FooterColumnProps = {
   heading: string;
+  subheading?: string;
+  /** When set, the heading becomes a link to this stage hub page. */
+  hubHref?: string;
   links: { href: string; label: string }[];
 };
 
-function FooterColumn({ heading, links }: FooterColumnProps) {
+function FooterColumn({ heading, subheading, hubHref, links }: FooterColumnProps) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-        {heading}
-      </p>
+      {hubHref ? (
+        <Link
+          href={hubHref}
+          className="text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-brand-700 transition"
+        >
+          {heading}
+        </Link>
+      ) : (
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+          {heading}
+        </p>
+      )}
+      {subheading && (
+        <p className="mt-1 text-[11px] text-gray-400">{subheading}</p>
+      )}
       <ul className="mt-4 space-y-2.5 text-sm text-gray-600">
         {links.map((link) => (
           <li key={link.href}>

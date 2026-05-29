@@ -2,55 +2,37 @@ import Link from "next/link";
 import { ClipboardCheck, ArrowRight, Sparkles } from "lucide-react";
 import { Container } from "@/components/Container";
 import { ToolCard } from "@/components/ToolCard";
-import { ToolsCategoryFilter } from "@/components/ToolsCategoryFilter";
 import { buildMetadata } from "@/lib/seo";
 import {
-  toolsByCategory,
+  toolsByStage,
   allToolsSorted,
   getToolBySlug,
-  categoryLabel,
-  type ToolCategory,
+  stageLabel,
+  stageTagline,
+  STAGE_ORDER,
 } from "@/lib/tools-catalog";
 
 export const metadata = buildMetadata({
   title: "All Tools",
   description:
-    "All 16 free YouTube SEO tools — AI generators, downloaders, calculators, plus the new Competitor Analyzer and Video Audit. No signup required.",
+    "All 16 free YouTube SEO tools organized by the creator's workflow — Research, Optimize, Publish, Analyze. No signup required.",
   path: "tools",
 });
 
-const CATEGORY_ORDER: ToolCategory[] = [
-  "ai",
-  "utility",
-  "downloader",
-  "generator",
-  "calculator",
-];
-
-const GRID_ID = "tools-category-grid";
-
 export default function ToolsIndexPage() {
-  const groups = toolsByCategory();
-  const totalLive = Object.values(groups)
-    .flat()
-    .filter((t) => t.status === "live").length;
-  const totalSoon = Object.values(groups)
-    .flat()
-    .filter((t) => t.status === "coming-soon").length;
+  const stages = toolsByStage();
+  const totalLive = STAGE_ORDER.flatMap((s) => stages[s]).filter(
+    (t) => t.status === "live"
+  ).length;
+  const totalSoon = STAGE_ORDER.flatMap((s) => stages[s]).filter(
+    (t) => t.status === "coming-soon"
+  ).length;
 
   const auditTool = getToolBySlug("youtube-video-audit");
   // "Most popular" = top 5 by priority, excluding the audit (already featured above)
   const popular = allToolsSorted()
     .filter((t) => t.status === "live" && t.slug !== "youtube-video-audit")
     .slice(0, 5);
-
-  // Counts and labels are primitives — safe to pass to the client filter component
-  const counts = CATEGORY_ORDER.map((category) => ({
-    category,
-    count: groups[category].length,
-    label: categoryLabel(category),
-  })).filter((c) => c.count > 0);
-  const totalCount = counts.reduce((sum, c) => sum + c.count, 0);
 
   return (
     <Container as="main" className="py-12 sm:py-16">
@@ -59,8 +41,8 @@ export default function ToolsIndexPage() {
           All YouTube SEO tools
         </h1>
         <p className="mt-3 text-base text-gray-600">
-          {totalLive} live · {totalSoon} coming soon. Pick a single tool or
-          start with a full video audit.
+          {totalLive} live · {totalSoon} coming soon. Organized by the creator&apos;s
+          workflow — Research, Optimize, Publish, Analyze.
         </p>
       </header>
 
@@ -109,30 +91,61 @@ export default function ToolsIndexPage() {
         </section>
       )}
 
-      {/* ───────── Browse by category — server-rendered grid + client filter ───────── */}
-      <div className="mt-14">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-          Browse by category
-        </h2>
-
-        <div className="mt-5">
-          <ToolsCategoryFilter
-            categories={CATEGORY_ORDER}
-            counts={counts}
-            totalCount={totalCount}
-            gridId={GRID_ID}
-          />
+      {/* ───────── Browse by workflow stage ───────── */}
+      <section className="mt-16">
+        <div className="max-w-2xl">
+          <h2 className="text-2xl font-semibold tracking-tight text-gray-900">
+            Browse by workflow stage
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Pick the stage you&apos;re at — research, optimize, publish, or
+            analyze — to see only the tools that matter for that step.
+          </p>
         </div>
 
-        <div id={GRID_ID} className="mt-10 space-y-14">
-          {CATEGORY_ORDER.map((cat) => {
-            const tools = groups[cat];
+        {/* Stage chip nav */}
+        <div className="mt-6 flex flex-wrap gap-2">
+          {STAGE_ORDER.map((s, i) => (
+            <Link
+              key={s}
+              href={`/tools/${s}`}
+              className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:border-brand-300 hover:bg-brand-50/40 hover:text-brand-700 transition"
+            >
+              <span className="font-mono text-[10px] tabular-nums text-gray-400">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span>{stageLabel(s)}</span>
+              <span className="text-xs text-gray-400">·</span>
+              <span className="text-xs text-gray-500">{stageTagline(s)}</span>
+              <ArrowRight className="h-3.5 w-3.5 text-gray-400" strokeWidth={2} />
+            </Link>
+          ))}
+        </div>
+
+        {/* Stage sections — every stage fully rendered server-side */}
+        <div className="mt-12 space-y-14">
+          {STAGE_ORDER.map((s) => {
+            const tools = stages[s];
             if (tools.length === 0) return null;
             return (
-              <section key={cat} data-category={cat}>
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-                  {categoryLabel(cat)}
-                </h3>
+              <section key={s} id={s}>
+                <div className="flex items-baseline justify-between gap-4">
+                  <div>
+                    <Link
+                      href={`/tools/${s}`}
+                      className="group inline-flex items-center gap-2"
+                    >
+                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-brand-700 transition">
+                        {stageLabel(s)}
+                      </h3>
+                      <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-brand-700 transition" strokeWidth={2} />
+                    </Link>
+                    <p className="text-xs text-gray-500">{stageTagline(s)}</p>
+                  </div>
+                  <p className="text-xs font-mono tabular-nums text-gray-400">
+                    {tools.length} {tools.length === 1 ? "tool" : "tools"}
+                  </p>
+                </div>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {tools.map((tool) => (
                     <ToolCard key={tool.slug} tool={tool} />
@@ -142,7 +155,7 @@ export default function ToolsIndexPage() {
             );
           })}
         </div>
-      </div>
+      </section>
     </Container>
   );
 }
