@@ -1,4 +1,4 @@
-import { Check, AlertTriangle, X, Gauge } from "lucide-react";
+import { Check, AlertTriangle, Gauge } from "lucide-react";
 
 const ROWS = [
   { score: 91, text: "I tried index-fund investing for 5 years", band: "Strong" },

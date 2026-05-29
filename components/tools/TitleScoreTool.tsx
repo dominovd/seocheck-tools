@@ -8,9 +8,9 @@ import {
   Info,
   Plus,
   Trash2,
-  Sparkles,
   ChevronUp,
   ChevronDown,
+  type LucideIcon,
 } from "lucide-react";
 import { scoreTitle, type SignalKind, type Signal } from "@/lib/youtube/title-score";
 
@@ -20,7 +20,7 @@ const SAMPLE_TITLES = [
   "How to set up a homelab on a $200 budget",
 ];
 
-const SIGNAL_ICON: Record<SignalKind, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
+const SIGNAL_ICON: Record<SignalKind, LucideIcon> = {
   good: Check,
   warn: AlertTriangle,
   bad: X,
