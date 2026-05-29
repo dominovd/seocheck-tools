@@ -24,7 +24,9 @@ export const runtime = "edge";
  */
 
 const DAILY_LIMIT = 30;
-const RATE_LIMIT_KEY = "youtube-video-audit";
+// v2 — bumped after fixing title/channel extraction; invalidates the
+// stale cache entries from v1 that had Untitled video / null channel.
+const RATE_LIMIT_KEY = "youtube-video-audit-v2";
 
 type Body = { url?: string };
 
@@ -67,7 +69,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ result: cached, cached: true });
   }
 
-  // Fetch the video page
+  // Fetch the video page.
+  // CONSENT cookie pre-accepts EU cookie consent so YouTube serves the
+  // real page directly instead of redirecting to consent.youtube.com
+  // (which has different markup and breaks our title/desc extractors).
   let html: string;
   try {
     const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
@@ -76,6 +81,7 @@ export async function POST(req: NextRequest) {
           "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept-Language": "en-US,en;q=0.9",
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9",
+        Cookie: "CONSENT=YES+cb; SOCS=CAESEwgDEgk0ODE0OTI4OTkaAmVuIAEaBgiA_LyaBg",
       },
       cache: "no-store",
     });

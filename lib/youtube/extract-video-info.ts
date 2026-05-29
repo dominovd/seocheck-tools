@@ -41,9 +41,14 @@ export type Chapter = {
 };
 
 export function extractVideoInfo(html: string, videoId: string): VideoInfo {
-  // Reuse the tag extractor for tags + title + channel
+  // Tags come from the shared extractor (proven path).
+  // Title and channel get more robust multi-source extraction below
+  // because YouTube serves slightly different HTML depending on region,
+  // consent state, and which backend handled the request.
   const tagInfo = extractTagsFromHtml(html);
 
+  const title = extractTitleRobust(html) ?? tagInfo.title;
+  const channel = extractChannelRobust(html) ?? tagInfo.channel;
   const description = extractDescription(html);
   const lengthSeconds = extractLength(html);
   const publishDate = extractPublishDate(html);
@@ -59,8 +64,8 @@ export function extractVideoInfo(html: string, videoId: string): VideoInfo {
 
   return {
     videoId,
-    title: tagInfo.title,
-    channel: tagInfo.channel,
+    title,
+    channel,
     description,
     tags: tagInfo.tags,
     lengthSeconds,
@@ -74,17 +79,83 @@ export function extractVideoInfo(html: string, videoId: string): VideoInfo {
   };
 }
 
+/**
+ * Robust title extractor — tries multiple sources in priority order.
+ * Uses [^"]+ in content groups (HTML attributes always use double quotes
+ * in YouTube's markup; allowing single quotes there breaks on apostrophes
+ * in titles like "Don't" or "Bob's").
+ */
+function extractTitleRobust(html: string): string | null {
+  // 1. og:title — primary
+  const og = html.match(/<meta\s+property="og:title"\s+content="([^"]+)"/);
+  if (og?.[1]) return decodeHtmlEntities(og[1]);
+
+  // 2. ytInitialPlayerResponse JSON: videoDetails.title is the canonical source
+  const vd = html.match(/"videoDetails":\{[^}]*?"title":"((?:\\.|[^"\\])*)"/);
+  if (vd?.[1]) return unescapeJsonString(vd[1]);
+
+  // 3. ytInitialData JSON: title.runs[0].text
+  const runs = html.match(/"title":\s*\{\s*"runs":\s*\[\s*\{\s*"text":"((?:\\.|[^"\\])*)"/);
+  if (runs?.[1]) return unescapeJsonString(runs[1]);
+
+  // 4. twitter:title — third-party crawler fallback
+  const tw = html.match(/<meta\s+name="twitter:title"\s+content="([^"]+)"/);
+  if (tw?.[1]) return decodeHtmlEntities(tw[1]);
+
+  // 5. <title>X - YouTube</title>
+  const t = html.match(/<title>([^<]+?)\s+-\s+YouTube\s*<\/title>/);
+  if (t?.[1]) return decodeHtmlEntities(t[1].trim());
+
+  return null;
+}
+
+function extractChannelRobust(html: string): string | null {
+  // 1. itemprop=name (link tag)
+  const item = html.match(/<link\s+itemprop="name"\s+content="([^"]+)"/);
+  if (item?.[1]) return decodeHtmlEntities(item[1]);
+
+  // 2. meta author
+  const author = html.match(/<meta\s+name="author"\s+content="([^"]+)"/);
+  if (author?.[1]) return decodeHtmlEntities(author[1]);
+
+  // 3. videoDetails.author in JSON
+  const vd = html.match(/"videoDetails":\{[^}]*?"author":"((?:\\.|[^"\\])*)"/);
+  if (vd?.[1]) return unescapeJsonString(vd[1]);
+
+  // 4. ownerChannelName in JSON
+  const owner = html.match(/"ownerChannelName":"((?:\\.|[^"\\])*)"/);
+  if (owner?.[1]) return unescapeJsonString(owner[1]);
+
+  return null;
+}
+
 // ─── Field extractors ──────────────────────────────────────────────
 
 function extractDescription(html: string): string | null {
-  // Primary: shortDescription in the ytInitialPlayerResponse JSON
-  const m = html.match(/"shortDescription":"((?:\\"|[^"])*)"/);
-  if (m) {
-    return unescapeJsonString(m[1]);
+  // 1. shortDescription in ytInitialPlayerResponse JSON — canonical, full-length
+  //    Use [^"\\] | \\. to correctly skip escaped quotes inside the value
+  const sd = html.match(/"shortDescription":"((?:\\.|[^"\\])*)"/);
+  if (sd?.[1]) {
+    const v = unescapeJsonString(sd[1]);
+    if (v.length > 0) return v;
   }
-  // Fallback: og:description (truncated to ~155 chars but better than nothing)
-  const og = html.match(/<meta property="og:description" content="([^"]+)"/);
-  return og ? decodeHtmlEntities(og[1]) : null;
+
+  // 2. attributedDescription in newer YouTube player payload
+  const ad = html.match(/"attributedDescription":\{"content":"((?:\\.|[^"\\])*)"/);
+  if (ad?.[1]) {
+    const v = unescapeJsonString(ad[1]);
+    if (v.length > 0) return v;
+  }
+
+  // 3. og:description — fallback (truncated by YouTube to ~155 chars)
+  const og = html.match(/<meta\s+property="og:description"\s+content="([^"]+)"/);
+  if (og?.[1]) return decodeHtmlEntities(og[1]);
+
+  // 4. twitter:description — last resort
+  const tw = html.match(/<meta\s+name="twitter:description"\s+content="([^"]+)"/);
+  if (tw?.[1]) return decodeHtmlEntities(tw[1]);
+
+  return null;
 }
 
 function extractLength(html: string): number | null {
