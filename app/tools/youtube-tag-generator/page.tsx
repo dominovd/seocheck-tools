@@ -4,6 +4,7 @@ import { TagGeneratorTool } from "@/components/tools/TagGeneratorTool";
 import { buildMetadata } from "@/lib/seo";
 import { getToolBySlug } from "@/lib/tools-catalog";
 import { FaqSchema } from "@/components/PageSchemas";
+import { ToolContentSections } from "@/components/ToolContentSections";
 
 const tool = getToolBySlug("youtube-tag-generator")!;
 
@@ -52,6 +53,8 @@ export default function YouTubeTagGeneratorPage() {
       <ToolLayout tool={tool}>
         <TagGeneratorTool />
       </ToolLayout>
+
+      <ToolContentSections slug={tool.slug} />
 
       <section className="border-t border-gray-100 bg-gray-50/40 py-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">

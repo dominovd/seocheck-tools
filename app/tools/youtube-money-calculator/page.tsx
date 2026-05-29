@@ -4,6 +4,7 @@ import { MoneyCalculatorTool } from "@/components/tools/MoneyCalculatorTool";
 import { buildMetadata } from "@/lib/seo";
 import { getToolBySlug } from "@/lib/tools-catalog";
 import { FaqSchema } from "@/components/PageSchemas";
+import { ToolContentSections } from "@/components/ToolContentSections";
 
 const tool = getToolBySlug("youtube-money-calculator")!;
 
@@ -48,6 +49,8 @@ export default function YouTubeMoneyCalculatorPage() {
       <ToolLayout tool={tool}>
         <MoneyCalculatorTool />
       </ToolLayout>
+
+      <ToolContentSections slug={tool.slug} />
 
       {/* Supporting content for SEO + topical authority */}
       <section className="border-t border-gray-100 bg-gray-50/40 py-16">

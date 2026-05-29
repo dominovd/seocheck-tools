@@ -4,6 +4,7 @@ import { KeywordToolTool } from "@/components/tools/KeywordToolTool";
 import { buildMetadata } from "@/lib/seo";
 import { getToolBySlug } from "@/lib/tools-catalog";
 import { FaqSchema } from "@/components/PageSchemas";
+import { ToolContentSections } from "@/components/ToolContentSections";
 
 const tool = getToolBySlug("youtube-keyword-tool")!;
 
@@ -52,6 +53,8 @@ export default function YouTubeKeywordToolPage() {
       <ToolLayout tool={tool}>
         <KeywordToolTool />
       </ToolLayout>
+
+      <ToolContentSections slug={tool.slug} />
 
       <section className="border-t border-gray-100 bg-gray-50/40 py-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">

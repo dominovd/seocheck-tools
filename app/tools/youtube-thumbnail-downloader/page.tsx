@@ -4,6 +4,7 @@ import { ThumbnailDownloaderTool } from "@/components/tools/ThumbnailDownloaderT
 import { buildMetadata } from "@/lib/seo";
 import { getToolBySlug } from "@/lib/tools-catalog";
 import { FaqSchema } from "@/components/PageSchemas";
+import { ToolContentSections } from "@/components/ToolContentSections";
 
 const tool = getToolBySlug("youtube-thumbnail-downloader")!;
 
@@ -44,6 +45,8 @@ export default function YouTubeThumbnailDownloaderPage() {
       <ToolLayout tool={tool}>
         <ThumbnailDownloaderTool />
       </ToolLayout>
+
+      <ToolContentSections slug={tool.slug} />
 
       {/* Supporting content for SEO + topical authority */}
       <section className="border-t border-gray-100 bg-gray-50/40 py-16">
