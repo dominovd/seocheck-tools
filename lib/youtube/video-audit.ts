@@ -56,11 +56,24 @@ const WEIGHTS: Record<AuditDimension["key"], number> = {
   chapters: 0.20,
 };
 
-export function auditVideo(info: VideoInfo): VideoAuditResult {
+export type AuditOptions = {
+  /**
+   * Skip the tags dimension entirely. Used when the data source can't
+   * deliver tags (e.g. YouTube Data API for non-owners) — otherwise the
+   * tags dimension would score "weak/no tags" which is misleading.
+   * Remaining dimension weights auto-renormalize.
+   */
+  omitTags?: boolean;
+};
+
+export function auditVideo(
+  info: VideoInfo,
+  options: AuditOptions = {}
+): VideoAuditResult {
   const dimensions: AuditDimension[] = [
     auditTitle(info),
     auditDescription(info),
-    auditTags(info),
+    ...(options.omitTags ? [] : [auditTags(info)]),
     auditHashtags(info),
     auditChapters(info),
   ];

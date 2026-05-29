@@ -9,6 +9,7 @@
  */
 
 import { extractTagsFromHtml } from "./extract-tags";
+import type { ApiVideoData } from "./youtube-api";
 
 export type VideoInfo = {
   videoId: string;
@@ -72,6 +73,41 @@ export function extractVideoInfo(html: string, videoId: string): VideoInfo {
     publishDate,
     viewCount,
     thumbnailUrl,
+    hashtags,
+    chapters,
+    hasTimestamps,
+    externalLinks,
+  };
+}
+
+/**
+ * Build a VideoInfo from YouTube Data API data when /watch HTML wasn't
+ * available. Reuses the description-derived field parsers (hashtags,
+ * chapters, timestamps, links). Tags are unavailable from the API for
+ * non-owners and stay empty — callers should pass `omitTags: true` to
+ * the audit engine so the tags dimension doesn't get scored as "weak".
+ */
+export function videoInfoFromApi(
+  videoId: string,
+  api: ApiVideoData
+): VideoInfo {
+  const description = api.description || null;
+  const hashtags = description ? extractHashtags(description) : [];
+  const chapters = description ? extractChapters(description) : [];
+  const hasTimestamps =
+    description !== null && /^\s*\d{1,2}:\d{2}(?::\d{2})?\s+/m.test(description);
+  const externalLinks = description ? extractLinks(description) : [];
+
+  return {
+    videoId,
+    title: api.title || null,
+    channel: api.channel || null,
+    description,
+    tags: [], // API doesn't return tags for non-owners
+    lengthSeconds: api.lengthSeconds,
+    publishDate: api.publishDate,
+    viewCount: api.viewCount,
+    thumbnailUrl: api.thumbnailUrl,
     hashtags,
     chapters,
     hasTimestamps,

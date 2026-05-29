@@ -42,8 +42,10 @@ const BAND_STYLES: Record<AuditBand, { ring: string; text: string; bg: string; l
   weak:   { ring: "ring-red-300",   text: "text-red-700",   bg: "bg-red-50",   label: "Weak" },
 };
 
+type AuditMode = "full" | "noTags" | "partial";
+
 type ApiResponse =
-  | { result: VideoAuditResult; cached?: boolean; partial?: boolean; remaining?: number }
+  | { result: VideoAuditResult; cached?: boolean; mode?: AuditMode; remaining?: number }
   | { error: string; code?: string };
 
 export function VideoAuditTool() {
@@ -51,13 +53,13 @@ export function VideoAuditTool() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<VideoAuditResult | null>(null);
-  const [partial, setPartial] = useState(false);
+  const [mode, setMode] = useState<AuditMode>("full");
 
   const runAudit = useCallback(async (targetUrl: string) => {
     if (!targetUrl.trim() || loading) return;
     setError(null);
     setResult(null);
-    setPartial(false);
+    setMode("full");
     setLoading(true);
     try {
       const res = await fetch("/api/youtube-video-audit", {
@@ -71,7 +73,7 @@ export function VideoAuditTool() {
         return;
       }
       setResult(data.result);
-      setPartial(!!data.partial);
+      setMode(data.mode ?? "full");
     } catch {
       setError("Network error — try again in a moment.");
     } finally {
@@ -141,12 +143,12 @@ export function VideoAuditTool() {
         </div>
       )}
 
-      {result && <AuditResults result={result} partial={partial} />}
+      {result && <AuditResults result={result} mode={mode} />}
     </div>
   );
 }
 
-function AuditResults({ result, partial }: { result: VideoAuditResult; partial: boolean }) {
+function AuditResults({ result, mode }: { result: VideoAuditResult; mode: AuditMode }) {
   const bs = BAND_STYLES[result.overallBand];
 
   return (
@@ -216,14 +218,33 @@ function AuditResults({ result, partial }: { result: VideoAuditResult; partial: 
         </div>
       </div>
 
-      {/* Partial-audit banner */}
-      {partial && (
+      {/* noTags banner — API rescue path, everything except tags scored */}
+      {mode === "noTags" && (
+        <div className="mt-6 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-4">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" strokeWidth={2} />
+          <div className="text-sm text-amber-900">
+            <p className="font-medium">Tags couldn&apos;t be loaded for this video</p>
+            <p className="mt-1 text-amber-800/80">
+              YouTube hides tags from public lookups for non-owners, and the
+              public watch page couldn&apos;t be reached for this video right now —
+              everything else was scored as normal. Try again in a minute if you
+              need the tags dimension.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Partial-audit banner — only oEmbed worked, only title scored */}
+      {mode === "partial" && (
         <div className="mt-6 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-4">
           <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" strokeWidth={2} />
           <div className="text-sm text-amber-900">
             <p className="font-medium">Partial audit — try again in a minute</p>
             <p className="mt-1 text-amber-800/80">
-              YouTube is temporarily rate-limiting our servers for this video, so only the title could be scored from public oEmbed data. Tags, description, hashtags, and chapters need direct access to the watch page — try the audit again shortly.
+              YouTube is temporarily rate-limiting our servers for this video, so
+              only the title could be scored from public oEmbed data. Tags,
+              description, hashtags, and chapters need direct access to the watch
+              page — try the audit again shortly.
             </p>
           </div>
         </div>

@@ -4,9 +4,10 @@ import { getClientIp } from "@/lib/ai/get-client-ip";
 import { checkRateLimit } from "@/lib/ai/rate-limit";
 import { getCachedOutput, setCachedOutput } from "@/lib/ai/cache";
 import { extractVideoId, isValidVideoId } from "@/lib/youtube/extract-video-id";
-import { extractVideoInfo } from "@/lib/youtube/extract-video-info";
+import { extractVideoInfo, videoInfoFromApi } from "@/lib/youtube/extract-video-info";
 import { auditVideo, type VideoAuditResult } from "@/lib/youtube/video-audit";
 import { fetchOembed, type OembedInfo } from "@/lib/youtube/oembed";
+import { fetchVideoFromApi } from "@/lib/youtube/youtube-api";
 import { scoreTitle } from "@/lib/youtube/title-score";
 
 /**
@@ -37,8 +38,8 @@ export const runtime = "nodejs";
 export const maxDuration = 20;
 
 const DAILY_LIMIT = 30;
-// v3 — bumped after switching to nodejs + oEmbed-first strategy
-const RATE_LIMIT_KEY = "youtube-video-audit-v3";
+// v4 — bumped when YouTube Data API fallback was added
+const RATE_LIMIT_KEY = "youtube-video-audit-v4";
 
 type Body = { url?: string };
 
@@ -81,13 +82,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ result: cached, cached: true });
   }
 
-  // Layer 1 — oEmbed (always try first, reliable)
+  // Layer 1 — oEmbed (always try first, reliable, used to fill gaps)
   const oembed = await fetchOembed(videoId);
 
-  // Layer 2 — /watch HTML scrape with one retry
+  // Layer 2 — /watch HTML scrape with one retry (gives tags + full data)
   const html = await fetchWatchHtml(videoId);
 
-  if (!html && !oembed) {
+  // Layer 3 — YouTube Data API (only used if /watch failed AND key is set)
+  // Gracefully skipped when YOUTUBE_API_KEY is not configured.
+  const apiKey = process.env.YOUTUBE_API_KEY;
+  const apiData = !html && apiKey ? await fetchVideoFromApi(videoId, apiKey) : null;
+
+  if (!html && !apiData && !oembed) {
     return jsonError(
       "fetch-failed",
       "Couldn't reach YouTube for this video. It may be private, deleted, region-restricted, or YouTube is temporarily rate-limiting our servers.",
@@ -95,35 +101,43 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // If /watch succeeded, full audit. If not, partial audit from oEmbed only.
+  // Three response states:
+  //   "full"    — /watch worked, every dimension scored, no banner
+  //   "noTags"  — API rescued us; everything but tags scored, soft banner
+  //   "partial" — only oEmbed worked; only title scored, urgent banner
   let audit: VideoAuditResult;
-  let partial = false;
+  let mode: "full" | "noTags" | "partial" = "full";
 
   if (html) {
     const info = extractVideoInfo(html, videoId);
-    // oEmbed is more reliable for title/channel — if HTML extraction missed them, fill from oEmbed
     if (oembed) {
       if (!info.title && oembed.title) info.title = oembed.title;
       if (!info.channel && oembed.channel) info.channel = oembed.channel;
       if (!info.thumbnailUrl && oembed.thumbnailUrl) info.thumbnailUrl = oembed.thumbnailUrl;
     }
     audit = auditVideo(info);
+  } else if (apiData) {
+    mode = "noTags";
+    const info = videoInfoFromApi(videoId, apiData);
+    if (oembed && !info.thumbnailUrl && oembed.thumbnailUrl) {
+      info.thumbnailUrl = oembed.thumbnailUrl;
+    }
+    audit = auditVideo(info, { omitTags: true });
   } else {
-    // /watch failed but oEmbed worked — partial audit
-    partial = true;
+    mode = "partial";
     audit = buildPartialAudit(videoId, oembed!);
   }
 
-  // Only cache full audits — partial results would be stuck for 12h and
-  // serve a degraded experience even after YouTube recovers.
-  if (!partial) {
+  // Only cache full audits. noTags and partial are degraded states that
+  // should re-attempt fresh on the next request once YouTube recovers.
+  if (mode === "full") {
     await setCachedOutput(RATE_LIMIT_KEY, videoId, audit).catch(() => {});
   }
 
   return NextResponse.json({
     result: audit,
     cached: false,
-    partial,
+    mode,
     remaining: rl.remaining,
   });
 }
