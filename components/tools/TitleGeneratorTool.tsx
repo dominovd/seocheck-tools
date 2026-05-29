@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   WandSparkles,
   Loader2,
@@ -9,6 +10,7 @@ import {
   Check,
   ChevronDown,
   RotateCw,
+  Gauge,
 } from "lucide-react";
 import { TurnstileWidget } from "@/components/TurnstileWidget";
 
@@ -45,6 +47,19 @@ export function TitleGeneratorTool() {
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [usedCached, setUsedCached] = useState(false);
   const [remaining, setRemaining] = useState<number | null>(null);
+  const [seedFromScore, setSeedFromScore] = useState<string | null>(null);
+
+  // Hydrate from ?seed= URL param (sent from Title Score Checker's "Improve" link)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const seed = params.get("seed");
+    if (seed && seed.trim()) {
+      const clean = seed.trim().slice(0, 200);
+      setSeedFromScore(clean);
+      setTopic(clean);
+    }
+  }, []);
 
   async function generate() {
     if (!topic.trim() || loading) return;
@@ -94,6 +109,17 @@ export function TitleGeneratorTool() {
           generate();
         }}
       >
+        {/* Seed indicator (when arriving from Title Score Checker) */}
+        {seedFromScore && (
+          <div className="mb-4 flex items-start gap-2 rounded-md border border-brand-200 bg-brand-50/50 px-3 py-2">
+            <Gauge className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-600" strokeWidth={2.5} />
+            <p className="text-xs text-gray-700">
+              <span className="font-medium text-brand-700">Improving variant of:</span>{" "}
+              <span className="text-gray-600">{seedFromScore}</span>
+            </p>
+          </div>
+        )}
+
         {/* Topic */}
         <label htmlFor="topic-input" className="block text-sm font-medium text-gray-700">
           Video topic
@@ -216,6 +242,14 @@ export function TitleGeneratorTool() {
                   <span className={`font-mono text-[10px] tabular-nums ${lenColor}`}>
                     {len}c
                   </span>
+                  <Link
+                    href={`/tools/youtube-title-score-checker?title=${encodeURIComponent(title)}`}
+                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-gray-500 hover:bg-gray-50 hover:text-brand-700 transition"
+                    title="Score this title against best-practice heuristics"
+                  >
+                    <Gauge className="h-3 w-3" strokeWidth={2} />
+                    Score
+                  </Link>
                   <button
                     type="button"
                     onClick={() => copyOne(title, i)}

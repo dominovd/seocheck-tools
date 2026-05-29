@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Check,
   AlertTriangle,
@@ -10,6 +11,7 @@ import {
   Trash2,
   ChevronUp,
   ChevronDown,
+  WandSparkles,
   type LucideIcon,
 } from "lucide-react";
 import { scoreTitle, type SignalKind, type Signal } from "@/lib/youtube/title-score";
@@ -53,6 +55,16 @@ export function TitleScoreTool() {
   ]);
   const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
 
+  // Hydrate from ?title= query param (sent from Title Generator's "Score →" link)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const seed = params.get("title");
+    if (seed && seed.trim()) {
+      setVariants([{ id: genId(), text: seed.trim().slice(0, 150) }]);
+    }
+  }, []);
+
   const results = useMemo(
     () => variants.map((v) => ({ ...v, result: scoreTitle(v.text) })),
     [variants]
@@ -95,6 +107,7 @@ export function TitleScoreTool() {
   }
 
   const showCompareRanking = sortedResults !== null;
+  const allEmpty = variants.every((v) => !v.text.trim());
 
   return (
     <div>
@@ -174,6 +187,29 @@ export function TitleScoreTool() {
           </button>
         ))}
       </div>
+
+      {/* Empty-state CTA — only when no variant has text */}
+      {allEmpty && (
+        <div className="mt-6 rounded-xl border border-dashed border-brand-200 bg-brand-50/40 p-4 sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-gray-900">
+                No title yet?
+              </p>
+              <p className="mt-0.5 text-xs text-gray-600">
+                Generate 10 click-worthy titles with AI, then paste your favourite here to score it.
+              </p>
+            </div>
+            <Link
+              href="/tools/youtube-title-generator"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-brand-500 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-brand-600 transition"
+            >
+              <WandSparkles className="h-3.5 w-3.5" strokeWidth={2} />
+              Generate titles with AI
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -273,26 +309,38 @@ function VariantCard({
             ))}
           </ul>
 
-          {/* Expand button */}
-          {result.signals.length > 2 && (
-            <button
-              type="button"
-              onClick={onToggle}
-              className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-brand-700 transition"
+          {/* Expand + Improve actions */}
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+            {result.signals.length > 2 ? (
+              <button
+                type="button"
+                onClick={onToggle}
+                className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-brand-700 transition"
+              >
+                {expanded ? (
+                  <>
+                    <ChevronUp className="h-3 w-3" strokeWidth={2.5} />
+                    Show less
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-3 w-3" strokeWidth={2.5} />
+                    Show {hiddenCount} more signal{hiddenCount === 1 ? "" : "s"}
+                  </>
+                )}
+              </button>
+            ) : (
+              <span />
+            )}
+            <Link
+              href={`/tools/youtube-title-generator?seed=${encodeURIComponent(text)}`}
+              className="inline-flex items-center gap-1.5 rounded-md border border-brand-200 bg-brand-50/60 px-2.5 py-1 text-xs font-medium text-brand-700 hover:border-brand-300 hover:bg-brand-50 transition"
+              title="Generate 10 alternative titles with AI based on this one"
             >
-              {expanded ? (
-                <>
-                  <ChevronUp className="h-3 w-3" strokeWidth={2.5} />
-                  Show less
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="h-3 w-3" strokeWidth={2.5} />
-                  Show {hiddenCount} more signal{hiddenCount === 1 ? "" : "s"}
-                </>
-              )}
-            </button>
-          )}
+              <WandSparkles className="h-3.5 w-3.5" strokeWidth={2} />
+              Improve with AI
+            </Link>
+          </div>
         </>
       )}
     </div>
