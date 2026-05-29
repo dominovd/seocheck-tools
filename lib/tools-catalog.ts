@@ -488,13 +488,13 @@ export const stageTagline = (s: ToolStage): string => {
 export const stageDescription = (s: ToolStage): string => {
   switch (s) {
     case "research":
-      return "Before you press record. Tools for finding what to make, scouting competitors, and validating that a topic is worth your time.";
+      return "Before you press record. Find what to make, scout competitors with the Competitor Channel Analyzer, surface breakthrough patterns with the Outlier Finder, and validate that a topic is worth your time.";
     case "optimize":
-      return "After you've shot it, before you upload. Tools that shape the surfaces viewers actually click — titles, thumbnails, tags, and hashtags.";
+      return "After you've shot it, before you upload. Shape the surfaces viewers actually click — titles, thumbnails (with multi-context Thumbnail Preview), tags, and hashtags. Each tool integrates with the Video Audit's Fix-with-AI button so weak packaging gets rewritten in one click.";
     case "publish":
-      return "The final mile before you hit publish. Tools that format the description, chapters, and embeds the way YouTube expects.";
+      return "The final mile before you hit publish. Tools that format the description, chapters, and embeds the way YouTube expects — pair them with the AI Description Generator after the Video Audit to ship a complete package.";
     case "analyze":
-      return "After your video is live, or before you make the next bet. Tools that score what's working, surface what's broken, and project earnings.";
+      return "After your video is live, or before you make the next bet. The YouTube Visibility Score gives you a composite 0-100 number across CTR, metadata, headroom, and growth trajectory. Channel Audit aggregates weakness patterns across your last 10 uploads. Video Audit drills into a single video with one-click AI fixes. Money Calculator projects earnings. Plus weekly historical tracking on any channel you mark to follow.";
   }
 };
 

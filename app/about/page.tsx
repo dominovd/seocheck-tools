@@ -8,7 +8,7 @@ import { allToolsSorted } from "@/lib/tools-catalog";
 export const metadata = buildMetadata({
   title: "About",
   description:
-    "SEO Check Tools is a free YouTube SEO toolkit for content creators. No signup, no credit card, AI where it counts, privacy-first.",
+    "SEO Check Tools is a free YouTube analytics and SEO platform — composite Visibility Score, Channel Audit, AI Fix-with-AI, Outlier Finder, and weekly historical tracking. No signup, privacy-first.",
   path: "about",
 });
 
@@ -29,19 +29,34 @@ export default function AboutPage() {
         </h1>
 
         <p className="mt-6 text-base text-gray-700 leading-relaxed">
-          {siteConfig.name} is a free toolkit for YouTube creators. {liveCount}{" "}
-          tools that cover the full pre-publish workflow: title and description
-          generators, tag and hashtag tools, thumbnail downloads, chapter
-          formatting, earnings estimates, embed snippets, and competitor
-          research utilities.
+          {siteConfig.name} is a free YouTube analytics and SEO platform for
+          content creators. {liveCount} tools across the full creator workflow
+          — Research, Optimize, Publish, Analyze. The flagship surfaces are
+          measurement-first: a composite <Link href="/tools/youtube-visibility-score" className="link">Visibility Score</Link>
+          {" "}across CTR, metadata, niche headroom, and growth trajectory; a
+          whole-channel{" "}
+          <Link href="/tools/youtube-channel-audit" className="link">Channel Audit</Link>
+          {" "}with AI-extracted recurring issues; a single-video{" "}
+          <Link href="/tools/youtube-video-audit" className="link">Video Audit</Link>{" "}
+          with one-click AI-Fix orchestration that rewrites every weak metadata
+          field at once; an{" "}
+          <Link href="/tools/youtube-outlier-finder" className="link">Outlier Finder</Link>
+          {" "}that surfaces breakthrough videos against the channel median;
+          and weekly historical Visibility Score tracking on any channel you
+          mark to follow. On top of that, 14 single-purpose AI generators and
+          browser utilities for titles, tags, hashtags, thumbnails, chapters,
+          descriptions, and earnings.
         </p>
 
         <p className="mt-4 text-base text-gray-700 leading-relaxed">
           We built it because the alternatives don&apos;t fit how most creators
           actually work. The big paid suites (TubeBuddy, VidIQ, TubeRanker)
-          charge $19-49/month for tools you only need before each upload. The
-          free alternatives are 10-year-old ad-stuffed sites with broken
-          interfaces. Neither felt right.
+          charge $19-49/month for tools you only need before each upload, and
+          gate the most valuable analytical features behind paywalls. The free
+          alternatives are 10-year-old ad-stuffed sites with broken interfaces.
+          We built the measurement-instrument layer (Visibility Score, Channel
+          Audit, Outlier Finder, historical tracking) free, alongside a
+          well-designed generator collection that doesn&apos;t feel like 2010.
         </p>
 
         <h2 className="mt-12 text-xl font-semibold text-gray-900">
@@ -64,10 +79,16 @@ export default function AboutPage() {
             <dt className="font-semibold text-gray-900">AI where it counts</dt>
             <dd className="mt-1 leading-relaxed">
               We use Anthropic&apos;s Claude Haiku for tasks where AI genuinely
-              produces better results: title brainstorming, description
-              writing, tag and idea generation. Browser-side utilities (thumb
-              download, embed code, chapter format) stay browser-side —
-              no LLM cost, no API delay.
+              produces better results: title and description brainstorming, tag
+              and idea generation, the orchestrated{" "}
+              <Link href="/tools/youtube-video-audit" className="link">Fix-with-AI</Link>{" "}
+              button that rewrites every weak metadata field after the audit in
+              one call, the differential pattern analysis in Competitor and
+              Outlier Finder, the recurring-issue extraction in Channel Audit,
+              and the one-sentence positioning summary on the Visibility Score.
+              Browser-side utilities (thumb download, embed code, chapter format,
+              Title Score Checker, Thumbnail Preview) stay browser-side — no
+              LLM cost, no API delay.
             </dd>
           </div>
 

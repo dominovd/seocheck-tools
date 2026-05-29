@@ -32,37 +32,37 @@ const benefits = [
     Icon: CircleDollarSign,
     title: "100% free",
     description:
-      "No subscription, no trial, no per-tool credits. Every tool on SEO Check Tools is free for personal and commercial use.",
+      "No subscription, no trial, no per-tool credits. Every tool — including Visibility Score, Channel Audit, and the AI Fix-with-AI orchestrator — is free for personal and commercial use.",
   },
   {
     Icon: Wand2,
     title: "AI where it counts",
     description:
-      "Powered by Claude Haiku for short, high-quality generations. Browser-side utilities stay browser-side — no LLM cost, no delay.",
+      "Claude Haiku powers the AI YouTube Coach (one-click fixes after every audit), the Competitor and Outlier pattern analysis, and the Visibility Score one-sentence summary. Browser-side utilities stay browser-side — no LLM cost, no delay.",
   },
   {
     Icon: Lock,
     title: "Privacy by default",
     description:
-      "No accounts. No analytics that follow you. Your prompts and outputs are not stored — IPs are held in memory only for fair-use limits.",
+      "No accounts. No analytics that follow you. Your prompts and outputs are not stored. Channel IDs in our audit log are SHA-256-hashed before storage — IPs are held in memory only for fair-use limits.",
   },
   {
     Icon: Zap,
-    title: "No signup, no friction",
+    title: "Measurement, not just generation",
     description:
-      "Open a tool, paste your input, copy the result. That's the whole flow. No email, no credit card, no waiting list.",
+      "Composite Visibility Score (0-100) summarizes a channel's standing in one shareable number. Channel Audit, Video Audit, and Outlier Finder turn diagnosis into action. The toolkit is a measurement instrument first, generators second.",
   },
   {
     Icon: ScanSearch,
-    title: "Competitor research",
+    title: "Competitor intelligence + outliers",
     description:
-      "Extract any video's tags. See what's actually ranking. Get the same intel competitors pay $19/month for, free.",
+      "Competitor Channel Analyzer pulls top 10 + latest 10 with AI pattern summary. Outlier Finder surfaces channel videos that broke through 3× the median — the data agencies pay Spotter $50K+/year for, free.",
   },
   {
     Icon: HeartHandshake,
-    title: "Built for creators",
+    title: "Historical trend tracking",
     description:
-      "Every tool was designed around real YouTube SEO tasks — titles, tags, hashtags, thumbnails, descriptions, chapters, earnings, ideas.",
+      "Track this channel on any Visibility Score result and a weekly cron re-scores it every Monday. After a few weeks, the timeline shows your trajectory — the trend competitors only show behind a paywall.",
   },
 ];
 
@@ -103,28 +103,40 @@ const comparisons = [
 
 const faqs = [
   {
+    q: "What is the YouTube Visibility Score?",
+    a: "Composite 0-100 metric across four weighted sub-scores: CTR Potential (35% — title quality), Metadata Quality (25% — description/hashtags/chapters discipline), Niche Headroom (15% — reach beyond subscriber base), and Growth Trajectory (25% — outlier rate). Paste any channel handle or URL and get an A-F grade with an AI one-sentence summary in 5 seconds. Shareable as a single number, drillable into specific sub-scores for action.",
+  },
+  {
+    q: "How does the Fix-with-AI button work?",
+    a: "After Video Audit identifies weak dimensions, a single Fix-with-AI button runs ONE Claude Haiku call that returns aligned replacements for ONLY the weak or fair fields (title, description, tags, hashtags). Strong dimensions return null — the AI doesn't waste effort rewriting what's already working. Copy the new package straight into YouTube Studio. Turns the audit from diagnosis into one-click solution.",
+  },
+  {
+    q: "Can I track a channel's growth over time?",
+    a: "Yes. On any Visibility Score result, click 'Track this channel'. A weekly Vercel cron re-scores the channel every Monday and accumulates a timeline. After 2-3 weeks the chart shows your Visibility Score trajectory — the trend competitors only show behind a paywall. Up to 200 channels tracked at any time across the site.",
+  },
+  {
+    q: "What's the difference between Video Audit and Channel Audit?",
+    a: "Video Audit scores ONE video across title, description, tags, hashtags, and chapters. Channel Audit runs the same engine against your channel's LAST 10 UPLOADS and aggregates the result — per-dimension averages, band distribution, the worst dimension flagged, plus an AI list of recurring channel-wide issues. The first is diagnosis for one video; the second is pattern detection across your output.",
+  },
+  {
     q: "Is SEO Check Tools really free?",
-    a: "Yes — all 20 tools are free to use without an account. AI-powered tools have a daily per-IP fair-use limit (15/day for most, 3-10/day for the YouTube-API-heavy analyzers and audits) to keep the compute affordable. Browser-side tools (Thumbnail Preview, Title Score Checker, etc.) have no limit.",
+    a: "Yes — all 20 tools are free without an account. AI-powered tools have a daily per-IP fair-use limit (15/day for generators, 3-10/day for YouTube-API-heavy analyzers and audits like Visibility Score, Channel Audit, Competitor Analyzer, Outlier Finder). Browser-side tools (Thumbnail Preview, Title Score Checker) have no limit.",
   },
   {
-    q: "Do you store my prompts or outputs?",
-    a: "No. Prompts go to Anthropic's Claude API for processing and are not retained on our side. Outputs are returned to your browser and never written to a database. We briefly hold your IP address in memory paired with the date, only to enforce the daily fair-use limit.",
+    q: "Do you store my prompts, outputs, or channel data?",
+    a: "Prompts go to Anthropic's Claude API and are not retained on our side. Outputs return to your browser and are never written to a database. Channel IDs in the anonymous audit log are SHA-256-hashed before storage so reverse lookup is impossible — the log is bounded to the most recent 10,000 entries per tool for our internal YouTube Studies pages. IPs are held in memory only to enforce daily fair-use limits, never written to disk.",
   },
   {
-    q: "Can I use the AI outputs commercially?",
-    a: "Yes. You may use anything our tools generate for any lawful purpose, including commercial projects, without attribution. AI-generated content may not be copyrightable in all jurisdictions — see our terms for details.",
+    q: "Why is it free when VidIQ/TubeBuddy charge $19-49/month?",
+    a: "Most paid YouTube SEO suites are built on the same YouTube Data API and open data we use. Operating cost for our toolkit is low because we run heuristics where we can (Title Score Checker, Channel Audit aggregation) and only call AI for genuinely creative work (Fix-with-AI, pattern summaries). The toolkit is supported by lightweight contextual ads and partner links to deeper tools (Ahrefs, Canva) when relevant.",
   },
   {
-    q: "Why is it free?",
-    a: "Most paid YouTube SEO suites ($19–49/month) are built on the same APIs and open data we use. Operating costs for the toolset are low, so we can run it free, supported by lightweight contextual ads and partner links to deeper tools (Ahrefs, TubeBuddy, Canva) when relevant.",
-  },
-  {
-    q: "Which AI model powers the generators?",
-    a: "Claude Haiku 4.5 from Anthropic — fast, lightweight, and well-suited to the short, structured creative tasks our tools focus on.",
+    q: "Which AI model powers the analysis and fixes?",
+    a: "Claude Haiku 4.5 from Anthropic. Used for: the Fix-with-AI orchestrator, Competitor Analyzer pattern + direction summaries, Outlier Finder differential analysis, Channel Audit recurring-issue extraction, and Visibility Score one-sentence positioning. Fast, lightweight, and constrained by system prompts to reject platitudes ('be authentic', 'post consistently') and reference actual data.",
   },
   {
     q: "Will more tools be added?",
-    a: "Yes. The current 20 tools cover the YouTube creator workflow — most recently the YouTube Visibility Score, AI Fix-with-AI, Channel Audit, Outlier Finder, and Thumbnail Preview. Multi-platform expansion (TikTok, Instagram, Pinterest) is planned. You can request a tool via the contact page.",
+    a: "Yes. The current 20 tools cover the YouTube creator workflow across Research, Optimize, Publish, and Analyze stages. Most recent additions: YouTube Visibility Score, AI Fix-with-AI button, Channel Audit, Outlier Finder, Thumbnail Preview, Historical Tracking. Multi-platform expansion (TikTok, Instagram, Pinterest) is on the roadmap.",
   },
 ];
 
@@ -140,12 +152,15 @@ export default function HomePage() {
           AI · Free · No signup · For YouTube creators
         </p>
         <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
-          Free YouTube SEO Toolkit
+          Score, audit, and{" "}
+          <span className="text-brand-600">fix any YouTube channel</span>.
+          Free.
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 sm:text-xl">
-          Generate titles, descriptions, tags, and ideas with AI. Download
-          thumbnails, calculate earnings, extract competitors&apos; tags. Everything
-          a YouTube creator needs, in one place.
+          Composite Visibility Score across CTR, metadata, niche headroom, and
+          growth trajectory. Whole-channel Audit with one-click AI fixes for
+          every weak dimension. Outlier Finder for breakthrough videos. Weekly
+          historical tracking — plus 16 single-purpose generators and utilities.
         </p>
       </Container>
 
@@ -154,14 +169,16 @@ export default function HomePage() {
         <Container as="div">
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">
-              New · Flagship tool
+              Flagship · Video Audit + AI Fix
             </p>
             <h2 className="mt-3 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-              Audit any YouTube video in 5 seconds
+              Audit any YouTube video in 5 seconds, fix every weak spot in one click
             </h2>
             <p className="mt-3 text-base text-gray-600 sm:text-lg">
-              Paste a URL — get a 0-100 score for title, description, tags,
-              hashtags, and chapters with a one-click fix for every weakness.
+              Paste a URL — get a 0-100 score for title, description, tags, hashtags,
+              and chapters. Then one click triggers an AI YouTube Coach that
+              rewrites the weak dimensions into aligned replacements you can copy
+              straight into YouTube Studio.
             </p>
             <HeroAuditInput />
             <p className="mt-3 text-xs text-gray-500">
