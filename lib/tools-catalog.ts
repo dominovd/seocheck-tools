@@ -12,6 +12,7 @@ import {
   Tv,
   ScanLine,
   Search,
+  Gauge,
   type LucideIcon,
 } from "lucide-react";
 
@@ -261,6 +262,22 @@ export const TOOLS: Tool[] = [
     isAI: true,
     searchVolume: 20000,
     priority: 0.83,
+    status: "live",
+  },
+  {
+    slug: "youtube-title-score-checker",
+    title: "YouTube Title Score Checker",
+    shortTitle: "Title Score Checker",
+    taskLabel: "Score a title",
+    description:
+      "Score any YouTube title 0-100 against documented best practices. Compare up to 5 variants side-by-side.",
+    metaDescription:
+      "Free YouTube title score checker. Evaluate any title against length, structure, angle, and clickbait-risk heuristics. Compare variants side-by-side.",
+    category: "utility",
+    Icon: Gauge,
+    isAI: false,
+    searchVolume: 5000,
+    priority: 0.82,
     status: "live",
   },
   {
