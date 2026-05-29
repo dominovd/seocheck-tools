@@ -36,11 +36,15 @@ If triggered, refactor `app/api/youtube-video-audit/route.ts` so YouTube Data AP
 
 Paste competitor handle/URL → top 10 videos by views with title (auto-scored via Title Score Checker), view/comment/like counts, tags (scraped from /watch pages). Bottom of result: Claude Haiku pattern summary — "3 things their top 10 have in common that you can copy."
 
-**New infrastructure needed**:
-- `YOUTUBE_API_KEY` in Vercel env (Google Cloud Console → YouTube Data API v3)
-- 24h Redis cache on channel ID → top 10 video data (popular channels = cache hits)
+**Infrastructure status** (all prerequisites now in place):
+- ✅ `YOUTUBE_API_KEY` configured in Vercel env (shared with audit tool's tier-2 fallback)
+- ✅ Upstash Redis cache helpers already in use (`seo:` namespace)
+- ✅ Existing rate-limit + cache infra (`lib/ai/rate-limit.ts`, `lib/ai/cache.ts`) reusable
+
+**Still to build**:
+- 24h Redis cache on channel ID → top 10 video data
 - Per-IP rate limit 3 lookups/day (stricter than AI tools because of API quota)
-- Scraping logic for tags: 10 parallel /watch fetches with backoff
+- Scraping logic for tags: 10 parallel /watch fetches with backoff (reuses Sprint 4 retry pattern)
 
 **Quota reality**: 10K units/day default = ~98 unique channels/day before exhaustion. Cache absorbs popular channels (MrBeast, MKBHD, etc.) but long-tail niche channels miss. Monitor quota burn for 1-2 weeks; if Reddit/HN spike risks blowing it, file Google quota extension request.
 
