@@ -32,23 +32,37 @@ If triggered, refactor `app/api/youtube-video-audit/route.ts` so YouTube Data AP
 
 ### Sprint 5 — Competitor Channel Analyzer
 
-### Sprint 5 — Competitor Channel Analyzer
+### Sprint 5 — Competitor Channel Analyzer ✅ SHIPPED
 
-Paste competitor handle/URL → top 10 videos by views with title (auto-scored via Title Score Checker), view/comment/like counts, tags (scraped from /watch pages). Bottom of result: Claude Haiku pattern summary — "3 things their top 10 have in common that you can copy."
+Shipped commit `44fd518`. 16 live tools total. Tag scraping (the original v2 piece) was deferred — patterns + metrics + Title Score were enough for a strong v1.
 
-**Infrastructure status** (all prerequisites now in place):
-- ✅ `YOUTUBE_API_KEY` configured in Vercel env (shared with audit tool's tier-2 fallback)
-- ✅ Upstash Redis cache helpers already in use (`seo:` namespace)
-- ✅ Existing rate-limit + cache infra (`lib/ai/rate-limit.ts`, `lib/ai/cache.ts`) reusable
+**Architecture**:
+- `lib/youtube/channel-resolver.ts` parses 6 input formats → ChannelLookup
+- `lib/youtube/youtube-api.ts` extended with `fetchChannel`, `fetchTopVideoIdsByChannel`, `fetchVideoBatchWithEngagement`
+- `lib/youtube/competitor-analysis.ts` types + LLM prompt (constrained to refuse platitudes)
+- `app/api/youtube-competitor-analyzer/route.ts` wraps the YouTube-API → Title Score → Haiku pipeline inside protectAI for cache/rate-limit/budget
+- Daily limit: 3/IP (102 units per analysis × 3 = 306 units max per IP; 10K quota = 32 IPs max in worst case, but 24h cache absorbs most repeat lookups)
 
-**Still to build**:
-- 24h Redis cache on channel ID → top 10 video data
-- Per-IP rate limit 3 lookups/day (stricter than AI tools because of API quota)
-- Scraping logic for tags: 10 parallel /watch fetches with backoff (reuses Sprint 4 retry pattern)
+### Sprint 6 — Niche channel collection pages (deferred 2 weeks)
 
-**Quota reality**: 10K units/day default = ~98 unique channels/day before exhaustion. Cache absorbs popular channels (MrBeast, MKBHD, etc.) but long-tail niche channels miss. Monitor quota burn for 1-2 weeks; if Reddit/HN spike risks blowing it, file Google quota extension request.
+Programmatic SEO play: monthly-updated `/niches/[niche]` pages with ranked channel lists, each with embedded Competitor Analyzer pattern summary. Differentiator: nobody publishes data + LLM-analyzed niche collections publicly (vidIQ paywalled, NoxInfluencer metric-only).
 
-**Differentiation vs vidIQ/Hadron**: not "another metrics scraper" — the LLM pattern summary + integration with our Title Score is what makes it ours.
+**Why deferred 2 weeks**: needs GSC + Vercel Analytics data on which keywords actually pull traffic before picking niches. Building on intuition right now risks 240 pages/year that nobody finds.
+
+**Calibration trigger**: 2 weeks of production data (GSC + Vercel events), pick top 3 niches by intent signal, MVP those.
+
+**Architecture sketch**:
+- `lib/niches.ts` — central catalog (slug, label, description, seed channel IDs). Initial 10-15 channels per niche, manual curation one-time.
+- `app/niches/page.tsx` — index listing all niches
+- `app/niches/[niche]/page.tsx` — dynamic per-niche page with `export const revalidate = 86400` (daily ISR). Renders ranked channel list with metrics + per-channel "3 patterns" embedded by reusing `auditChannel()` from competitor-analysis lib.
+- `app/api/cron/refresh-niches/route.ts` — monthly Vercel cron. Iterates niches, calls competitor analyzer for each seed channel, writes cached results so the next page render is hot.
+- JSON-LD `ItemList` schema on each niche page → rich snippets in SERP
+- Internal linking: `/tools/youtube-competitor-analyzer` footer adds "Or browse curated niche collections →"
+
+**Cost projection**:
+- Per niche refresh: 10 channels × 102 units = 1020 units. 20 niches × monthly = 20.4K units. Exceeds daily quota → solution: spread cron over 2-3 days OR drop per-channel pattern analysis on collection page (run only on user click), keeping collection cost at ~10-20 units per niche.
+
+**Defensibility**: requires our YouTube API integration + LLM pattern engine + cron infra + heuristics base. Not "another channel list anyone can scrape." Plays directly into Competitor Analyzer for conversion (page → click channel → run analyzer).
 
 ## Moat / differentiation ideas (deferred)
 
