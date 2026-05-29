@@ -15,9 +15,29 @@ State as of 2026-05-29, after Sprint 3 (Title Score Checker shipped, commit `726
 | 6 | Tool page expansion (~800-1200 words each via `ToolContentSections`) | ✅ |
 | 7 | Title Score Checker — first evaluation tool, transparent heuristics | ✅ |
 
+## Confirmed next sprints
+
+### Sprint 4 — Video Audit Tool (next)
+
+Paste a YouTube URL → comprehensive multi-dimension audit → CTA links to existing tools for each weakness. Reuses 90% of existing infra (extract-video-id, extract-tags, title-score, thumbnail-variants, parse-chapters). No new API integrations, no new env secrets. ~2-3 days. Replaces the originally-planned "Channel Pack Workflow Wizard" idea.
+
+### Sprint 5 — Competitor Channel Analyzer
+
+Paste competitor handle/URL → top 10 videos by views with title (auto-scored via Title Score Checker), view/comment/like counts, tags (scraped from /watch pages). Bottom of result: Claude Haiku pattern summary — "3 things their top 10 have in common that you can copy."
+
+**New infrastructure needed**:
+- `YOUTUBE_API_KEY` in Vercel env (Google Cloud Console → YouTube Data API v3)
+- 24h Redis cache on channel ID → top 10 video data (popular channels = cache hits)
+- Per-IP rate limit 3 lookups/day (stricter than AI tools because of API quota)
+- Scraping logic for tags: 10 parallel /watch fetches with backoff
+
+**Quota reality**: 10K units/day default = ~98 unique channels/day before exhaustion. Cache absorbs popular channels (MrBeast, MKBHD, etc.) but long-tail niche channels miss. Monitor quota burn for 1-2 weeks; if Reddit/HN spike risks blowing it, file Google quota extension request.
+
+**Differentiation vs vidIQ/Hadron**: not "another metrics scraper" — the LLM pattern summary + integration with our Title Score is what makes it ours.
+
 ## Moat / differentiation ideas (deferred)
 
-The three we didn't pick for Sprint 3 — kept on the table for later.
+The original Sprint 3 deferral pool. Channel Pack was pivoted to Video Audit (Sprint 4); the other two remain.
 
 ### 1. Templates / Frameworks library by niche
 
