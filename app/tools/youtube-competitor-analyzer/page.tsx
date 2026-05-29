@@ -17,7 +17,11 @@ export const metadata = buildMetadata({
 const FAQS = [
   {
     q: "What does this tool actually show me?",
-    a: "Three layers. (1) A header for the competitor's channel — subscriber count, video count, total views, thumbnail. (2) Their top 10 videos sorted by view count, each with title (auto-scored by our Title Score Checker), views, likes, comments, publish date, and length. (3) An AI-generated summary of 3 concrete patterns those top 10 videos share — things like title structure, content angle, format choice — that you can borrow.",
+    a: "Four layers. (1) A header for the competitor's channel — subscriber count, video count, total views, thumbnail. (2) Two AI-generated callouts: '3 patterns to borrow' (what historically worked from their top 10 by views) and 'Where they're going' (3 observations on how their LATEST 10 uploads differ from the top 10 — a direction signal). (3) A tab toggle between Top 10 by Views and Latest 10 Uploads. (4) For every video in the active tab: title (auto-scored by our Title Score Checker), views, likes, comments, publish date.",
+  },
+  {
+    q: "Why both top 10 by views AND latest 10 uploads?",
+    a: "Top 10 by views is retrospective — what historically worked. Often those are old videos from when the channel found its formula. Latest 10 is prospective — current bets, possible new directions. The gap between the two lists is the real strategic signal: Are they doubling down on what worked? Pivoting? Experimenting? That's the kind of insight metrics-only dashboards never surface.",
   },
   {
     q: "Why are the patterns so specific instead of generic advice?",
@@ -84,28 +88,35 @@ export default function YouTubeCompetitorAnalyzerPage() {
             <li>
               Channel input is resolved to a YouTube channel ID via the
               Data API (handles handles, URLs, legacy custom URLs, and bare IDs).
+              The same call returns the channel&apos;s uploads playlist ID.
             </li>
             <li>
-              <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">search.list</code>
-              with <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">order=viewCount</code>
-              returns the channel&apos;s top 10 video IDs.
+              Two parallel calls — <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">search.list</code>
+              ordered by viewCount returns the top 10 video IDs (100 units),
+              and <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">playlistItems.list</code>
+              against the uploads playlist returns the latest 10 IDs by upload date (1 unit).
             </li>
             <li>
+              The union of those IDs is deduplicated and fetched in a single
               <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">videos.list</code>
-              batched on those 10 IDs returns snippet + statistics + contentDetails
-              in a single API call.
+              batch (1 unit total — videos appearing in both lists are fetched once).
             </li>
             <li>
               Our <Link href="/tools/youtube-title-score-checker" className="link">Title Score Checker</Link>
-              heuristics are applied to every title client-side — no extra cost.
+              heuristics run on every title client-side — no extra API cost.
             </li>
             <li>
-              The 10 titles + view counts + ages are summarized into a
-              compact prompt and sent to Claude Haiku for pattern extraction.
-              The model is constrained to return three specific, observable
-              patterns and reject platitudes.
+              Both lists go into a single Claude Haiku call. The model returns
+              <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">patterns</code> (3 specific
+              structural choices visible in the top 10) and
+              <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">direction</code> (3 observations
+              on how the latest 10 differ from the top 10). The system prompt forbids platitudes
+              and demands references to actual data.
             </li>
           </ol>
+          <p className="mt-3 text-xs text-gray-500">
+            Total YouTube quota per non-cached analysis: ~103 units. Cached for 24 hours.
+          </p>
 
           <h3 className="mt-12 text-lg font-semibold text-gray-900">
             Frequently asked questions

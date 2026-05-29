@@ -6,6 +6,7 @@ import {
   Loader2,
   AlertCircle,
   Sparkles,
+  Compass,
   ExternalLink,
   Eye,
   ThumbsUp,
@@ -63,8 +64,10 @@ export function CompetitorAnalyzerTool() {
       track("tool_used", {
         slug: "youtube-competitor-analyzer",
         cached: !!data.cached,
-        videos: data.output.topVideos.length,
+        top_videos: data.output.topVideos.length,
+        latest_videos: data.output.latestVideos.length,
         patterns: data.output.patterns.length,
+        direction: data.output.direction.length,
       });
     } catch {
       setError("Network error — try again in a moment.");
@@ -152,8 +155,14 @@ export function CompetitorAnalyzerTool() {
   );
 }
 
+type VideoTab = "top" | "latest";
+
 function AnalysisResults({ result }: { result: CompetitorAnalysis }) {
-  const { channel, topVideos, patterns, patternsFailed } = result;
+  const { channel, topVideos, latestVideos, patterns, direction, analysisFailed } = result;
+  const [tab, setTab] = useState<VideoTab>("top");
+
+  const visibleVideos = tab === "top" ? topVideos : latestVideos;
+  const hasLatest = latestVideos.length > 0;
 
   return (
     <div className="mt-8 space-y-8">
@@ -204,50 +213,118 @@ function AnalysisResults({ result }: { result: CompetitorAnalysis }) {
         </a>
       </div>
 
-      {/* LLM pattern summary */}
-      {patterns.length > 0 && (
-        <div className="rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50/70 via-white to-white p-5">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-brand-600" strokeWidth={2.5} />
-            <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">
-              3 patterns to borrow
-            </p>
-          </div>
-          <ol className="mt-3 space-y-3">
-            {patterns.map((p, i) => (
-              <li key={i} className="flex gap-3 text-sm text-gray-800">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-500 text-xs font-semibold text-white">
-                  {i + 1}
-                </span>
-                <span className="leading-relaxed">{p}</span>
-              </li>
-            ))}
-          </ol>
+      {/* LLM analysis — patterns + direction side by side on desktop */}
+      {(patterns.length > 0 || direction.length > 0) && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {patterns.length > 0 && (
+            <div className="rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50/70 via-white to-white p-5">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-brand-600" strokeWidth={2.5} />
+                <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">
+                  3 patterns to borrow
+                </p>
+              </div>
+              <p className="mt-1 text-[11px] text-gray-500">From their top 10 by views — what historically works.</p>
+              <ol className="mt-3 space-y-3">
+                {patterns.map((p, i) => (
+                  <li key={i} className="flex gap-3 text-sm text-gray-800">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-500 text-xs font-semibold text-white">
+                      {i + 1}
+                    </span>
+                    <span className="leading-relaxed">{p}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+          {direction.length > 0 && (
+            <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50/70 via-white to-white p-5">
+              <div className="flex items-center gap-2">
+                <Compass className="h-4 w-4 text-amber-600" strokeWidth={2.5} />
+                <p className="text-xs font-semibold uppercase tracking-wider text-amber-700">
+                  Where they&apos;re going
+                </p>
+              </div>
+              <p className="mt-1 text-[11px] text-gray-500">From their latest 10 uploads — current trajectory.</p>
+              <ol className="mt-3 space-y-3">
+                {direction.map((d, i) => (
+                  <li key={i} className="flex gap-3 text-sm text-gray-800">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-500 text-xs font-semibold text-white">
+                      {i + 1}
+                    </span>
+                    <span className="leading-relaxed">{d}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
         </div>
       )}
 
-      {patternsFailed && (
+      {analysisFailed && (
         <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-4">
           <AlertCircle className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" strokeWidth={2} />
           <p className="text-sm text-amber-900">
-            Pattern summary couldn&apos;t be generated this time — video data
-            below is still complete. Try the analysis again to retry the AI step.
+            AI analysis couldn&apos;t be generated this time — video data below is
+            still complete. Try the analysis again to retry the AI step.
           </p>
         </div>
       )}
 
-      {/* Top videos */}
+      {/* Tab toggle — only show Latest tab when we have data for it */}
+      {hasLatest && (
+        <div className="flex items-center gap-2 rounded-full bg-gray-100 p-1 w-fit">
+          <TabButton
+            label={`Top ${topVideos.length} by views`}
+            active={tab === "top"}
+            onClick={() => setTab("top")}
+          />
+          <TabButton
+            label={`Latest ${latestVideos.length} uploads`}
+            active={tab === "latest"}
+            onClick={() => setTab("latest")}
+          />
+        </div>
+      )}
+
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-          Top {topVideos.length} videos by views
-        </p>
-        <div className="mt-3 space-y-3">
-          {topVideos.map((v, i) => (
+        {!hasLatest && (
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">
+            Top {topVideos.length} videos by views
+          </p>
+        )}
+        <div className="space-y-3">
+          {visibleVideos.map((v, i) => (
             <VideoRow key={v.videoId} video={v} rank={i + 1} />
           ))}
         </div>
       </div>
     </div>
+  );
+}
+
+function TabButton({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${
+        active
+          ? "bg-white text-gray-900 shadow-sm ring-1 ring-gray-200"
+          : "text-gray-600 hover:text-gray-900"
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 

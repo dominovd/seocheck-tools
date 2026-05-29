@@ -209,6 +209,44 @@ type SearchApiResponse = {
   }>;
 };
 
+type PlaylistItemsResponse = {
+  items?: Array<{
+    contentDetails?: { videoId?: string };
+  }>;
+};
+
+/**
+ * Get the latest N video IDs from a channel by reading its uploads
+ * playlist in reverse chronological order. Costs 1 unit per call
+ * (playlistItems.list is cheap, unlike search.list).
+ */
+export async function fetchLatestVideoIds(
+  uploadsPlaylistId: string,
+  maxResults: number,
+  apiKey: string
+): Promise<string[]> {
+  const params = new URLSearchParams({
+    part: "contentDetails",
+    playlistId: uploadsPlaylistId,
+    maxResults: String(Math.min(Math.max(maxResults, 1), 50)),
+    key: apiKey,
+  });
+
+  try {
+    const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?${params}`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as PlaylistItemsResponse;
+    return (data.items ?? [])
+      .map((it) => it.contentDetails?.videoId)
+      .filter((v): v is string => Boolean(v));
+  } catch {
+    return [];
+  }
+}
+
 /**
  * Get the top N video IDs from a channel ordered by view count.
  * Costs 100 units per call (search.list is expensive).

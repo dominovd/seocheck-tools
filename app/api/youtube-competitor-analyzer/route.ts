@@ -6,6 +6,7 @@ import { resolveChannelInput, lookupCacheKey } from "@/lib/youtube/channel-resol
 import {
   fetchChannel,
   fetchTopVideoIdsByChannel,
+  fetchLatestVideoIds,
   fetchVideoBatchWithEngagement,
 } from "@/lib/youtube/youtube-api";
 import { scoreTitle } from "@/lib/youtube/title-score";
@@ -38,9 +39,12 @@ export const runtime = "edge";
 
 type Input = { channel: string };
 
-const TOOL_SLUG = "youtube-competitor-analyzer";
+// Cache slug — bumped to v2 when latest 10 + direction analysis added.
+// The public route stays /api/youtube-competitor-analyzer.
+const TOOL_SLUG = "youtube-competitor-analyzer-v2";
 const DAILY_LIMIT = 3;
 const TOP_N = 10;
+const LATEST_N = 10;
 
 export async function POST(req: NextRequest) {
   return protectAI<Input, CompetitorAnalysis>(req, {
@@ -82,7 +86,7 @@ export async function POST(req: NextRequest) {
           ? ({ type: "handle", value } as const)
           : ({ type: "legacy", value } as const);
 
-      // Step 1 — resolve channel (1 unit)
+      // Step 1 — resolve channel (1 unit). Also gives us uploadsPlaylistId.
       const channel = await fetchChannel(lookup, apiKey);
       if (!channel) {
         throw new Error(
@@ -90,34 +94,48 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Step 2 — top N video IDs by viewCount (100 units)
-      const topIds = await fetchTopVideoIdsByChannel(channel.id, TOP_N, apiKey);
+      // Step 2 — top N video IDs by viewCount (100 units) + latest N by date
+      // (1 unit, only if we have an uploads playlist). Run in parallel.
+      const [topIds, latestIds] = await Promise.all([
+        fetchTopVideoIdsByChannel(channel.id, TOP_N, apiKey),
+        channel.uploadsPlaylistId
+          ? fetchLatestVideoIds(channel.uploadsPlaylistId, LATEST_N, apiKey)
+          : Promise.resolve([] as string[]),
+      ]);
+
       if (topIds.length === 0) {
         throw new Error(
           "The channel exists but we couldn't fetch its top videos. It may have no public uploads or YouTube returned an empty result."
         );
       }
 
-      // Step 3 — batched metadata + engagement (1 unit)
-      const videoMap = await fetchVideoBatchWithEngagement(topIds, apiKey);
-      const topVideos: CompetitorVideo[] = topIds
-        .map((id) => {
-          const data = videoMap.get(id);
-          if (!data) return null;
-          const titleScore = scoreTitle(data.title);
-          return {
-            videoId: id,
-            videoUrl: `https://www.youtube.com/watch?v=${id}`,
-            title: data.title,
-            thumbnailUrl: data.thumbnailUrl,
-            publishDate: data.publishDate,
-            lengthSeconds: data.lengthSeconds,
-            viewCount: data.viewCount,
-            likeCount: data.likeCount,
-            commentCount: data.commentCount,
-            titleScore,
-          } satisfies CompetitorVideo;
-        })
+      // Step 3 — batched metadata for the UNION of top + latest IDs
+      // (1 unit total, dedup so videos appearing in both lists are fetched once).
+      const allIds = Array.from(new Set([...topIds, ...latestIds]));
+      const videoMap = await fetchVideoBatchWithEngagement(allIds, apiKey);
+
+      const toCompetitorVideo = (id: string): CompetitorVideo | null => {
+        const data = videoMap.get(id);
+        if (!data) return null;
+        return {
+          videoId: id,
+          videoUrl: `https://www.youtube.com/watch?v=${id}`,
+          title: data.title,
+          thumbnailUrl: data.thumbnailUrl,
+          publishDate: data.publishDate,
+          lengthSeconds: data.lengthSeconds,
+          viewCount: data.viewCount,
+          likeCount: data.likeCount,
+          commentCount: data.commentCount,
+          titleScore: scoreTitle(data.title),
+        } satisfies CompetitorVideo;
+      };
+
+      const topVideos = topIds
+        .map(toCompetitorVideo)
+        .filter((v): v is CompetitorVideo => v !== null);
+      const latestVideos = latestIds
+        .map(toCompetitorVideo)
         .filter((v): v is CompetitorVideo => v !== null);
 
       if (topVideos.length === 0) {
@@ -126,12 +144,14 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Step 4 — LLM pattern summary (best-effort, returns empty patterns on failure)
+      // Step 4 — single LLM call returning BOTH patterns (top 10) +
+      // direction (latest 10 vs top 10). Falls back gracefully if it errors.
       let patterns: string[] = [];
-      let patternsFailed = false;
+      let direction: string[] = [];
+      let analysisFailed = false;
       let llmCostUsd = 0;
       try {
-        const llmResult = await callClaude<{ patterns: string[] }>({
+        const llmResult = await callClaude<{ patterns: string[]; direction: string[] }>({
           system: PATTERN_SYSTEM_PROMPT,
           user: buildPatternUserMessage(
             channel.title,
@@ -139,28 +159,37 @@ export async function POST(req: NextRequest) {
               title: v.title,
               viewCount: v.viewCount,
               publishDate: v.publishDate,
+            })),
+            latestVideos.map((v) => ({
+              title: v.title,
+              viewCount: v.viewCount,
+              publishDate: v.publishDate,
             }))
           ),
-          maxTokens: 400,
+          maxTokens: 600,
           temperature: 0.6,
           parse: (raw) => {
-            const data = parseJsonOutput<{ patterns: string[] }>(raw);
-            if (!data || !Array.isArray(data.patterns)) {
-              throw new Error("Pattern summary returned an unexpected shape.");
+            const data = parseJsonOutput<{ patterns: string[]; direction: string[] }>(raw);
+            if (!data || !Array.isArray(data.patterns) || !Array.isArray(data.direction)) {
+              throw new Error("Analysis returned an unexpected shape.");
             }
-            return {
-              patterns: data.patterns
+            const clean = (arr: unknown[]): string[] =>
+              arr
                 .filter((p): p is string => typeof p === "string" && p.trim().length > 0)
                 .map((p) => p.trim())
-                .slice(0, 3),
+                .slice(0, 3);
+            return {
+              patterns: clean(data.patterns),
+              direction: clean(data.direction),
             };
           },
         });
         patterns = llmResult.parsed.patterns;
+        direction = llmResult.parsed.direction;
         llmCostUsd = llmResult.costUsd;
       } catch (err) {
-        console.error("[competitor-analyzer] pattern summary failed", err);
-        patternsFailed = true;
+        console.error("[competitor-analyzer] LLM analysis failed", err);
+        analysisFailed = true;
       }
 
       const analysis: CompetitorAnalysis = {
@@ -174,8 +203,10 @@ export async function POST(req: NextRequest) {
           viewCount: channel.viewCount,
         },
         topVideos,
+        latestVideos,
         patterns,
-        patternsFailed,
+        direction,
+        analysisFailed,
       };
 
       return { output: analysis, costUsd: llmCostUsd };

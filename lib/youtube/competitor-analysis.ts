@@ -42,47 +42,74 @@ export type CompetitorChannel = {
 
 export type CompetitorAnalysis = {
   channel: CompetitorChannel;
+  /** Top 10 by view count — historical winners. */
   topVideos: CompetitorVideo[];
-  /** Three concrete patterns the user can borrow, from Claude Haiku. */
+  /** Latest 10 by upload date — current trajectory. */
+  latestVideos: CompetitorVideo[];
+  /** Three concrete patterns from the top 10, from Claude Haiku. */
   patterns: string[];
-  /** Set when LLM pattern summary failed but channel + video data is fine. */
-  patternsFailed?: boolean;
+  /** Three observations on how the latest 10 differ from the top 10 — channel direction. */
+  direction: string[];
+  /** Set when LLM analysis failed but channel + video data is fine. */
+  analysisFailed?: boolean;
 };
 
 /**
- * System prompt for the pattern summary.
+ * System prompt for the combined pattern + direction summary.
  *
- * The Haiku model gets a compact summary of the top-10 — just title +
- * view count + age — and is asked to spot three concrete, copy-able
- * patterns. Constraints:
- *  - No platitudes ("be authentic", "post consistently")
- *  - Each pattern names a SPECIFIC pattern visible in the data
- *    (title structure, content angle, format choice)
- *  - 1-2 sentences each
+ * The Haiku model receives BOTH lists at once — top 10 by views
+ * (historical performance) and latest 10 by upload date (current
+ * trajectory). One call returns:
+ *  - `patterns`: 3 specific structural choices visible in the top 10
+ *  - `direction`: 3 observations on how the latest 10 differ from
+ *    the top 10 (or where the latest 10 doubles down on top patterns)
+ *
+ * Constraints make this hard to game with platitudes — the model
+ * must reference what's actually in the lists.
  */
-export const PATTERN_SYSTEM_PROMPT = `You analyze YouTube channel data to spot the patterns that make a channel's top videos work.
+export const PATTERN_SYSTEM_PROMPT = `You analyze YouTube channel data to spot the patterns that make a channel's top videos work AND how the channel's direction is evolving.
 
-You receive a compact list of one channel's top 10 videos by view count: title, view count, age.
+You receive a channel's TOP 10 videos by view count (historical winners) and LATEST 10 videos by upload date (current trajectory).
 
-Return exactly 3 concrete, copy-able patterns. Output JSON only — no markdown fences, no preamble:
-{"patterns": ["pattern 1", "pattern 2", "pattern 3"]}
+Return JSON only — no markdown fences, no preamble:
+{
+  "patterns": ["pattern 1", "pattern 2", "pattern 3"],
+  "direction": ["observation 1", "observation 2", "observation 3"]
+}
 
-Each pattern must:
-- Name a SPECIFIC structural choice visible in the data (title template, content angle, format choice)
-- Be 1-2 sentences, action-oriented ("Lead with a question that names the audience's anxiety", not "be relatable")
-- Avoid platitudes ("post consistently", "be authentic", "have great thumbnails")
-- Reference what you actually see, not generic advice`;
+For "patterns":
+- Each is a SPECIFIC structural choice visible in the top 10 (title template, content angle, format choice)
+- 1-2 sentences, action-oriented ("Lead with a question that names the audience's anxiety", not "be relatable")
+- Reference what you actually see in the top 10, not generic advice
+
+For "direction":
+- Each notes how the latest 10 differ from the top 10, OR where the latest 10 doubles down on a top pattern
+- Be specific about the SHIFT: new topic cluster, new format, longer/shorter titles, fewer numbers, different audience signal
+- If the latest 10 looks like more of the same, say "doubling down on X" and name X with evidence
+- Don't invent change that isn't visible in the data
+
+For both: avoid platitudes ("post consistently", "be authentic", "have great thumbnails", "engage with comments").`;
 
 export function buildPatternUserMessage(
   channelTitle: string,
-  videos: Array<{ title: string; viewCount: number | null; publishDate: string | null }>
+  topVideos: Array<{ title: string; viewCount: number | null; publishDate: string | null }>,
+  latestVideos: Array<{ title: string; viewCount: number | null; publishDate: string | null }>
 ): string {
-  const lines = videos.map((v, i) => {
-    const views = v.viewCount !== null ? `${formatViewCount(v.viewCount)} views` : "views n/a";
-    const age = v.publishDate ?? "date n/a";
-    return `${i + 1}. "${v.title}" — ${views} (${age})`;
-  });
-  return `Channel: ${channelTitle}\n\nTop 10 by views:\n${lines.join("\n")}\n\nReturn the 3 patterns as JSON now.`;
+  const formatList = (list: typeof topVideos) =>
+    list
+      .map((v, i) => {
+        const views = v.viewCount !== null ? `${formatViewCount(v.viewCount)} views` : "views n/a";
+        const age = v.publishDate ?? "date n/a";
+        return `${i + 1}. "${v.title}" — ${views} (${age})`;
+      })
+      .join("\n");
+
+  return (
+    `Channel: ${channelTitle}\n\n` +
+    `TOP 10 by views (historical):\n${formatList(topVideos)}\n\n` +
+    `LATEST 10 by upload date (current direction):\n${formatList(latestVideos)}\n\n` +
+    `Return the JSON now.`
+  );
 }
 
 function formatViewCount(n: number): string {
