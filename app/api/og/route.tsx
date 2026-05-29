@@ -144,7 +144,7 @@ export async function GET(req: Request) {
           <span style={{ color: SOFT }}>•</span>
           <span>Privacy-first</span>
           <span style={{ color: SOFT }}>•</span>
-          <span>13 tools</span>
+          <span>15 tools</span>
         </div>
       </div>
     ),

@@ -14,6 +14,7 @@ import {
 import { Container } from "@/components/Container";
 import { FeaturedToolCard } from "@/components/FeaturedToolCard";
 import { FaqSchema } from "@/components/PageSchemas";
+import { HeroAuditInput } from "@/components/HeroAuditInput";
 import { ToolSpotlight } from "@/components/spotlights/ToolSpotlight";
 import { MockTitleGenerator } from "@/components/spotlights/MockTitleGenerator";
 import { MockTagExtractor } from "@/components/spotlights/MockTagExtractor";
@@ -97,7 +98,7 @@ const comparisons = [
 const faqs = [
   {
     q: "Is SEO Check Tools really free?",
-    a: "Yes — all 13 tools are free to use without an account. AI-powered tools have a daily per-IP fair-use limit (15 generations/day) to keep the compute affordable. Browser-side and serverless utilities have no limit.",
+    a: "Yes — all 15 tools are free to use without an account. AI-powered tools have a daily per-IP fair-use limit (15 generations/day) to keep the compute affordable. Browser-side and serverless utilities have no limit.",
   },
   {
     q: "Do you store my prompts or outputs?",
@@ -117,7 +118,7 @@ const faqs = [
   },
   {
     q: "Will more tools be added?",
-    a: "Yes. The current 13 tools cover the YouTube creator workflow. Multi-platform expansion (TikTok, Instagram, Pinterest) is planned. You can request a tool via the contact page.",
+    a: "Yes. The current 15 tools cover the YouTube creator workflow — most recently the Video Audit and Title Score Checker. Multi-platform expansion (TikTok, Instagram, Pinterest) is planned. You can request a tool via the contact page.",
   },
 ];
 
@@ -133,12 +134,22 @@ export default function HomePage() {
           AI · Free · No signup · For YouTube creators
         </p>
         <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
-          Free YouTube SEO Toolkit
+          Audit any YouTube video. <span className="text-brand-600">Free.</span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 sm:text-xl">
-          Generate titles, descriptions, tags, and ideas with AI. Download
-          thumbnails, calculate earnings, extract competitors&apos; tags. Everything
-          a YouTube creator needs, in one place.
+          Paste a URL — get an instant 0-100 score for title, description,
+          tags, hashtags, and chapters with a one-click fix for every weakness.
+        </p>
+
+        <HeroAuditInput />
+
+        <p className="mx-auto mt-4 max-w-2xl text-xs text-gray-500">
+          No signup. No email. 30 audits per day, free forever.
+        </p>
+
+        <p className="mx-auto mt-10 max-w-2xl text-sm text-gray-600">
+          Or pick a single-purpose tool: 14 free utilities for titles, tags,
+          hashtags, thumbnails, descriptions, chapters, and more.
         </p>
       </Container>
 
@@ -164,7 +175,7 @@ export default function HomePage() {
             href="/tools"
             className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:border-brand-300 hover:bg-brand-50/40 hover:text-gray-900 transition"
           >
-            View all 13 tools
+            View all 15 tools
             <ArrowRight className="h-4 w-4 text-gray-400" strokeWidth={2} />
           </Link>
         </div>
@@ -223,7 +234,7 @@ export default function HomePage() {
                 step: "1",
                 title: "Pick a tool",
                 description:
-                  "Choose from 13 tools — title generator, tag extractor, thumbnail downloader, money calculator, more.",
+                  "Choose from 15 tools — video audit, title generator, tag extractor, thumbnail downloader, money calculator, more.",
               },
               {
                 step: "2",

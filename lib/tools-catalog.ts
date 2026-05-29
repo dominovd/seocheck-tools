@@ -13,6 +13,7 @@ import {
   ScanLine,
   Search,
   Gauge,
+  ClipboardCheck,
   type LucideIcon,
 } from "lucide-react";
 
@@ -65,6 +66,26 @@ export type Tool = {
 };
 
 export const TOOLS: Tool[] = [
+  // ──────────────────────────────────────────────────────────
+  // Flagship — multi-dimension audit, hero feature
+  // ──────────────────────────────────────────────────────────
+  {
+    slug: "youtube-video-audit",
+    title: "YouTube Video Audit",
+    shortTitle: "Video Audit",
+    taskLabel: "Audit a YouTube video",
+    description:
+      "Paste any YouTube URL — get a free instant audit of title, description, tags, hashtags, and chapters with fix-it tools for every weakness.",
+    metaDescription:
+      "Free YouTube video audit. Paste a URL and get a 0-100 score for title, description, tags, hashtags, and chapters with one-click fixes for every weakness.",
+    category: "utility",
+    Icon: ClipboardCheck,
+    isAI: false,
+    searchVolume: 10000,
+    priority: 0.99,
+    status: "live",
+  },
+
   // ──────────────────────────────────────────────────────────
   // Browser-side / serverless tools (no AI cost)
   // ──────────────────────────────────────────────────────────

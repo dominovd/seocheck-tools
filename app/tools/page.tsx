@@ -6,7 +6,7 @@ import { toolsByCategory, categoryLabel, type ToolCategory } from "@/lib/tools-c
 export const metadata = buildMetadata({
   title: "All Tools",
   description:
-    "All 13 free YouTube SEO tools — AI generators, downloaders, calculators, and utilities. No signup required.",
+    "All 15 free YouTube SEO tools — AI generators, downloaders, calculators, the new Video Audit. No signup required.",
   path: "tools",
 });
 
