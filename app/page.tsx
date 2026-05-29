@@ -21,7 +21,13 @@ import { ToolSpotlight } from "@/components/spotlights/ToolSpotlight";
 import { MockTitleGenerator } from "@/components/spotlights/MockTitleGenerator";
 import { MockTagExtractor } from "@/components/spotlights/MockTagExtractor";
 import { MockThumbnailDownloader } from "@/components/spotlights/MockThumbnailDownloader";
-import { featuredTools } from "@/lib/tools-catalog";
+import {
+  featuredTools,
+  toolsByStage,
+  stageLabel,
+  stageTagline,
+  STAGE_ORDER,
+} from "@/lib/tools-catalog";
 
 const benefits = [
   {
@@ -126,6 +132,7 @@ const faqs = [
 
 export default function HomePage() {
   const tools = featuredTools(8);
+  const stageGroups = toolsByStage();
 
   return (
     <>
@@ -230,47 +237,55 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* ───────── How it works ───────── */}
+      {/* ───────── Workflow stages — your tools, by stage of the work ───────── */}
       <section className="border-y border-gray-100 bg-gray-50/40 py-20">
         <Container as="div">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-              How it works
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+              The creator workflow
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+              Your tools, by stage of the work
             </h2>
             <p className="mt-3 text-base text-gray-600">
-              Three steps. No accounts, no waiting.
+              We cover every step a YouTube creator runs through — pick the
+              stage you&apos;re at.
             </p>
           </div>
 
-          <div className="mt-14 grid gap-10 sm:grid-cols-3">
-            {[
-              {
-                step: "1",
-                title: "Pick a tool",
-                description:
-                  "Choose from 16 tools — competitor analyzer, video audit, title generator, tag extractor, thumbnail downloader, more.",
-              },
-              {
-                step: "2",
-                title: "Enter your input",
-                description:
-                  "Paste a URL, type a topic, or fill the form. Most tools accept input in plain text or as a YouTube link.",
-              },
-              {
-                step: "3",
-                title: "Copy the result",
-                description:
-                  "Get a clean output instantly. Copy to clipboard or download. No emails, no sign-up wall.",
-              },
-            ].map(({ step, title, description }) => (
-              <div key={step}>
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-700 ring-1 ring-brand-200">
-                  {step}
-                </span>
-                <h3 className="mt-4 text-lg font-semibold text-gray-900">{title}</h3>
-                <p className="mt-2 text-sm text-gray-600 leading-relaxed">{description}</p>
-              </div>
-            ))}
+          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {STAGE_ORDER.map((stage, i) => {
+              const stageTools = stageGroups[stage];
+              const sample = stageTools.slice(0, 3).map((t) => t.shortTitle).join(" · ");
+              return (
+                <Link
+                  key={stage}
+                  href={`/tools/${stage}`}
+                  className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-brand-300 hover:shadow-sm"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-50 font-mono text-xs font-semibold text-brand-700 ring-1 ring-brand-200">
+                      {i + 1}
+                    </span>
+                    <p className="text-xs font-mono tabular-nums text-gray-400">
+                      {stageTools.length} {stageTools.length === 1 ? "tool" : "tools"}
+                    </p>
+                  </div>
+                  <h3 className="mt-4 text-lg font-semibold text-gray-900">
+                    {stageLabel(stage)}
+                  </h3>
+                  <p className="mt-1 text-sm text-brand-700">{stageTagline(stage)}</p>
+                  <p className="mt-3 flex-1 text-sm text-gray-600 leading-relaxed">
+                    {sample}
+                    {stageTools.length > 3 && ", more"}
+                  </p>
+                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-gray-500 group-hover:text-brand-700 transition">
+                    Browse {stageLabel(stage).toLowerCase()}
+                    <ArrowRight className="h-3 w-3" strokeWidth={2.5} />
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </Container>
       </section>
