@@ -15,6 +15,7 @@ import {
   Gauge,
   ClipboardCheck,
   Users,
+  Eye,
   type LucideIcon,
 } from "lucide-react";
 
@@ -118,6 +119,23 @@ export const TOOLS: Tool[] = [
   // ──────────────────────────────────────────────────────────
   // Browser-side / serverless tools (no AI cost)
   // ──────────────────────────────────────────────────────────
+  {
+    slug: "youtube-thumbnail-preview",
+    title: "YouTube Thumbnail Preview Tool",
+    shortTitle: "Thumbnail Preview",
+    taskLabel: "Preview a thumbnail in YouTube UI",
+    description:
+      "See how your thumbnail + title actually reads in YouTube search, home feed, sidebar, and mobile — before you publish.",
+    metaDescription:
+      "Free YouTube thumbnail preview tool. Render any thumbnail + title in real YouTube UI contexts (search, home, sidebar, mobile) to test CTR before publishing.",
+    category: "utility",
+    stage: "optimize",
+    Icon: Eye,
+    isAI: false,
+    searchVolume: 20000,
+    priority: 0.93,
+    status: "live",
+  },
   {
     slug: "youtube-thumbnail-downloader",
     title: "YouTube Thumbnail Downloader",

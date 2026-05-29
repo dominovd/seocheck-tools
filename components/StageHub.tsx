@@ -80,7 +80,7 @@ export function StageHub({ stage }: { stage: ToolStage }) {
             href="/tools"
             className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:border-brand-300 hover:bg-brand-50/40 hover:text-gray-900 transition"
           >
-            View all 16 tools
+            View all 17 tools
             <ArrowRight className="h-4 w-4 text-gray-400" strokeWidth={2} />
           </Link>
         </div>
