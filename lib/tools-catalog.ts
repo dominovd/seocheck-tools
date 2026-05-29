@@ -14,6 +14,7 @@ import {
   Search,
   Gauge,
   ClipboardCheck,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -67,8 +68,24 @@ export type Tool = {
 
 export const TOOLS: Tool[] = [
   // ──────────────────────────────────────────────────────────
-  // Flagship — multi-dimension audit, hero feature
+  // Flagships — audit + competitor analyzer
   // ──────────────────────────────────────────────────────────
+  {
+    slug: "youtube-competitor-analyzer",
+    title: "YouTube Competitor Channel Analyzer",
+    shortTitle: "Competitor Analyzer",
+    taskLabel: "Analyze a competitor channel",
+    description:
+      "Paste any YouTube channel — get their top 10 videos by views with title scores, view counts, and 3 patterns you can borrow.",
+    metaDescription:
+      "Free YouTube competitor analyzer. Paste a channel — see their top 10 videos by views with title scores, engagement metrics, and 3 concrete patterns their videos share.",
+    category: "ai",
+    Icon: Users,
+    isAI: true,
+    searchVolume: 30000,
+    priority: 0.97,
+    status: "live",
+  },
   {
     slug: "youtube-video-audit",
     title: "YouTube Video Audit",

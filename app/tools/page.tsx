@@ -15,7 +15,7 @@ import {
 export const metadata = buildMetadata({
   title: "All Tools",
   description:
-    "All 15 free YouTube SEO tools — AI generators, downloaders, calculators, the new Video Audit. No signup required.",
+    "All 16 free YouTube SEO tools — AI generators, downloaders, calculators, plus the new Competitor Analyzer and Video Audit. No signup required.",
   path: "tools",
 });
 

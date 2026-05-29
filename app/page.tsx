@@ -100,7 +100,7 @@ const comparisons = [
 const faqs = [
   {
     q: "Is SEO Check Tools really free?",
-    a: "Yes — all 15 tools are free to use without an account. AI-powered tools have a daily per-IP fair-use limit (15 generations/day) to keep the compute affordable. Browser-side and serverless utilities have no limit.",
+    a: "Yes — all 16 tools are free to use without an account. AI-powered tools have a daily per-IP fair-use limit (15 generations/day, 3/day for the YouTube-API-heavy Competitor Analyzer) to keep the compute affordable. Browser-side and serverless utilities have no limit.",
   },
   {
     q: "Do you store my prompts or outputs?",
@@ -120,7 +120,7 @@ const faqs = [
   },
   {
     q: "Will more tools be added?",
-    a: "Yes. The current 15 tools cover the YouTube creator workflow — most recently the Video Audit and Title Score Checker. Multi-platform expansion (TikTok, Instagram, Pinterest) is planned. You can request a tool via the contact page.",
+    a: "Yes. The current 16 tools cover the YouTube creator workflow — most recently the Competitor Channel Analyzer and Video Audit. Multi-platform expansion (TikTok, Instagram, Pinterest) is planned. You can request a tool via the contact page.",
   },
 ];
 
@@ -189,7 +189,7 @@ export default function HomePage() {
             href="/tools"
             className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:border-brand-300 hover:bg-brand-50/40 hover:text-gray-900 transition"
           >
-            View all 15 tools
+            View all 16 tools
             <ArrowRight className="h-4 w-4 text-gray-400" strokeWidth={2} />
           </Link>
         </div>
@@ -248,7 +248,7 @@ export default function HomePage() {
                 step: "1",
                 title: "Pick a tool",
                 description:
-                  "Choose from 15 tools — video audit, title generator, tag extractor, thumbnail downloader, money calculator, more.",
+                  "Choose from 16 tools — competitor analyzer, video audit, title generator, tag extractor, thumbnail downloader, more.",
               },
               {
                 step: "2",
