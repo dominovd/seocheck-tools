@@ -134,24 +134,36 @@ export default function HomePage() {
           AI · Free · No signup · For YouTube creators
         </p>
         <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
-          Audit any YouTube video. <span className="text-brand-600">Free.</span>
+          Free YouTube SEO Toolkit
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 sm:text-xl">
-          Paste a URL — get an instant 0-100 score for title, description,
-          tags, hashtags, and chapters with a one-click fix for every weakness.
-        </p>
-
-        <HeroAuditInput />
-
-        <p className="mx-auto mt-4 max-w-2xl text-xs text-gray-500">
-          No signup. No email. 30 audits per day, free forever.
-        </p>
-
-        <p className="mx-auto mt-10 max-w-2xl text-sm text-gray-600">
-          Or pick a single-purpose tool: 14 free utilities for titles, tags,
-          hashtags, thumbnails, descriptions, chapters, and more.
+          Generate titles, descriptions, tags, and ideas with AI. Download
+          thumbnails, calculate earnings, extract competitors&apos; tags. Everything
+          a YouTube creator needs, in one place.
         </p>
       </Container>
+
+      {/* ───────── Audit feature band — flagship tool, positioned right below hero ───────── */}
+      <section className="border-y border-brand-100/70 bg-gradient-to-b from-brand-50/50 via-white to-white py-12 sm:py-16">
+        <Container as="div">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">
+              New · Flagship tool
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+              Audit any YouTube video in 5 seconds
+            </h2>
+            <p className="mt-3 text-base text-gray-600 sm:text-lg">
+              Paste a URL — get a 0-100 score for title, description, tags,
+              hashtags, and chapters with a one-click fix for every weakness.
+            </p>
+            <HeroAuditInput />
+            <p className="mt-3 text-xs text-gray-500">
+              No signup. No email. 30 audits per day, free forever.
+            </p>
+          </div>
+        </Container>
+      </section>
 
       {/* ───────── Featured tools grid ───────── */}
       <Container as="section" id="tools" className="pb-24">
