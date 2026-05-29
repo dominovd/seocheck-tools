@@ -104,7 +104,7 @@ const comparisons = [
 const faqs = [
   {
     q: "Is SEO Check Tools really free?",
-    a: "Yes — all 17 tools are free to use without an account. AI-powered tools have a daily per-IP fair-use limit (15 generations/day, 3/day for the YouTube-API-heavy Competitor Analyzer) to keep the compute affordable. Browser-side tools (Thumbnail Preview, Title Score Checker, etc.) have no limit.",
+    a: "Yes — all 18 tools are free to use without an account. AI-powered tools have a daily per-IP fair-use limit (15 generations/day, 3-5/day for the YouTube-API-heavy Competitor Analyzer and Outlier Finder) to keep the compute affordable. Browser-side tools (Thumbnail Preview, Title Score Checker, etc.) have no limit.",
   },
   {
     q: "Do you store my prompts or outputs?",
@@ -124,7 +124,7 @@ const faqs = [
   },
   {
     q: "Will more tools be added?",
-    a: "Yes. The current 17 tools cover the YouTube creator workflow — most recently the Thumbnail Preview, Competitor Channel Analyzer, and Video Audit. Multi-platform expansion (TikTok, Instagram, Pinterest) is planned. You can request a tool via the contact page.",
+    a: "Yes. The current 18 tools cover the YouTube creator workflow — most recently the Outlier Finder, Thumbnail Preview, and Competitor Channel Analyzer. Multi-platform expansion (TikTok, Instagram, Pinterest) is planned. You can request a tool via the contact page.",
   },
 ];
 
@@ -239,7 +239,7 @@ export default function HomePage() {
             href="/tools"
             className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:border-brand-300 hover:bg-brand-50/40 hover:text-gray-900 transition"
           >
-            View all 17 tools
+            View all 18 tools
             <ArrowRight className="h-4 w-4 text-gray-400" strokeWidth={2} />
           </Link>
         </div>

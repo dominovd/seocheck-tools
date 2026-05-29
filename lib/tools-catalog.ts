@@ -16,6 +16,7 @@ import {
   ClipboardCheck,
   Users,
   Eye,
+  TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 
@@ -81,6 +82,23 @@ export const TOOLS: Tool[] = [
   // ──────────────────────────────────────────────────────────
   // Flagships — audit + competitor analyzer
   // ──────────────────────────────────────────────────────────
+  {
+    slug: "youtube-outlier-finder",
+    title: "YouTube Outlier Finder",
+    shortTitle: "Outlier Finder",
+    taskLabel: "Find a channel's outlier videos",
+    description:
+      "Paste a channel — find the videos that outperformed its median by 3× or more, with AI patterns explaining what made them outliers.",
+    metaDescription:
+      "Free YouTube outlier finder. Paste any channel — see which videos overperformed the channel's median by 3× or more, with AI analysis of what made them outliers vs average videos.",
+    category: "ai",
+    stage: "research",
+    Icon: TrendingUp,
+    isAI: true,
+    searchVolume: 8000,
+    priority: 0.96,
+    status: "live",
+  },
   {
     slug: "youtube-competitor-analyzer",
     title: "YouTube Competitor Channel Analyzer",

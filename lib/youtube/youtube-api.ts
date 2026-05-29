@@ -216,6 +216,54 @@ type PlaylistItemsResponse = {
 };
 
 /**
+ * Get up to `totalNeeded` latest video IDs from an uploads playlist,
+ * paginating playlistItems.list as needed (50 per page). Returns in
+ * reverse chronological order (newest first).
+ *
+ * Cost: 1 unit per page = ceil(totalNeeded / 50) units total.
+ * E.g. 100 videos -> 2 units, 200 -> 4 units.
+ *
+ * Used by Outlier Finder to get a statistically meaningful pool.
+ */
+export async function fetchVideoIdsFromPlaylist(
+  uploadsPlaylistId: string,
+  totalNeeded: number,
+  apiKey: string
+): Promise<string[]> {
+  const ids: string[] = [];
+  let pageToken: string | undefined;
+  const wanted = Math.max(1, Math.min(totalNeeded, 500));
+
+  while (ids.length < wanted) {
+    const params = new URLSearchParams({
+      part: "contentDetails",
+      playlistId: uploadsPlaylistId,
+      maxResults: String(Math.min(50, wanted - ids.length)),
+      key: apiKey,
+    });
+    if (pageToken) params.set("pageToken", pageToken);
+
+    try {
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?${params}`, {
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+      });
+      if (!res.ok) break;
+      const data = (await res.json()) as PlaylistItemsResponse & { nextPageToken?: string };
+      const pageIds = (data.items ?? [])
+        .map((it) => it.contentDetails?.videoId)
+        .filter((v): v is string => Boolean(v));
+      ids.push(...pageIds);
+      if (!data.nextPageToken || pageIds.length === 0) break;
+      pageToken = data.nextPageToken;
+    } catch {
+      break;
+    }
+  }
+  return ids.slice(0, wanted);
+}
+
+/**
  * Get the latest N video IDs from a channel by reading its uploads
  * playlist in reverse chronological order. Costs 1 unit per call
  * (playlistItems.list is cheap, unlike search.list).
@@ -353,6 +401,26 @@ export async function fetchVideoBatch(
   } catch {
     return new Map();
   }
+}
+
+/**
+ * Fetch metadata for ANY number of video IDs by chunking into 50-id
+ * batches and calling videos.list once per batch. Costs 1 unit per
+ * batch (i.e. 1 unit per 50 videos, rounded up).
+ *
+ * Returns a single merged Map keyed by video ID.
+ */
+export async function fetchVideoBatchPaginated(
+  videoIds: string[],
+  apiKey: string
+): Promise<Map<string, ApiVideoData & VideoEngagement>> {
+  const merged = new Map<string, ApiVideoData & VideoEngagement>();
+  for (let i = 0; i < videoIds.length; i += 50) {
+    const chunk = videoIds.slice(i, i + 50);
+    const partial = await fetchVideoBatchWithEngagement(chunk, apiKey);
+    for (const [id, data] of partial) merged.set(id, data);
+  }
+  return merged;
 }
 
 // Extra per-video stats not in ApiVideoData (used by competitor analyzer)
