@@ -43,7 +43,7 @@ const BAND_STYLES: Record<AuditBand, { ring: string; text: string; bg: string; l
 };
 
 type ApiResponse =
-  | { result: VideoAuditResult; cached?: boolean; remaining?: number }
+  | { result: VideoAuditResult; cached?: boolean; partial?: boolean; remaining?: number }
   | { error: string; code?: string };
 
 export function VideoAuditTool() {
@@ -51,11 +51,13 @@ export function VideoAuditTool() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<VideoAuditResult | null>(null);
+  const [partial, setPartial] = useState(false);
 
   const runAudit = useCallback(async (targetUrl: string) => {
     if (!targetUrl.trim() || loading) return;
     setError(null);
     setResult(null);
+    setPartial(false);
     setLoading(true);
     try {
       const res = await fetch("/api/youtube-video-audit", {
@@ -69,6 +71,7 @@ export function VideoAuditTool() {
         return;
       }
       setResult(data.result);
+      setPartial(!!data.partial);
     } catch {
       setError("Network error — try again in a moment.");
     } finally {
@@ -138,12 +141,12 @@ export function VideoAuditTool() {
         </div>
       )}
 
-      {result && <AuditResults result={result} />}
+      {result && <AuditResults result={result} partial={partial} />}
     </div>
   );
 }
 
-function AuditResults({ result }: { result: VideoAuditResult }) {
+function AuditResults({ result, partial }: { result: VideoAuditResult; partial: boolean }) {
   const bs = BAND_STYLES[result.overallBand];
 
   return (
@@ -212,6 +215,19 @@ function AuditResults({ result }: { result: VideoAuditResult }) {
           </div>
         </div>
       </div>
+
+      {/* Partial-audit banner */}
+      {partial && (
+        <div className="mt-6 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-4">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" strokeWidth={2} />
+          <div className="text-sm text-amber-900">
+            <p className="font-medium">Partial audit — try again in a minute</p>
+            <p className="mt-1 text-amber-800/80">
+              YouTube is temporarily rate-limiting our servers for this video, so only the title could be scored from public oEmbed data. Tags, description, hashtags, and chapters need direct access to the watch page — try the audit again shortly.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Dimension cards */}
       <div className="mt-6 grid gap-4 sm:grid-cols-2">

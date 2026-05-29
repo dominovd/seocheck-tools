@@ -6,27 +6,39 @@ import { getCachedOutput, setCachedOutput } from "@/lib/ai/cache";
 import { extractVideoId, isValidVideoId } from "@/lib/youtube/extract-video-id";
 import { extractVideoInfo } from "@/lib/youtube/extract-video-info";
 import { auditVideo, type VideoAuditResult } from "@/lib/youtube/video-audit";
-
-export const runtime = "edge";
+import { fetchOembed, type OembedInfo } from "@/lib/youtube/oembed";
+import { scoreTitle } from "@/lib/youtube/title-score";
 
 /**
  * Video Audit endpoint.
  *
- * Client sends { url: string }. We extract the video ID, fetch the watch
- * page HTML once, pull every metadata field we can, then run the
- * pure-function audit engine and return the full multi-dimension result.
+ * Runtime is Node (not Edge) on purpose. Edge runtime uses Cloudflare
+ * Workers IP pool, which YouTube aggressively rate-limits because that
+ * pool serves enormous cross-tenant traffic. Node runtime uses AWS Lambda
+ * IPs that rotate per cold start and are much less likely to be 429'd.
+ *
+ * Layered fetch strategy:
+ *  1. oEmbed (https://www.youtube.com/oembed) — public, no rate-limit.
+ *     Gives title + channel + thumbnail reliably.
+ *  2. /watch HTML scrape with retry — full data (tags, description,
+ *     chapters, hashtags). Best-effort.
+ *  3. If /watch fails after retry, we return a PARTIAL audit using
+ *     oEmbed data so the user sees something useful instead of a hard
+ *     error.
  *
  * Protected by:
- *  - Per-IP daily rate limit (30/day — single HTTP fetch + CPU only)
- *  - 12-hour result cache keyed by video ID (metadata rarely changes)
+ *  - Per-IP daily rate limit (30/day)
+ *  - 12-hour result cache keyed by video ID
  *
- * No Anthropic call, no LLM cost — purely heuristic.
+ * No Anthropic call, no LLM cost.
  */
 
+export const runtime = "nodejs";
+export const maxDuration = 20;
+
 const DAILY_LIMIT = 30;
-// v2 — bumped after fixing title/channel extraction; invalidates the
-// stale cache entries from v1 that had Untitled video / null channel.
-const RATE_LIMIT_KEY = "youtube-video-audit-v2";
+// v3 — bumped after switching to nodejs + oEmbed-first strategy
+const RATE_LIMIT_KEY = "youtube-video-audit-v3";
 
 type Body = { url?: string };
 
@@ -69,50 +81,143 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ result: cached, cached: true });
   }
 
-  // Fetch the video page.
-  // CONSENT cookie pre-accepts EU cookie consent so YouTube serves the
-  // real page directly instead of redirecting to consent.youtube.com
-  // (which has different markup and breaks our title/desc extractors).
-  let html: string;
-  try {
-    const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept-Language": "en-US,en;q=0.9",
-        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9",
-        Cookie: "CONSENT=YES+cb; SOCS=CAESEwgDEgk0ODE0OTI4OTkaAmVuIAEaBgiA_LyaBg",
-      },
-      cache: "no-store",
-    });
-    if (!res.ok) {
-      return jsonError(
-        "fetch-failed",
-        res.status === 404
-          ? "Video not found — it may be private, deleted, or region-restricted."
-          : `YouTube returned ${res.status} for that video.`,
-        res.status === 404 ? 404 : 502
-      );
-    }
-    html = await res.text();
-  } catch {
+  // Layer 1 — oEmbed (always try first, reliable)
+  const oembed = await fetchOembed(videoId);
+
+  // Layer 2 — /watch HTML scrape with one retry
+  const html = await fetchWatchHtml(videoId);
+
+  if (!html && !oembed) {
     return jsonError(
       "fetch-failed",
-      "Couldn't reach YouTube. Try again in a moment.",
+      "Couldn't reach YouTube for this video. It may be private, deleted, region-restricted, or YouTube is temporarily rate-limiting our servers.",
       502
     );
   }
 
-  const info = extractVideoInfo(html, videoId);
-  const audit = auditVideo(info);
+  // If /watch succeeded, full audit. If not, partial audit from oEmbed only.
+  let audit: VideoAuditResult;
+  let partial = false;
 
-  await setCachedOutput(RATE_LIMIT_KEY, videoId, audit).catch(() => {});
+  if (html) {
+    const info = extractVideoInfo(html, videoId);
+    // oEmbed is more reliable for title/channel — if HTML extraction missed them, fill from oEmbed
+    if (oembed) {
+      if (!info.title && oembed.title) info.title = oembed.title;
+      if (!info.channel && oembed.channel) info.channel = oembed.channel;
+      if (!info.thumbnailUrl && oembed.thumbnailUrl) info.thumbnailUrl = oembed.thumbnailUrl;
+    }
+    audit = auditVideo(info);
+  } else {
+    // /watch failed but oEmbed worked — partial audit
+    partial = true;
+    audit = buildPartialAudit(videoId, oembed!);
+  }
+
+  // Only cache full audits — partial results would be stuck for 12h and
+  // serve a degraded experience even after YouTube recovers.
+  if (!partial) {
+    await setCachedOutput(RATE_LIMIT_KEY, videoId, audit).catch(() => {});
+  }
 
   return NextResponse.json({
     result: audit,
     cached: false,
+    partial,
     remaining: rl.remaining,
   });
+}
+
+/**
+ * Fetch the /watch HTML with browser-like headers and one retry.
+ * Returns null if both attempts fail (any non-200 status or thrown error).
+ */
+async function fetchWatchHtml(videoId: string): Promise<string | null> {
+  const url = `https://www.youtube.com/watch?v=${videoId}`;
+  const headers = {
+    "User-Agent":
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+    "Accept-Language": "en-US,en;q=0.9",
+    Accept:
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Cache-Control": "max-age=0",
+    "Sec-Ch-Ua": '"Not.A/Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": '"macOS"',
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Upgrade-Insecure-Requests": "1",
+    Cookie: "CONSENT=YES+cb; SOCS=CAESEwgDEgk0ODE0OTI4OTkaAmVuIAEaBgiA_LyaBg",
+  };
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch(url, { headers, cache: "no-store" });
+      if (res.ok) {
+        return await res.text();
+      }
+      // Don't retry hard errors that won't change
+      if (res.status === 404 || res.status === 410) return null;
+      // For 429 / 5xx, backoff briefly and retry once
+      if (attempt === 0) {
+        await sleep(800 + Math.random() * 600);
+        continue;
+      }
+      return null;
+    } catch {
+      if (attempt === 0) {
+        await sleep(500);
+        continue;
+      }
+      return null;
+    }
+  }
+  return null;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Build a partial audit when /watch failed but oEmbed succeeded.
+ * Returns just the title dimension (which we CAN score from oEmbed
+ * data) plus the video meta — the client renders a clear "partial"
+ * banner explaining the rate-limit so the empty space below the title
+ * card isn't confusing.
+ */
+function buildPartialAudit(videoId: string, oembed: OembedInfo): VideoAuditResult {
+  const titleResult = oembed.title ? scoreTitle(oembed.title) : null;
+
+  return {
+    videoId,
+    videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
+    meta: {
+      title: oembed.title,
+      channel: oembed.channel,
+      thumbnailUrl: oembed.thumbnailUrl,
+      viewCount: null,
+      publishDate: null,
+      lengthSeconds: null,
+    },
+    overallScore: titleResult?.score ?? 0,
+    overallBand: titleResult?.band ?? "weak",
+    dimensions: titleResult
+      ? [
+          {
+            key: "title",
+            label: "Title",
+            score: titleResult.score,
+            band: titleResult.band,
+            signals: titleResult.signals,
+            ctaTool: { slug: "youtube-title-generator", label: "Generate titles with AI" },
+          },
+        ]
+      : [],
+  };
 }
 
 function jsonError(
