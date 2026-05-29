@@ -12,7 +12,6 @@ import {
   ImageDown,
 } from "lucide-react";
 import { Container } from "@/components/Container";
-import { FeaturedToolCard } from "@/components/FeaturedToolCard";
 import { FaqSchema } from "@/components/PageSchemas";
 import { HeroAuditInput } from "@/components/HeroAuditInput";
 import { TrackedDetails } from "@/components/TrackedDetails";
@@ -22,7 +21,6 @@ import { MockTitleGenerator } from "@/components/spotlights/MockTitleGenerator";
 import { MockTagExtractor } from "@/components/spotlights/MockTagExtractor";
 import { MockThumbnailDownloader } from "@/components/spotlights/MockThumbnailDownloader";
 import {
-  featuredTools,
   toolsByStage,
   stageLabel,
   stageTagline,
@@ -131,7 +129,6 @@ const faqs = [
 ];
 
 export default function HomePage() {
-  const tools = featuredTools(8);
   const stageGroups = toolsByStage();
 
   return (
@@ -174,21 +171,67 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* ───────── Featured tools grid ───────── */}
+      {/* ───────── The creator workflow — tools by stage ───────── */}
       <Container as="section" id="tools" className="pb-24">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
-            Try the tools
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+            The creator workflow
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
+            Your tools, by stage of the work
           </h2>
           <p className="mt-3 text-base text-gray-600">
-            Pick a tool and get a result in seconds. No signup, no waiting.
+            We cover every step a YouTube creator runs through — pick a tool
+            for the stage you&apos;re at.
           </p>
         </div>
 
         <div className="mx-auto mt-12 grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-5">
-          {tools.map((tool) => (
-            <FeaturedToolCard key={tool.slug} tool={tool} />
-          ))}
+          {STAGE_ORDER.map((stage, i) => {
+            const stageTools = stageGroups[stage];
+            const shown = stageTools.slice(0, 4);
+            const remaining = stageTools.length - shown.length;
+            return (
+              <article
+                key={stage}
+                className="flex flex-col rounded-2xl border border-gray-200 bg-white p-5"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-50 font-mono text-xs font-semibold text-brand-700 ring-1 ring-brand-200">
+                    {i + 1}
+                  </span>
+                  <p className="text-xs font-mono tabular-nums text-gray-400">
+                    {stageTools.length} {stageTools.length === 1 ? "tool" : "tools"}
+                  </p>
+                </div>
+                <h3 className="mt-4 text-lg font-semibold text-gray-900">
+                  {stageLabel(stage)}
+                </h3>
+                <p className="mt-1 text-sm text-brand-700">{stageTagline(stage)}</p>
+
+                <ul className="mt-4 flex-1 space-y-1.5">
+                  {shown.map((tool) => (
+                    <li key={tool.slug}>
+                      <Link
+                        href={`/tools/${tool.slug}`}
+                        className="text-sm text-gray-700 hover:text-brand-700 transition"
+                      >
+                        {tool.shortTitle}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+
+                <Link
+                  href={`/tools/${stage}`}
+                  className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-brand-700 transition"
+                >
+                  Browse all {stageTools.length} {stageLabel(stage).toLowerCase()} tools
+                  <ArrowRight className="h-3 w-3" strokeWidth={2.5} />
+                </Link>
+              </article>
+            );
+          })}
         </div>
 
         <div className="mt-10 text-center">
@@ -237,58 +280,6 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* ───────── Workflow stages — your tools, by stage of the work ───────── */}
-      <section className="border-y border-gray-100 bg-gray-50/40 py-20">
-        <Container as="div">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-              The creator workflow
-            </p>
-            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-              Your tools, by stage of the work
-            </h2>
-            <p className="mt-3 text-base text-gray-600">
-              We cover every step a YouTube creator runs through — pick the
-              stage you&apos;re at.
-            </p>
-          </div>
-
-          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {STAGE_ORDER.map((stage, i) => {
-              const stageTools = stageGroups[stage];
-              const sample = stageTools.slice(0, 3).map((t) => t.shortTitle).join(" · ");
-              return (
-                <Link
-                  key={stage}
-                  href={`/tools/${stage}`}
-                  className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-brand-300 hover:shadow-sm"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-50 font-mono text-xs font-semibold text-brand-700 ring-1 ring-brand-200">
-                      {i + 1}
-                    </span>
-                    <p className="text-xs font-mono tabular-nums text-gray-400">
-                      {stageTools.length} {stageTools.length === 1 ? "tool" : "tools"}
-                    </p>
-                  </div>
-                  <h3 className="mt-4 text-lg font-semibold text-gray-900">
-                    {stageLabel(stage)}
-                  </h3>
-                  <p className="mt-1 text-sm text-brand-700">{stageTagline(stage)}</p>
-                  <p className="mt-3 flex-1 text-sm text-gray-600 leading-relaxed">
-                    {sample}
-                    {stageTools.length > 3 && ", more"}
-                  </p>
-                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-gray-500 group-hover:text-brand-700 transition">
-                    Browse {stageLabel(stage).toLowerCase()}
-                    <ArrowRight className="h-3 w-3" strokeWidth={2.5} />
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        </Container>
-      </section>
 
       {/* ───────── Why use ───────── */}
       <section className="py-20">
