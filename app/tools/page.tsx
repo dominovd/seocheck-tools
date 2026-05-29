@@ -1,7 +1,15 @@
+import Link from "next/link";
+import { ClipboardCheck, ArrowRight, Sparkles } from "lucide-react";
 import { Container } from "@/components/Container";
 import { ToolCard } from "@/components/ToolCard";
+import { ToolsIndexClient } from "@/components/ToolsIndexClient";
 import { buildMetadata } from "@/lib/seo";
-import { toolsByCategory, categoryLabel, type ToolCategory } from "@/lib/tools-catalog";
+import {
+  toolsByCategory,
+  allToolsSorted,
+  getToolBySlug,
+  type ToolCategory,
+} from "@/lib/tools-catalog";
 
 export const metadata = buildMetadata({
   title: "All Tools",
@@ -27,6 +35,12 @@ export default function ToolsIndexPage() {
     .flat()
     .filter((t) => t.status === "coming-soon").length;
 
+  const auditTool = getToolBySlug("youtube-video-audit");
+  // "Most popular" = top 5 by priority, excluding the audit (already featured above)
+  const popular = allToolsSorted()
+    .filter((t) => t.status === "live" && t.slug !== "youtube-video-audit")
+    .slice(0, 5);
+
   return (
     <Container as="main" className="py-12 sm:py-16">
       <header className="max-w-2xl">
@@ -34,27 +48,67 @@ export default function ToolsIndexPage() {
           All YouTube SEO tools
         </h1>
         <p className="mt-3 text-base text-gray-600">
-          {totalLive} live · {totalSoon} coming soon. Grouped by what they do.
+          {totalLive} live · {totalSoon} coming soon. Pick a single tool or
+          start with a full video audit.
         </p>
       </header>
 
-      <div className="mt-12 space-y-14">
-        {CATEGORY_ORDER.map((cat) => {
-          const tools = groups[cat];
-          if (tools.length === 0) return null;
-          return (
-            <section key={cat}>
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-                {categoryLabel(cat)}
-              </h2>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {tools.map((tool) => (
-                  <ToolCard key={tool.slug} tool={tool} />
-                ))}
-              </div>
-            </section>
-          );
-        })}
+      {/* ───────── Start here callout ───────── */}
+      {auditTool && (
+        <Link
+          href={`/tools/${auditTool.slug}`}
+          className="group mt-10 flex flex-col gap-3 rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50/70 via-brand-50/30 to-white p-5 transition hover:border-brand-300 hover:shadow-sm sm:flex-row sm:items-center sm:gap-5 sm:p-6"
+        >
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white shadow-sm">
+            <ClipboardCheck className="h-6 w-6" strokeWidth={2} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">
+              Start here
+            </p>
+            <h2 className="mt-1 text-lg font-semibold text-gray-900 sm:text-xl">
+              Not sure which tool you need? Run a video audit.
+            </h2>
+            <p className="mt-1 text-sm text-gray-600">
+              Paste any YouTube URL — get a 0-100 score for every dimension
+              with a direct CTA to the right fix-it tool for each weakness.
+            </p>
+          </div>
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-xs font-medium text-brand-700 ring-1 ring-brand-200 transition group-hover:bg-brand-500 group-hover:text-white group-hover:ring-brand-500">
+            Try the audit
+            <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.5} />
+          </span>
+        </Link>
+      )}
+
+      {/* ───────── Most popular ───────── */}
+      {popular.length > 0 && (
+        <section className="mt-14">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-brand-500" strokeWidth={2} />
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+              Most popular
+            </h2>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {popular.map((tool) => (
+              <ToolCard key={tool.slug} tool={tool} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ───────── Filtered grid ───────── */}
+      <div className="mt-14">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+          Browse by category
+        </h2>
+        <div className="mt-5">
+          <ToolsIndexClient
+            toolsByCategory={groups}
+            categoryOrder={CATEGORY_ORDER}
+          />
+        </div>
       </div>
     </Container>
   );
