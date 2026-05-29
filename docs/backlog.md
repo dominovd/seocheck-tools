@@ -17,9 +17,20 @@ State as of 2026-05-29, after Sprint 3 (Title Score Checker shipped, commit `726
 
 ## Confirmed next sprints
 
-### Sprint 4 — Video Audit Tool (next)
+### Sprint 4 — Video Audit Tool ✅ SHIPPED
 
-Paste a YouTube URL → comprehensive multi-dimension audit → CTA links to existing tools for each weakness. Reuses 90% of existing infra (extract-video-id, extract-tags, title-score, thumbnail-variants, parse-chapters). No new API integrations, no new env secrets. ~2-3 days. Replaces the originally-planned "Channel Pack Workflow Wizard" idea.
+Shipped commits `5b63b6d` → `28aba2b` → `52828b4` → `f6e73bc`. 15 live tools total. Hero feature on the homepage (audit input in a brand-tinted feature band right below the brand hero).
+
+**Architecture decision: oEmbed + /watch scraping, NOT YouTube Data API.**
+The audit uses YouTube oEmbed (https://www.youtube.com/oembed) for reliable title/channel/thumbnail (no rate limit), then /watch HTML scrape for tags/description/chapters/hashtags. Runtime is `nodejs` (not `edge`) because Vercel Edge IPs sit on Cloudflare Workers pool which YouTube aggressively 429s.
+
+**Calibration trigger — revisit YouTube Data API integration if:**
+- Vercel Analytics shows the "Partial audit" amber banner firing on >20% of audit requests in the production logs, OR
+- A traffic spike (Reddit/HN post) reveals systematic 429s.
+
+If triggered, refactor `app/api/youtube-video-audit/route.ts` so YouTube Data API v3 (`videos.list` parts=snippet,statistics,contentDetails — 1 unit/call, 10K/day quota) is the primary source, and /watch scraping is used only for the tags dimension (the one field API doesn't return for non-owners since 2022).
+
+### Sprint 5 — Competitor Channel Analyzer
 
 ### Sprint 5 — Competitor Channel Analyzer
 
