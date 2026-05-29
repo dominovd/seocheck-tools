@@ -2,12 +2,13 @@ import Link from "next/link";
 import { ClipboardCheck, ArrowRight, Sparkles } from "lucide-react";
 import { Container } from "@/components/Container";
 import { ToolCard } from "@/components/ToolCard";
-import { ToolsIndexClient } from "@/components/ToolsIndexClient";
+import { ToolsCategoryFilter } from "@/components/ToolsCategoryFilter";
 import { buildMetadata } from "@/lib/seo";
 import {
   toolsByCategory,
   allToolsSorted,
   getToolBySlug,
+  categoryLabel,
   type ToolCategory,
 } from "@/lib/tools-catalog";
 
@@ -26,6 +27,8 @@ const CATEGORY_ORDER: ToolCategory[] = [
   "calculator",
 ];
 
+const GRID_ID = "tools-category-grid";
+
 export default function ToolsIndexPage() {
   const groups = toolsByCategory();
   const totalLive = Object.values(groups)
@@ -40,6 +43,14 @@ export default function ToolsIndexPage() {
   const popular = allToolsSorted()
     .filter((t) => t.status === "live" && t.slug !== "youtube-video-audit")
     .slice(0, 5);
+
+  // Counts and labels are primitives — safe to pass to the client filter component
+  const counts = CATEGORY_ORDER.map((category) => ({
+    category,
+    count: groups[category].length,
+    label: categoryLabel(category),
+  })).filter((c) => c.count > 0);
+  const totalCount = counts.reduce((sum, c) => sum + c.count, 0);
 
   return (
     <Container as="main" className="py-12 sm:py-16">
@@ -98,16 +109,38 @@ export default function ToolsIndexPage() {
         </section>
       )}
 
-      {/* ───────── Filtered grid ───────── */}
+      {/* ───────── Browse by category — server-rendered grid + client filter ───────── */}
       <div className="mt-14">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
           Browse by category
         </h2>
+
         <div className="mt-5">
-          <ToolsIndexClient
-            toolsByCategory={groups}
-            categoryOrder={CATEGORY_ORDER}
+          <ToolsCategoryFilter
+            categories={CATEGORY_ORDER}
+            counts={counts}
+            totalCount={totalCount}
+            gridId={GRID_ID}
           />
+        </div>
+
+        <div id={GRID_ID} className="mt-10 space-y-14">
+          {CATEGORY_ORDER.map((cat) => {
+            const tools = groups[cat];
+            if (tools.length === 0) return null;
+            return (
+              <section key={cat} data-category={cat}>
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+                  {categoryLabel(cat)}
+                </h3>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {tools.map((tool) => (
+                    <ToolCard key={tool.slug} tool={tool} />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
         </div>
       </div>
     </Container>
