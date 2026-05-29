@@ -81,7 +81,7 @@ export const TOOLS: Tool[] = [
     isAI: false,
     searchVolume: 100000,
     priority: 0.9,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "youtube-money-calculator",
