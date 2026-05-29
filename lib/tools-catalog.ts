@@ -17,6 +17,7 @@ import {
   Users,
   Eye,
   TrendingUp,
+  ClipboardList,
   type LucideIcon,
 } from "lucide-react";
 
@@ -114,6 +115,23 @@ export const TOOLS: Tool[] = [
     isAI: true,
     searchVolume: 30000,
     priority: 0.97,
+    status: "live",
+  },
+  {
+    slug: "youtube-channel-audit",
+    title: "YouTube Channel Audit",
+    shortTitle: "Channel Audit",
+    taskLabel: "Audit a whole YouTube channel",
+    description:
+      "Paste a channel — get a channel-wide grade across title, description, hashtags, and chapters, plus AI-flagged recurring issues across the last 10 uploads.",
+    metaDescription:
+      "Free YouTube channel audit. Paste any channel — get a channel-level grade with per-dimension breakdown and AI-identified recurring issues across the last 10 uploads.",
+    category: "ai",
+    stage: "analyze",
+    Icon: ClipboardList,
+    isAI: true,
+    searchVolume: 12000,
+    priority: 0.95,
     status: "live",
   },
   {

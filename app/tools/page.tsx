@@ -15,7 +15,7 @@ import {
 export const metadata = buildMetadata({
   title: "All Tools",
   description:
-    "All 18 free YouTube SEO tools organized by the creator's workflow — Research, Optimize, Publish, Analyze. No signup required.",
+    "All 19 free YouTube SEO tools organized by the creator's workflow — Research, Optimize, Publish, Analyze. No signup required.",
   path: "tools",
 });
 
