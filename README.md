@@ -82,9 +82,10 @@ seocheck-tools/
 All AI endpoints are gated by:
 
 1. Cloudflare Turnstile challenge (blocks headless bots)
-2. Per-IP sliding window rate limit (15 generations/day default)
+2. Per-IP daily rate limit (15 generations/day/tool default)
 3. Cache lookup by `(tool, hash(input))` — 24h TTL
 4. Global daily budget cap — kill switch at `AI_DAILY_BUDGET_USD`
 5. Conservative `max_tokens` per tool
 
-See `lib/ai-cost-protection.ts` (added in Task #2).
+See [docs/ai-cost-protection.md](./docs/ai-cost-protection.md) for the
+full wiring guide plus a worked example.

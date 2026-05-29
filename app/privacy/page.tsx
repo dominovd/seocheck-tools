@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata = buildMetadata({
   title: "Privacy Policy",
   description:
-    "Privacy policy for seocheck.tools. We don't store your prompts, outputs, or personal data. IP addresses are used only for fair-use rate limiting.",
+    "Privacy policy for SEO Check Tools. We don't store your prompts, outputs, or personal data. IP addresses are used only for fair-use rate limiting.",
   path: "privacy",
 });
 

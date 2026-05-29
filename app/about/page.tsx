@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata = buildMetadata({
   title: "About",
   description:
-    "seocheck.tools is a free YouTube SEO toolkit for content creators. No signup, no credit card, privacy-first.",
+    "SEO Check Tools is a free YouTube SEO toolkit for content creators. No signup, no credit card, privacy-first.",
   path: "about",
 });
 
@@ -13,10 +13,10 @@ export default function AboutPage() {
     <Container as="main" className="py-12 sm:py-16">
       <article className="mx-auto max-w-2xl prose prose-gray">
         <h1 className="text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
-          About seocheck.tools
+          About SEO Check Tools
         </h1>
         <p className="mt-6 text-base text-gray-700 leading-relaxed">
-          seocheck.tools is a free toolkit for YouTube creators. We build the
+          SEO Check Tools is a free toolkit for YouTube creators. We build the
           utilities we wished existed when we were optimizing our own channels —
           tag generators, thumbnail downloaders, earnings calculators, AI-powered
           title and description writers — and we make them free to use without

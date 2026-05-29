@@ -7,9 +7,16 @@ import {
   ScanSearch,
   HeartHandshake,
   ArrowRight,
+  WandSparkles,
+  ScanLine,
+  ImageDown,
 } from "lucide-react";
 import { Container } from "@/components/Container";
-import { TaskChip } from "@/components/TaskChip";
+import { FeaturedToolCard } from "@/components/FeaturedToolCard";
+import { ToolSpotlight } from "@/components/spotlights/ToolSpotlight";
+import { MockTitleGenerator } from "@/components/spotlights/MockTitleGenerator";
+import { MockTagExtractor } from "@/components/spotlights/MockTagExtractor";
+import { MockThumbnailDownloader } from "@/components/spotlights/MockThumbnailDownloader";
 import { featuredTools } from "@/lib/tools-catalog";
 
 const benefits = [
@@ -17,7 +24,7 @@ const benefits = [
     Icon: CircleDollarSign,
     title: "100% free",
     description:
-      "No subscription, no trial, no per-tool credits. Everything on seocheck.tools is free for personal and commercial use.",
+      "No subscription, no trial, no per-tool credits. Every tool on SEO Check Tools is free for personal and commercial use.",
   },
   {
     Icon: Wand2,
@@ -88,7 +95,7 @@ const comparisons = [
 
 const faqs = [
   {
-    q: "Is seocheck.tools really free?",
+    q: "Is SEO Check Tools really free?",
     a: "Yes — all 13 tools are free to use without an account. AI-powered tools have a daily per-IP fair-use limit (15 generations/day) to keep the compute affordable. Browser-side and serverless utilities have no limit.",
   },
   {
@@ -133,33 +140,82 @@ export default function HomePage() {
         </p>
       </Container>
 
-      {/* ───────── "What do you need?" chips ───────── */}
-      <Container as="section" className="pb-24 text-center">
-        <p className="text-sm font-medium text-gray-500">What do you need?</p>
-        <div className="mx-auto mt-5 flex max-w-3xl flex-wrap items-center justify-center gap-2">
+      {/* ───────── Featured tools grid ───────── */}
+      <Container as="section" id="tools" className="pb-24">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
+            Try the tools
+          </h2>
+          <p className="mt-3 text-base text-gray-600">
+            Pick a tool and get a result in seconds. No signup, no waiting.
+          </p>
+        </div>
+
+        <div className="mx-auto mt-12 grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-5">
           {tools.map((tool) => (
-            <TaskChip key={tool.slug} tool={tool} />
+            <FeaturedToolCard key={tool.slug} tool={tool} />
           ))}
+        </div>
+
+        <div className="mt-10 text-center">
           <Link
             href="/tools"
-            className="inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-brand-700 hover:bg-brand-50 transition"
+            className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:border-brand-300 hover:bg-brand-50/40 hover:text-gray-900 transition"
           >
-            All 13 tools <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
+            View all 13 tools
+            <ArrowRight className="h-4 w-4 text-gray-400" strokeWidth={2} />
           </Link>
         </div>
       </Container>
 
+      {/* ───────── Tool spotlights — show, don't tell ───────── */}
+      <section className="border-y border-gray-100 bg-gradient-to-b from-white via-gray-50/40 to-white">
+        <Container as="div" className="divide-y divide-gray-100">
+          <ToolSpotlight
+            Icon={WandSparkles}
+            eyebrow="AI Generator"
+            isAI
+            title="Click-worthy titles in seconds, not hours"
+            description="Type your topic. Claude Haiku returns 10 SEO-optimized YouTube titles in different angles — curious, listicle, how-to, comparison, contrarian. Pick the one that fits, copy it, ship the video."
+            href="/tools/youtube-title-generator"
+            ctaLabel="Try the title generator"
+            mock={<MockTitleGenerator />}
+          />
+          <ToolSpotlight
+            Icon={ScanLine}
+            eyebrow="Competitor research"
+            reverse
+            title="See the exact tags your competitors are ranking with"
+            description="YouTube hides tags from public view — but they're still in the page source. Paste any competitor's video URL and pull their full tag list in one click. The same intel TubeBuddy charges $19/month for, free."
+            href="/tools/youtube-tag-extractor"
+            ctaLabel="Try the tag extractor"
+            mock={<MockTagExtractor />}
+          />
+          <ToolSpotlight
+            Icon={ImageDown}
+            eyebrow="Utility"
+            title="Every thumbnail size, one click"
+            description="Need a competitor's thumbnail for your design reference board? Or your own thumbnail in print-quality 1280 × 720? Paste the URL — get every available resolution at once, no watermarks, no signup."
+            href="/tools/youtube-thumbnail-downloader"
+            ctaLabel="Try the thumbnail downloader"
+            mock={<MockThumbnailDownloader />}
+          />
+        </Container>
+      </section>
+
       {/* ───────── How it works ───────── */}
       <section className="border-y border-gray-100 bg-gray-50/40 py-20">
         <Container as="div">
-          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            How it works
-          </h2>
-          <p className="mt-2 text-base text-gray-600">
-            Three steps. No accounts, no waiting.
-          </p>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+              How it works
+            </h2>
+            <p className="mt-3 text-base text-gray-600">
+              Three steps. No accounts, no waiting.
+            </p>
+          </div>
 
-          <div className="mt-12 grid gap-10 sm:grid-cols-3">
+          <div className="mt-14 grid gap-10 sm:grid-cols-3">
             {[
               {
                 step: "1",
@@ -195,14 +251,16 @@ export default function HomePage() {
       {/* ───────── Why use ───────── */}
       <section className="py-20">
         <Container as="div">
-          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            Why creators use seocheck.tools
-          </h2>
-          <p className="mt-2 text-base text-gray-600">
-            What you get that paid YouTube SEO suites either charge for or don&apos;t offer at all.
-          </p>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+              Why creators use SEO Check Tools
+            </h2>
+            <p className="mt-3 text-base text-gray-600">
+              What you get that paid YouTube SEO suites either charge for or don&apos;t offer at all.
+            </p>
+          </div>
 
-          <div className="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
             {benefits.map(({ Icon, title, description }) => (
               <div key={title}>
                 <Icon
@@ -223,14 +281,16 @@ export default function HomePage() {
       {/* ───────── Who uses ───────── */}
       <section className="border-y border-gray-100 bg-gray-50/40 py-20">
         <Container as="div">
-          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            Who uses seocheck.tools
-          </h2>
-          <p className="mt-2 text-base text-gray-600">
-            Anyone who works with YouTube content — solo or in a team.
-          </p>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+              Who uses SEO Check Tools
+            </h2>
+            <p className="mt-3 text-base text-gray-600">
+              Anyone who works with YouTube content — solo or in a team.
+            </p>
+          </div>
 
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {audiences.map(({ label, description }) => (
               <div key={label}>
                 <h3 className="text-base font-semibold text-gray-900">{label}</h3>
@@ -246,15 +306,17 @@ export default function HomePage() {
       {/* ───────── Switching from another tool? ───────── */}
       <section className="py-20">
         <Container as="div">
-          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            Switching from another tool?
-          </h2>
-          <p className="mt-2 text-base text-gray-600">
-            See how seocheck.tools compares — what&apos;s the same, what&apos;s
-            different, what&apos;s missing.
-          </p>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+              Switching from another tool?
+            </h2>
+            <p className="mt-3 text-base text-gray-600">
+              See how SEO Check Tools compares — what&apos;s the same, what&apos;s
+              different, what&apos;s missing.
+            </p>
+          </div>
 
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             {comparisons.map((c) => (
               <Link
                 key={c.href}
@@ -272,11 +334,16 @@ export default function HomePage() {
       {/* ───────── FAQ ───────── */}
       <section className="border-t border-gray-100 bg-gray-50/40 py-20">
         <Container as="div">
-          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            Frequently asked questions
-          </h2>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+              Frequently asked questions
+            </h2>
+            <p className="mt-3 text-base text-gray-600">
+              Quick answers to common questions about seocheck.tools.
+            </p>
+          </div>
 
-          <div className="mt-10 divide-y divide-gray-200">
+          <div className="mx-auto mt-12 max-w-3xl divide-y divide-gray-200">
             {faqs.map(({ q, a }) => (
               <details key={q} className="group py-5">
                 <summary className="flex cursor-pointer items-center justify-between text-base font-medium text-gray-900 list-none">

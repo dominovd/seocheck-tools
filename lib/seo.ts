@@ -1,6 +1,17 @@
 import type { Metadata } from "next";
 import { siteConfig } from "./site-config";
 
+/**
+ * Title-tag brand for sub-pages — includes "YouTube SEO" for keyword density
+ * in Google SERPs. Home page skips this to avoid "YouTube" duplication with
+ * the tagline ("Free YouTube SEO Toolkit"), which already carries the term.
+ *
+ * UI wordmark in Header/Footer stays as siteConfig.name ("SEO Check Tools")
+ * for brand cleanliness — descriptive keywords belong in <title>, not the logo.
+ */
+const TITLE_BRAND_HOME = siteConfig.name; // "SEO Check Tools"
+const TITLE_BRAND_SUB = `YouTube SEO ${siteConfig.name}`; // "YouTube SEO Check Tools"
+
 type BuildMetadataInput = {
   title: string;
   description: string;
@@ -26,8 +37,8 @@ export function buildMetadata({
   const url = `${siteConfig.url}/${path}`.replace(/\/$/, "") || siteConfig.url;
   const fullTitle =
     path === ""
-      ? `${title} — ${siteConfig.displayName}`
-      : `${title} | ${siteConfig.displayName}`;
+      ? `${title} — ${TITLE_BRAND_HOME}`
+      : `${title} | ${TITLE_BRAND_SUB}`;
 
   return {
     title: fullTitle,
@@ -38,7 +49,7 @@ export function buildMetadata({
       title: fullTitle,
       description,
       url,
-      siteName: siteConfig.displayName,
+      siteName: siteConfig.name,
       images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
       locale: siteConfig.locale,
       type: "website",

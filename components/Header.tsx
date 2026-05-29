@@ -8,11 +8,10 @@ export function Header() {
       <Container as="div" className="flex h-14 items-center justify-between">
         <Link
           href="/"
-          className="font-mono text-sm font-semibold tracking-tight text-gray-900"
-          aria-label={`${siteConfig.displayName} home`}
+          className="text-base font-semibold text-gray-900"
+          aria-label={`${siteConfig.name} home`}
         >
-          seo<span className="text-brand-500">check</span>
-          <span className="text-gray-400">.tools</span>
+          SEO <span className="text-brand-500">Check</span> Tools
         </Link>
 
         <nav className="flex items-center gap-5 text-sm text-gray-500">

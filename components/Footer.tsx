@@ -18,9 +18,8 @@ export function Footer() {
       <Container as="div" className="py-14">
         {/* Wordmark + tagline */}
         <div className="mb-12">
-          <p className="font-mono text-sm font-semibold text-gray-900">
-            seo<span className="text-brand-500">check</span>
-            <span className="text-gray-400">.tools</span>
+          <p className="text-base font-semibold text-gray-900">
+            SEO <span className="text-brand-500">Check</span> Tools
           </p>
           <p className="mt-2 text-sm text-gray-600 max-w-md">
             {siteConfig.tagline} for YouTube creators. Free, no signup, AI where

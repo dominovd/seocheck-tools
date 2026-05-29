@@ -4,7 +4,7 @@ import { siteConfig } from "@/lib/site-config";
 
 export const metadata = buildMetadata({
   title: "Contact",
-  description: "Get in touch with the seocheck.tools team for feedback, bug reports, or partnership inquiries.",
+  description: "Get in touch with the SEO Check Tools team for feedback, bug reports, or partnership inquiries.",
   path: "contact",
 });
 
