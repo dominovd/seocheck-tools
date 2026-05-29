@@ -1,66 +1,108 @@
 import Link from "next/link";
 import { Container } from "./Container";
 import { siteConfig } from "@/lib/site-config";
+import { toolsByCategory } from "@/lib/tools-catalog";
 
+/**
+ * Programmatic-SEO style footer (Mictoo-pattern).
+ *
+ * As deep pages are built — comparison pages (vs TubeBuddy, vs VidIQ),
+ * per-niche pages (gaming tags, cooking tags), language pages — they
+ * get added here for crawl coverage. For MVP we only link to what exists.
+ */
 export function Footer() {
+  const groups = toolsByCategory();
+
   return (
-    <footer className="mt-24 border-t border-gray-200 bg-gray-50">
-      <Container as="div" className="py-12">
-        <div className="grid gap-8 md:grid-cols-3">
-          <div>
-            <p className="font-mono text-base font-semibold text-gray-900">
-              seo<span className="text-brand-500">check</span>
-              <span className="text-gray-400">.tools</span>
-            </p>
-            <p className="mt-2 text-sm text-gray-600">{siteConfig.tagline}</p>
-          </div>
-
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              Site
-            </p>
-            <ul className="mt-3 space-y-2 text-sm text-gray-600">
-              <li>
-                <Link href="/about" className="hover:text-gray-900 transition-colors">
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-gray-900 transition-colors">
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link href="/guides" className="hover:text-gray-900 transition-colors">
-                  Guides
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              Legal
-            </p>
-            <ul className="mt-3 space-y-2 text-sm text-gray-600">
-              <li>
-                <Link href="/privacy" className="hover:text-gray-900 transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="hover:text-gray-900 transition-colors">
-                  Terms of Use
-                </Link>
-              </li>
-            </ul>
-          </div>
+    <footer className="mt-24 border-t border-gray-100 bg-gray-50/60">
+      <Container as="div" className="py-14">
+        {/* Wordmark + tagline */}
+        <div className="mb-12">
+          <p className="font-mono text-sm font-semibold text-gray-900">
+            seo<span className="text-brand-500">check</span>
+            <span className="text-gray-400">.tools</span>
+          </p>
+          <p className="mt-2 text-sm text-gray-600 max-w-md">
+            {siteConfig.tagline} for YouTube creators. Free, no signup, AI where
+            it counts.
+          </p>
         </div>
 
-        <div className="mt-10 border-t border-gray-200 pt-6 text-xs text-gray-500">
-          {siteConfig.copyright}
+        {/* Multi-column link sections */}
+        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
+          <FooterColumn
+            heading="AI Tools"
+            links={groups.ai.map((t) => ({
+              href: `/tools/${t.slug}`,
+              label: t.shortTitle,
+            }))}
+          />
+          <FooterColumn
+            heading="Utilities"
+            links={[...groups.utility, ...groups.downloader].map((t) => ({
+              href: `/tools/${t.slug}`,
+              label: t.shortTitle,
+            }))}
+          />
+          <FooterColumn
+            heading="Generators"
+            links={[...groups.generator, ...groups.calculator].map((t) => ({
+              href: `/tools/${t.slug}`,
+              label: t.shortTitle,
+            }))}
+          />
+          <FooterColumn
+            heading="Site"
+            links={[
+              { href: "/tools", label: "All tools" },
+              { href: "/guides", label: "Guides" },
+              { href: "/about", label: "About" },
+              { href: "/contact", label: "Contact" },
+            ]}
+          />
+          <FooterColumn
+            heading="Legal"
+            links={[
+              { href: "/privacy", label: "Privacy" },
+              { href: "/terms", label: "Terms" },
+            ]}
+          />
+        </div>
+
+        <div className="mt-12 border-t border-gray-100 pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <p className="text-xs text-gray-500">{siteConfig.copyright}</p>
+          <p className="text-xs text-gray-400">
+            Not affiliated with YouTube or Alphabet Inc.
+          </p>
         </div>
       </Container>
     </footer>
+  );
+}
+
+type FooterColumnProps = {
+  heading: string;
+  links: { href: string; label: string }[];
+};
+
+function FooterColumn({ heading, links }: FooterColumnProps) {
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+        {heading}
+      </p>
+      <ul className="mt-4 space-y-2.5 text-sm text-gray-600">
+        {links.map((link) => (
+          <li key={link.href}>
+            <Link
+              href={link.href}
+              className="hover:text-gray-900 transition-colors"
+            >
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
