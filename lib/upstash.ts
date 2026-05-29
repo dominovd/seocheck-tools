@@ -8,9 +8,18 @@ import { Redis } from "@upstash/redis";
  *  - AI prompt/response cache (lib/ai/cache.ts)
  *  - Daily AI spend budget tracker (lib/ai/budget.ts)
  *
- * Upstash free tier: 10,000 commands/day, 256 MB storage, REST-based
- * so it works on Vercel Edge runtime.
+ * Upstash free tier (current policy): 1 database per account, 500K
+ * commands/month, 256 MB storage. To safely share a database with other
+ * projects without key collisions, all keys this codebase writes are
+ * prefixed with KEY_PREFIX below. Change it once here to re-namespace
+ * everything atomically.
  */
+
+/**
+ * Namespace prefix for every key this codebase reads or writes. Lets us
+ * share an Upstash database with other projects without collisions.
+ */
+export const KEY_PREFIX = "seo:";
 
 let _client: Redis | null = null;
 

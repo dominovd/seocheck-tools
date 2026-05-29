@@ -1,4 +1,4 @@
-import { redis } from "../upstash";
+import { redis, KEY_PREFIX } from "../upstash";
 
 /**
  * Per-IP, per-tool daily rate limit.
@@ -37,7 +37,7 @@ export async function checkRateLimit(
   ip: string,
   limit: number = DEFAULT_DAILY_LIMIT
 ): Promise<RateLimitResult> {
-  const key = `rl:${tool}:${ip}:${todayUtc()}`;
+  const key = `${KEY_PREFIX}rl:${tool}:${ip}:${todayUtc()}`;
   const r = redis();
 
   // INCR returns the new value. If it's 1, the key was just created

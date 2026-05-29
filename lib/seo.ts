@@ -71,6 +71,9 @@ export function buildMetadata({
         "max-snippet": -1,
       },
     },
+    verification: {
+      google: siteConfig.googleSiteVerification,
+    },
   };
 }
 

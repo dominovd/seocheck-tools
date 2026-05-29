@@ -1,4 +1,4 @@
-import { redis } from "../upstash";
+import { redis, KEY_PREFIX } from "../upstash";
 
 /**
  * Daily AI spend tracker.
@@ -16,7 +16,7 @@ import { redis } from "../upstash";
 const DEFAULT_DAILY_BUDGET_USD = 5;
 
 function todayKey(): string {
-  return `budget:${new Date().toISOString().slice(0, 10)}`;
+  return `${KEY_PREFIX}budget:${new Date().toISOString().slice(0, 10)}`;
 }
 
 function dailyBudgetUsd(): number {

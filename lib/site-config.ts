@@ -21,6 +21,7 @@ export const siteConfig = {
   twitterCreator: "@seochecktools",
   contactEmail: "hello@seocheck.tools",
   copyright: `© ${new Date().getFullYear()} SEO Check Tools — free forever`,
+  googleSiteVerification: "Z9Wa4TR3TWf_MOGXOAHrz083v49JOACyIdjRYqZpC7M",
 } as const;
 
 export type SiteConfig = typeof siteConfig;

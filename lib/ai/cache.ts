@@ -1,4 +1,4 @@
-import { redis } from "../upstash";
+import { redis, KEY_PREFIX } from "../upstash";
 
 /**
  * Prompt/response cache.
@@ -35,7 +35,7 @@ export async function getCachedOutput<T>(
   input: unknown
 ): Promise<T | null> {
   const hash = await hashInput(input);
-  const key = `cache:${tool}:${hash}`;
+  const key = `${KEY_PREFIX}cache:${tool}:${hash}`;
   const value = await redis().get<string>(key);
   if (!value) return null;
   try {
@@ -52,6 +52,6 @@ export async function setCachedOutput(
   output: unknown
 ): Promise<void> {
   const hash = await hashInput(input);
-  const key = `cache:${tool}:${hash}`;
+  const key = `${KEY_PREFIX}cache:${tool}:${hash}`;
   await redis().set(key, JSON.stringify(output), { ex: CACHE_TTL_SECONDS });
 }
