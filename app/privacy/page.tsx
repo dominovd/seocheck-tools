@@ -90,14 +90,19 @@ export default function PrivacyPage() {
         </p>
 
         <h3 className="mt-5 text-base font-semibold text-gray-900">
-          URLs you paste into utility tools (not stored)
+          URLs and channels you paste into utility tools (not stored)
         </h3>
         <p className="mt-2 text-base text-gray-700 leading-relaxed">
-          For tools that look up information from YouTube — like the Channel ID
-          Finder, Tag Extractor, and Keyword Tool — we fetch the relevant
-          YouTube page server-side and return the result. We cache the result
-          for 6 hours per URL so popular queries are fast and cheap. The cache
-          stores only the URL and the result, not who requested it.
+          For tools that look up information from YouTube — like the Channel
+          Audit, Visibility Score, Outlier Finder, Niche Check, Channel ID
+          Finder, Tag Extractor, and Keyword Tool — we query the YouTube Data
+          API v3 server-side to fetch publicly available metadata (channel
+          stats, video lists, video stats, search results) and return the
+          result. We cache the response per query for 6&ndash;24 hours so
+          popular lookups are fast and cheap. The cache stores only the query
+          and the API response, not who requested it. See the &ldquo;YouTube
+          API Services&rdquo; section below for the full disclosure required by
+          YouTube&apos;s API terms.
         </p>
 
         <h3 className="mt-5 text-base font-semibold text-gray-900">
@@ -193,7 +198,119 @@ export default function PrivacyPage() {
             </a>
             .
           </li>
+          <li>
+            <strong>Google (YouTube Data API).</strong> When you use a tool
+            that looks up channel or video data, we query the YouTube Data
+            API v3 server-side to fetch publicly available metadata. Google&apos;s
+            privacy policy:{" "}
+            <a
+              href="https://policies.google.com/privacy"
+              className="link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              policies.google.com/privacy
+            </a>
+            . Use of the YouTube Data API is governed by the YouTube API
+            Services Terms of Service:{" "}
+            <a
+              href="https://developers.google.com/youtube/terms/api-services-terms-of-service"
+              className="link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              developers.google.com/youtube/terms/api-services-terms-of-service
+            </a>
+            . See the dedicated &ldquo;YouTube API Services&rdquo; section
+            below.
+          </li>
         </ul>
+
+        <h2 className="mt-10 text-xl font-semibold text-gray-900">
+          YouTube API Services
+        </h2>
+        <p className="mt-3 text-base text-gray-700 leading-relaxed">
+          Several tools on this site — Channel Audit, Visibility Score, Outlier
+          Finder, Niche Check, Channel ID Finder, Historical Tracking, and the
+          Competitor Channel Analyzer — query the YouTube Data API v3 to fetch
+          publicly available channel and video metadata (channel statistics,
+          video lists, video statistics, search results, video category
+          metadata). We do not request OAuth permission to read your YouTube
+          account, we do not access private data on your behalf, and you are
+          never asked to sign in with Google to use these tools.
+        </p>
+        <p className="mt-3 text-base text-gray-700 leading-relaxed">
+          By using these tools you agree to be bound by the{" "}
+          <a
+            href="https://developers.google.com/youtube/terms/api-services-terms-of-service"
+            className="link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            YouTube API Services Terms of Service
+          </a>{" "}
+          and acknowledge that data we surface from YouTube is governed by{" "}
+          <a
+            href="https://policies.google.com/privacy"
+            className="link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Google&apos;s Privacy Policy
+          </a>
+          .
+        </p>
+
+        <h3 className="mt-5 text-base font-semibold text-gray-900">
+          What YouTube-derived data we store
+        </h3>
+        <ul className="mt-2 space-y-2 text-base text-gray-700 leading-relaxed">
+          <li>
+            <strong>Short-term query cache (6&ndash;24 hours).</strong>{" "}
+            Responses to API lookups (channel stats, video lists, video stats)
+            are cached per query so popular lookups are fast. The cache key is
+            the query itself; we do not associate cached data with the IP that
+            requested it.
+          </li>
+          <li>
+            <strong>Channel snapshots for Historical Tracking (up to 26
+            weekly snapshots per channel).</strong> When a user opts into
+            tracking a channel, we run a weekly background re-audit and store
+            the resulting metrics (Visibility Score breakdown, subscriber and
+            view counts, upload cadence) so the trend chart can render. These
+            snapshots are keyed by channel ID, not by the user who added the
+            channel.
+          </li>
+          <li>
+            <strong>Derived metrics (Visibility Score, sub-scores).</strong>{" "}
+            Per the YouTube API derived-metrics policy, our Visibility Score
+            is computed by us, clearly labelled as our own metric, and not
+            sourced or implied to be sourced directly from YouTube&apos;s API.
+          </li>
+        </ul>
+
+        <h3 className="mt-5 text-base font-semibold text-gray-900">
+          How to revoke access and delete YouTube-derived data
+        </h3>
+        <p className="mt-2 text-base text-gray-700 leading-relaxed">
+          Because we don&apos;t request OAuth scopes from your Google account,
+          there is normally nothing for you to revoke at{" "}
+          <a
+            href="https://myaccount.google.com/permissions"
+            className="link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            myaccount.google.com/permissions
+          </a>
+          . To remove cached YouTube data we hold about a channel, email{" "}
+          <a href={`mailto:${siteConfig.contactEmail}`} className="link">
+            {siteConfig.contactEmail}
+          </a>{" "}
+          with the channel URL or channel ID. We will purge the short-term
+          query cache, any Visibility Score snapshots, and any Historical
+          Tracking history for that channel within 7 days of the request.
+        </p>
 
         <h2 className="mt-10 text-xl font-semibold text-gray-900">
           Your rights
@@ -261,8 +378,13 @@ export default function PrivacyPage() {
             output, 24 hours
           </li>
           <li>
-            <strong>YouTube lookup cache (utility tools):</strong> 6 hours per
-            URL
+            <strong>YouTube Data API lookup cache:</strong> 6&ndash;24 hours
+            per query, keyed by query (not by requester)
+          </li>
+          <li>
+            <strong>Historical Tracking channel snapshots:</strong> up to 26
+            weekly snapshots per tracked channel, keyed by channel ID; purged
+            on email request within 7 days
           </li>
           <li>
             <strong>Vercel Analytics events:</strong> per Vercel&apos;s
