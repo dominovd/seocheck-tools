@@ -8,7 +8,7 @@ import { allToolsSorted } from "@/lib/tools-catalog";
 export const metadata = buildMetadata({
   title: "About",
   description:
-    "SEO Check Tools is a free YouTube analytics and SEO platform — composite Visibility Score, Channel Audit, AI Fix-with-AI, Outlier Finder, and weekly historical tracking. No signup, privacy-first.",
+    "Free YouTube analytics and SEO platform — Visibility Score, Channel Audit, AI Fix-with-AI, Outlier Finder, weekly tracking. No signup, privacy-first.",
   path: "about",
 });
 

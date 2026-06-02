@@ -2,9 +2,9 @@ import { StageHub } from "@/components/StageHub";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "Optimize — YouTube SEO Tools for Titles, Thumbnails, Tags & Hashtags",
+  title: "YouTube title, thumbnail & tag tools",
   description:
-    "Free YouTube tools for the Optimize stage: shape the surfaces viewers actually click. Title Generator, Title Score Checker, Tag Generator, Hashtag Generator, Thumbnail Downloader.",
+    "Free YouTube Optimize tools — AI Title Generator, Title Score Checker, Thumbnail Preview, Tag and Hashtag Generators. Shape the surfaces viewers click.",
   path: "tools/optimize",
 });
 

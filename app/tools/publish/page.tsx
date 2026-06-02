@@ -2,9 +2,9 @@ import { StageHub } from "@/components/StageHub";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "Publish — YouTube SEO Tools for Descriptions, Chapters & Embeds",
+  title: "YouTube description & chapter tools",
   description:
-    "Free YouTube tools for the Publish stage: format the description, chapters, and embeds the way YouTube expects. Description Generator, Chapter Generator, Embed Code Generator.",
+    "Free YouTube Publish tools — AI Description Generator, Chapter Generator, Embed Code Generator. Format what YouTube expects before you hit publish.",
   path: "tools/publish",
 });
 

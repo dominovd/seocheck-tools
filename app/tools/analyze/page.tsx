@@ -2,9 +2,9 @@ import { StageHub } from "@/components/StageHub";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "Analyze — YouTube SEO Tools for Video Audit & Earnings",
+  title: "YouTube analytics & channel audit tools",
   description:
-    "Free YouTube tools for the Analyze stage: score what's working, surface what's broken, project earnings. Video Audit, Money Calculator.",
+    "Free YouTube Analyze tools — Visibility Score, Channel Audit, Video Audit with AI Fix-with-AI, Money Calculator. Composite scoring and weekly trend tracking.",
   path: "tools/analyze",
 });
 

@@ -2,9 +2,9 @@ import { StageHub } from "@/components/StageHub";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "Research — YouTube SEO Tools for Niche & Competitor Discovery",
+  title: "YouTube niche & competitor research tools",
   description:
-    "Free YouTube tools for the Research stage: find what to make, scout competitors, validate topics, discover keywords. Competitor Analyzer, Keyword Tool, Video Ideas, Tag Extractor, more.",
+    "Free YouTube Research tools — Competitor Analyzer, Outlier Finder, Keyword Tool, Video Idea Generator, Tag Extractor. Find what to make before recording.",
   path: "tools/research",
 });
 
