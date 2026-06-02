@@ -26,6 +26,13 @@ type BuildMetadataInput = {
   ogVariant?: { ai?: boolean };
   /** Set to true on pages that should not be indexed. */
   noindex?: boolean;
+  /**
+   * Skip the automatic " | SEO Check Tools" brand suffix. Use sparingly,
+   * only when the title is already self-branded (e.g. "Free YouTube SEO
+   * tools" on the /tools index where the keyword density matters more
+   * than the brand suffix).
+   */
+  noBrand?: boolean;
 };
 
 /**
@@ -39,12 +46,14 @@ export function buildMetadata({
   ogImage,
   ogVariant,
   noindex = false,
+  noBrand = false,
 }: BuildMetadataInput): Metadata {
   const url = `${siteConfig.url}/${path}`.replace(/\/$/, "") || siteConfig.url;
-  const fullTitle =
-    path === ""
-      ? `${title} — ${TITLE_BRAND_HOME}`
-      : `${title} | ${TITLE_BRAND_SUB}`;
+  const fullTitle = noBrand
+    ? title
+    : path === ""
+    ? `${title} — ${TITLE_BRAND_HOME}`
+    : `${title} | ${TITLE_BRAND_SUB}`;
 
   // Build a default dynamic OG image URL if no override was passed.
   // Truncate the description so the query string stays reasonable.
