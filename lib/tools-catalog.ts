@@ -18,6 +18,7 @@ import {
   Eye,
   TrendingUp,
   ClipboardList,
+  Compass,
   type LucideIcon,
 } from "lucide-react";
 
@@ -83,6 +84,23 @@ export const TOOLS: Tool[] = [
   // ──────────────────────────────────────────────────────────
   // Flagships — audit + competitor analyzer
   // ──────────────────────────────────────────────────────────
+  {
+    slug: "youtube-niche-check",
+    title: "YouTube Niche Check",
+    shortTitle: "Niche Check",
+    taskLabel: "Check a topic's opportunity",
+    description:
+      "Paste a topic — get a verdict (ENTER NOW / NICHE GAP / HIGH COMPETITION / OVERSATURATED / WEAK DEMAND / NEUTRAL) with a 0-10 score, signals, and evidence.",
+    metaDescription:
+      "Free YouTube niche check. Paste a topic, get a one-word verdict with score, signals, and top-20 evidence. Find under-saturated niches before recording.",
+    category: "ai",
+    stage: "research",
+    Icon: Compass,
+    isAI: false,
+    searchVolume: 20000,
+    priority: 0.96,
+    status: "live",
+  },
   {
     slug: "youtube-outlier-finder",
     title: "YouTube Outlier Finder",

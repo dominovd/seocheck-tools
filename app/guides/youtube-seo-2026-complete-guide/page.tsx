@@ -25,7 +25,7 @@ export default function YouTubeSeoCompleteGuidePage() {
 
       <p>
         Skip ahead to the tools mentioned throughout:{" "}
-        <Link href="/tools">all 20 free tools</Link>. Each tool exists because
+        <Link href="/tools">all 21 free tools</Link>. Each tool exists because
         a specific step in this guide deserved its own utility.
       </p>
 

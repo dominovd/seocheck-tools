@@ -120,7 +120,7 @@ const faqs = [
   },
   {
     q: "Is SEO Check Tools really free?",
-    a: "Yes — all 20 tools are free without an account. AI-powered tools have a daily per-IP fair-use limit (15/day for generators, 3-10/day for YouTube-API-heavy analyzers and audits like Visibility Score, Channel Audit, Competitor Analyzer, Outlier Finder). Browser-side tools (Thumbnail Preview, Title Score Checker) have no limit.",
+    a: "Yes — all 21 tools are free without an account. AI-powered tools have a daily per-IP fair-use limit (15/day for generators, 3-10/day for YouTube-API-heavy analyzers and audits like Visibility Score, Channel Audit, Competitor Analyzer, Outlier Finder). Browser-side tools (Thumbnail Preview, Title Score Checker) have no limit.",
   },
   {
     q: "Do you store my prompts, outputs, or channel data?",
@@ -136,7 +136,7 @@ const faqs = [
   },
   {
     q: "Will more tools be added?",
-    a: "Yes. The current 20 tools cover the YouTube creator workflow across Research, Optimize, Publish, and Analyze stages. Most recent additions: YouTube Visibility Score, AI Fix-with-AI button, Channel Audit, Outlier Finder, Thumbnail Preview, Historical Tracking. Multi-platform expansion (TikTok, Instagram, Pinterest) is on the roadmap.",
+    a: "Yes. The current 21 tools cover the YouTube creator workflow across Research, Optimize, Publish, and Analyze stages. Most recent additions: Niche Check verdict tool, YouTube Visibility Score, AI Fix-with-AI button, Channel Audit, Outlier Finder, Thumbnail Preview, Historical Tracking. Multi-platform expansion (TikTok, Instagram, Pinterest) is on the roadmap.",
   },
 ];
 
@@ -256,7 +256,7 @@ export default function HomePage() {
             href="/tools"
             className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:border-brand-300 hover:bg-brand-50/40 hover:text-gray-900 transition"
           >
-            View all 20 tools
+            View all 21 tools
             <ArrowRight className="h-4 w-4 text-gray-400" strokeWidth={2} />
           </Link>
         </div>

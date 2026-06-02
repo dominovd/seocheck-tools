@@ -296,6 +296,93 @@ export async function fetchLatestVideoIds(
 }
 
 /**
+ * Search YouTube by keyword. Returns top N video IDs by relevance.
+ * Costs 100 units per call (search.list is expensive).
+ *
+ * Used by Niche Check to evaluate topic-level competition.
+ */
+export async function searchByKeyword(
+  query: string,
+  maxResults: number,
+  apiKey: string
+): Promise<{ videoIds: string[]; totalResults: number }> {
+  const params = new URLSearchParams({
+    part: "id",
+    q: query,
+    type: "video",
+    order: "relevance",
+    maxResults: String(Math.min(Math.max(maxResults, 1), 50)),
+    key: apiKey,
+  });
+
+  try {
+    const res = await fetch(`https://www.googleapis.com/youtube/v3/search?${params}`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!res.ok) return { videoIds: [], totalResults: 0 };
+    const data = (await res.json()) as SearchApiResponse & {
+      pageInfo?: { totalResults?: number };
+    };
+    return {
+      videoIds: (data.items ?? [])
+        .map((it) => it.id?.videoId)
+        .filter((v): v is string => Boolean(v)),
+      totalResults: data.pageInfo?.totalResults ?? 0,
+    };
+  } catch {
+    return { videoIds: [], totalResults: 0 };
+  }
+}
+
+/**
+ * Fetch channel data for an array of channel IDs in a single batched
+ * call. Costs 1 unit regardless of batch size.
+ */
+export async function fetchChannelsBatch(
+  channelIds: string[],
+  apiKey: string
+): Promise<Map<string, { id: string; title: string; subscriberCount: number | null }>> {
+  if (channelIds.length === 0) return new Map();
+  const params = new URLSearchParams({
+    part: "snippet,statistics",
+    id: channelIds.slice(0, 50).join(","),
+    key: apiKey,
+  });
+
+  try {
+    const res = await fetch(`https://www.googleapis.com/youtube/v3/channels?${params}`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!res.ok) return new Map();
+    const data = (await res.json()) as {
+      items?: Array<{
+        id?: string;
+        snippet?: { title?: string };
+        statistics?: { subscriberCount?: string; hiddenSubscriberCount?: boolean };
+      }>;
+    };
+    const out = new Map<string, { id: string; title: string; subscriberCount: number | null }>();
+    for (const item of data.items ?? []) {
+      if (!item.id) continue;
+      out.set(item.id, {
+        id: item.id,
+        title: item.snippet?.title ?? "",
+        subscriberCount: item.statistics?.hiddenSubscriberCount
+          ? null
+          : item.statistics?.subscriberCount
+          ? parseInt(item.statistics.subscriberCount, 10)
+          : null,
+      });
+    }
+    return out;
+  } catch {
+    return new Map();
+  }
+}
+
+/**
  * Get the top N video IDs from a channel ordered by view count.
  * Costs 100 units per call (search.list is expensive).
  */
@@ -428,6 +515,62 @@ export type VideoEngagement = {
   likeCount: number | null;
   commentCount: number | null;
 };
+
+/**
+ * Lightweight fetch returning view/publish/channelId for a batch of
+ * video IDs. Used by Niche Check to compute median views, freshness,
+ * and channel-size distribution from search results.
+ *
+ * Costs 1 unit per batch of 50.
+ */
+export type NicheVideoRecord = {
+  videoId: string;
+  title: string;
+  channelId: string;
+  publishedAt: string | null;
+  viewCount: number | null;
+};
+
+export async function fetchVideosForNicheCheck(
+  videoIds: string[],
+  apiKey: string
+): Promise<NicheVideoRecord[]> {
+  if (videoIds.length === 0) return [];
+
+  const params = new URLSearchParams({
+    part: "snippet,statistics",
+    id: videoIds.slice(0, 50).join(","),
+    key: apiKey,
+  });
+
+  try {
+    const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?${params}`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as {
+      items?: Array<{
+        id?: string;
+        snippet?: { title?: string; channelId?: string; publishedAt?: string };
+        statistics?: { viewCount?: string };
+      }>;
+    };
+    return (data.items ?? [])
+      .filter((it): it is NonNullable<typeof it> & { id: string } => Boolean(it.id))
+      .map((it) => ({
+        videoId: it.id,
+        title: it.snippet?.title ?? "",
+        channelId: it.snippet?.channelId ?? "",
+        publishedAt: it.snippet?.publishedAt ?? null,
+        viewCount: it.statistics?.viewCount
+          ? parseInt(it.statistics.viewCount, 10)
+          : null,
+      }));
+  } catch {
+    return [];
+  }
+}
 
 /**
  * Variant that returns engagement stats alongside the canonical ApiVideoData.
