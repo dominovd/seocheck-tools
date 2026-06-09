@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
 import { type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
@@ -22,6 +22,12 @@ type ToolSpotlightProps = {
   reverse?: boolean;
   /** The mock UI element (a component like MockTitleGenerator) */
   mock: ReactNode;
+  /**
+   * Optional concrete proof-of-output line, e.g. "Title score: 62 → 88".
+   * Rendered between the description and the CTA with a check-icon. Use to
+   * give creators a tangible idea of what the tool actually outputs.
+   */
+  proof?: string;
 };
 
 /**
@@ -43,6 +49,7 @@ export function ToolSpotlight({
   isAI = false,
   reverse = false,
   mock,
+  proof,
 }: ToolSpotlightProps) {
   return (
     <section className="py-16 sm:py-20">
@@ -62,6 +69,21 @@ export function ToolSpotlight({
           <p className="mt-4 text-base text-gray-600 sm:text-lg leading-relaxed">
             {description}
           </p>
+          {proof && (
+            <p className="mt-5 inline-flex items-start gap-1.5 rounded-md bg-brand-50/60 px-3 py-2 text-sm font-medium text-brand-900 ring-1 ring-brand-100">
+              <CheckCircle2
+                className="h-4 w-4 shrink-0 text-brand-600 mt-0.5"
+                strokeWidth={2.25}
+                aria-hidden="true"
+              />
+              <span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-brand-700">
+                  What you&apos;ll see:
+                </span>{" "}
+                {proof}
+              </span>
+            </p>
+          )}
           <Link
             href={href}
             className="mt-8 inline-flex items-center gap-1.5 rounded-md bg-brand-500 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-brand-600 transition"

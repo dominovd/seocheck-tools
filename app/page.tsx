@@ -3,93 +3,113 @@ import {
   CircleDollarSign,
   Lock,
   Wand2,
-  Zap,
   ScanSearch,
-  HeartHandshake,
   ArrowRight,
   WandSparkles,
-  ScanLine,
-  ImageDown,
+  Search,
+  Tv,
+  Gauge,
+  Compass,
+  Sparkles,
+  FileText,
+  Target,
+  TrendingUp,
+  Rocket,
+  Upload,
+  Briefcase,
+  ClipboardCheck,
+  Check,
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { FaqSchema } from "@/components/PageSchemas";
-import { HeroAuditInput } from "@/components/HeroAuditInput";
 import { TrackedDetails } from "@/components/TrackedDetails";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { ToolSpotlight } from "@/components/spotlights/ToolSpotlight";
-import { MockTitleGenerator } from "@/components/spotlights/MockTitleGenerator";
-import { MockTagExtractor } from "@/components/spotlights/MockTagExtractor";
-import { MockThumbnailDownloader } from "@/components/spotlights/MockThumbnailDownloader";
+import { MockKeywordTool } from "@/components/spotlights/MockKeywordTool";
+import {
+  TitleGeneratorScreenshot,
+  ChannelNameGeneratorScreenshots,
+  ChannelAuditScreenshots,
+  VideoAuditScreenshots,
+} from "@/components/spotlights/ScreenshotSets";
+import { buildMetadata } from "@/lib/seo";
 import {
   toolsByStage,
-  stageLabel,
-  stageTagline,
   STAGE_ORDER,
+  getToolBySlug,
 } from "@/lib/tools-catalog";
+
+export const metadata = buildMetadata({
+  title: "Free YouTube SEO Tools for Creators",
+  description:
+    "21 free YouTube SEO tools for creators. No signup. Score any channel in 5 seconds, audit your next upload, generate AI titles, tags, and descriptions, and find under-saturated niches before you record.",
+  path: "",
+  noBrand: false,
+});
 
 const benefits = [
   {
     Icon: CircleDollarSign,
-    title: "100% free",
+    title: "Free, no trial games",
     description:
-      "No subscription, no trial, no per-tool credits. Every tool — including Visibility Score, Channel Audit, and the AI Fix-with-AI orchestrator — is free for personal and commercial use.",
+      "Use every tool without a subscription, credit card, or per-tool credits. Channel audits, Visibility Score, generators, and AI fixes are all included.",
   },
   {
     Icon: Wand2,
-    title: "AI where it counts",
+    title: "AI fixes, not generic advice",
     description:
-      "Claude Haiku powers the AI YouTube Coach (one-click fixes after every audit), the Competitor and Outlier pattern analysis, and the Visibility Score one-sentence summary. Browser-side utilities stay browser-side — no LLM cost, no delay.",
+      "Get rewritten titles, descriptions, tags, and hashtags only where your audit finds weak spots, so you can copy fixes straight into YouTube Studio.",
   },
   {
     Icon: Lock,
-    title: "Privacy by default",
+    title: "No account, no tracking profile",
     description:
-      "No accounts. No analytics that follow you. Your prompts and outputs are not stored. Channel IDs in our audit log are SHA-256-hashed before storage — IPs are held in memory only for fair-use limits.",
+      "Use the tools without signing up. Prompts and outputs are not stored, and channel audit data is anonymized for privacy.",
   },
   {
-    Icon: Zap,
-    title: "Measurement, not just generation",
+    Icon: Target,
+    title: "Scores before suggestions",
     description:
-      "Composite Visibility Score (0-100) summarizes a channel's standing in one shareable number. Channel Audit, Video Audit, and Outlier Finder turn diagnosis into action. The toolkit is a measurement instrument first, generators second.",
+      "See what is actually weak first: title, metadata, chapters, channel visibility, or growth trajectory. Then use generators to fix the right thing.",
   },
   {
     Icon: ScanSearch,
-    title: "Competitor intelligence + outliers",
+    title: "Find what is working in your niche",
     description:
-      "Competitor Channel Analyzer pulls top 10 + latest 10 with AI pattern summary. Outlier Finder surfaces channel videos that broke through 3× the median — the data agencies pay Spotter $50K+/year for, free.",
+      "Analyze competitor channels, pull hidden tags, and spot outlier videos that performed far above the channel's normal baseline.",
   },
   {
-    Icon: HeartHandshake,
-    title: "Historical trend tracking",
+    Icon: TrendingUp,
+    title: "Track progress over time",
     description:
-      "Track this channel on any Visibility Score result and a weekly cron re-scores it every Monday. After a few weeks, the timeline shows your trajectory — the trend competitors only show behind a paywall.",
+      "Save a channel after scoring it and watch the Visibility Score change week by week, so growth becomes visible instead of guesswork.",
   },
 ];
 
 const audiences = [
   {
-    label: "YouTubers",
-    description: "Optimize titles, tags, and descriptions before publishing.",
+    Icon: Rocket,
+    label: "Just starting",
+    description:
+      "Validate your niche, name your channel, and generate your first video ideas.",
   },
   {
-    label: "Content marketers",
-    description: "Generate B2B video metadata at scale across multiple brands.",
+    Icon: Upload,
+    label: "Publishing regularly",
+    description:
+      "Improve titles, thumbnails, tags, descriptions, and chapters before each upload.",
   },
   {
-    label: "Social media managers",
-    description: "Find tags, hashtags, and ideas without paying $30/month tools.",
+    Icon: TrendingUp,
+    label: "Trying to grow",
+    description:
+      "Find outliers, audit weak uploads, and track your channel visibility over time.",
   },
   {
-    label: "Affiliate marketers",
-    description: "Research competitors, find low-competition keywords, ship faster.",
-  },
-  {
-    label: "Educators",
-    description: "Format chapters, generate descriptions, transcribe lectures.",
-  },
-  {
-    label: "Agencies",
-    description: "Free toolbox for client work that doesn't burn the budget.",
+    Icon: Briefcase,
+    label: "Managing YouTube for clients",
+    description:
+      "Run fast YouTube SEO checks and copy-ready fixes for multiple channels.",
   },
 ];
 
@@ -103,42 +123,139 @@ const comparisons = [
 
 const faqs = [
   {
+    q: "What is YouTube SEO?",
+    a: "YouTube SEO is the process of helping your videos get discovered in YouTube Search, suggested videos, and related recommendations. It includes choosing the right topic, writing a clear title, adding useful metadata, improving thumbnails, using chapters, and tracking which uploads perform better than expected.",
+  },
+  {
+    q: "What are the best free YouTube SEO tools?",
+    a: "The best free YouTube SEO tools cover the full creator workflow: keyword research, title generation, tag generation, description generation, thumbnail preview, video audit, channel audit, and competitor research. SEO Check Tools combines these into one free toolkit with no signup or credit card.",
+  },
+  {
+    q: "What are YouTube SEO best practices in 2026?",
+    a: "Start with a topic people already search for, write a title that clearly promises value, use a thumbnail that is readable on mobile, add a useful description, include relevant tags and hashtags, add chapters when helpful, and review performance after publishing. The best workflow is research before filming, optimize before upload, then audit after publish.",
+  },
+  {
+    q: "What is a YouTube keyword tool?",
+    a: "A YouTube keyword tool helps you find search terms people use on YouTube. Use it before filming to choose a topic, then reuse the strongest keywords naturally in your title, description, tags, chapters, and hashtags.",
+  },
+  {
+    q: "How do I write a YouTube title that gets clicks?",
+    a: "A strong YouTube title is clear, specific, and curiosity-driven without misleading viewers. Good titles usually combine the topic with an outcome, tension, comparison, or surprising angle. The YouTube Title Generator gives multiple title angles so you can choose the strongest fit for your video.",
+  },
+  {
+    q: "How do I choose YouTube tags?",
+    a: "Use tags to clarify the topic, spelling variants, people, products, tools, and related searches in the video. Avoid stuffing broad tags. Start with your main keyword, add close variations, then include a few niche-specific terms from keyword or competitor research.",
+  },
+  {
+    q: "Can I generate YouTube descriptions for free?",
+    a: "Yes. The free YouTube Description Generator helps turn your topic, title, or notes into a structured description with relevant keywords, useful context, links, and calls to action. You can copy the result into YouTube Studio and edit it before publishing.",
+  },
+  {
     q: "What is the YouTube Visibility Score?",
-    a: "Composite 0-100 metric across four weighted sub-scores: CTR Potential (35% — title quality), Metadata Quality (25% — description/hashtags/chapters discipline), Niche Headroom (15% — reach beyond subscriber base), and Growth Trajectory (25% — outlier rate). Paste any channel handle or URL and get an A-F grade with an AI one-sentence summary in 5 seconds. Shareable as a single number, drillable into specific sub-scores for action.",
+    a: "The YouTube Visibility Score is a 0-100 score that estimates how discoverable a channel is across click potential, metadata quality, niche headroom, and growth trajectory. It gives creators one simple number, plus the weak areas worth fixing first.",
+  },
+  {
+    q: "What is the difference between Video Audit and Channel Audit?",
+    a: "Video Audit checks one video and scores its title, description, tags, hashtags, and chapters. Channel Audit looks across recent uploads to find recurring problems, weak metadata patterns, and the uploads that may be dragging the channel down.",
   },
   {
     q: "How does the Fix-with-AI button work?",
-    a: "After Video Audit identifies weak dimensions, a single Fix-with-AI button runs ONE Claude Haiku call that returns aligned replacements for ONLY the weak or fair fields (title, description, tags, hashtags). Strong dimensions return null — the AI doesn't waste effort rewriting what's already working. Copy the new package straight into YouTube Studio. Turns the audit from diagnosis into one-click solution.",
+    a: "Fix-with-AI uses the audit results to rewrite only the weak parts of a video package, such as title, description, tags, or hashtags. Instead of generic advice, it gives copy-ready improvements you can paste into YouTube Studio.",
   },
   {
     q: "Can I track a channel's growth over time?",
-    a: "Yes. On any Visibility Score result, click 'Track this channel'. A weekly Vercel cron re-scores the channel every Monday and accumulates a timeline. After 2-3 weeks the chart shows your Visibility Score trajectory — the trend competitors only show behind a paywall. Up to 200 channels tracked at any time across the site.",
-  },
-  {
-    q: "What's the difference between Video Audit and Channel Audit?",
-    a: "Video Audit scores ONE video across title, description, tags, hashtags, and chapters. Channel Audit runs the same engine against your channel's LAST 10 UPLOADS and aggregates the result — per-dimension averages, band distribution, the worst dimension flagged, plus an AI list of recurring channel-wide issues. The first is diagnosis for one video; the second is pattern detection across your output.",
+    a: "Yes. After running a Visibility Score, you can track a channel and see how the score changes over time. This helps you understand whether your optimization work is improving channel visibility week by week.",
   },
   {
     q: "Is SEO Check Tools really free?",
-    a: "Yes — all 21 tools are free without an account. AI-powered tools have a daily per-IP fair-use limit (15/day for generators, 3-10/day for YouTube-API-heavy analyzers and audits like Visibility Score, Channel Audit, Competitor Analyzer, Outlier Finder). Browser-side tools (Thumbnail Preview, Title Score Checker) have no limit.",
+    a: "Yes. SEO Check Tools is free to use with no signup, no credit card, and no subscription. Some AI-powered or YouTube API-heavy tools may have fair-use limits, but the core toolkit is available for free.",
   },
   {
     q: "Do you store my prompts, outputs, or channel data?",
-    a: "Prompts go to Anthropic's Claude API and are not retained on our side. Outputs return to your browser and are never written to a database. Channel IDs in the anonymous audit log are SHA-256-hashed before storage so reverse lookup is impossible — the log is bounded to the most recent 10,000 entries per tool for our internal YouTube Studies pages. IPs are held in memory only to enforce daily fair-use limits, never written to disk.",
+    a: "No account is required. Prompts and outputs are not stored as user profiles. Channel audit data is handled with privacy in mind, and usage limits are designed to prevent abuse rather than track individual creators.",
   },
   {
-    q: "Why is it free when VidIQ/TubeBuddy charge $19-49/month?",
-    a: "Most paid YouTube SEO suites are built on the same YouTube Data API and open data we use. Operating cost for our toolkit is low because we run heuristics where we can (Title Score Checker, Channel Audit aggregation) and only call AI for genuinely creative work (Fix-with-AI, pattern summaries). The toolkit is supported by lightweight contextual ads and partner links to deeper tools (Ahrefs, Canva) when relevant.",
-  },
-  {
-    q: "Which AI model powers the analysis and fixes?",
-    a: "Claude Haiku 4.5 from Anthropic. Used for: the Fix-with-AI orchestrator, Competitor Analyzer pattern + direction summaries, Outlier Finder differential analysis, Channel Audit recurring-issue extraction, and Visibility Score one-sentence positioning. Fast, lightweight, and constrained by system prompts to reject platitudes ('be authentic', 'post consistently') and reference actual data.",
-  },
-  {
-    q: "Will more tools be added?",
-    a: "Yes. The current 21 tools cover the YouTube creator workflow across Research, Optimize, Publish, and Analyze stages. Most recent additions: Niche Check verdict tool, YouTube Visibility Score, AI Fix-with-AI button, Channel Audit, Outlier Finder, Thumbnail Preview, Historical Tracking. Multi-platform expansion (TikTok, Instagram, Pinterest) is on the roadmap.",
+    q: "Why is it free when VidIQ and TubeBuddy charge monthly?",
+    a: "SEO Check Tools focuses on lightweight, single-purpose YouTube SEO tools and uses AI only where it adds real value, such as audits, fixes, and pattern summaries. That keeps the product simple enough to offer for free while still covering the creator workflow.",
   },
 ];
+
+/**
+ * Homepage-specific re-framing of the workflow stages. The global
+ * tools-catalog uses neutral "Research / Optimize / Publish / Analyze"
+ * labels; here on the homepage we use creator-pipeline framing
+ * (Before filming / Before upload / At publish / After publish) so
+ * visitors instantly see when each group of tools fits.
+ *
+ * Each stage also pins an exact tool list and footer CTA, so the
+ * homepage isn't at the mercy of the global priority sort (e.g. we
+ * surface Title Score Checker on the homepage even though it has a
+ * lower priority than Hashtag Generator). The footer CTA still links
+ * to the stage hub page where the full tool list lives.
+ */
+const HOMEPAGE_STAGES: Record<
+  "research" | "optimize" | "publish" | "analyze",
+  {
+    /** Compact job label, shown as eyebrow chip on the card (e.g. "Idea") */
+    jobLabel: string;
+    /** Card heading — the creator-pipeline moment */
+    heading: string;
+    /** One-liner under the heading describing the outcome */
+    subhead: string;
+    /** Tools to surface on the homepage (overrides the global priority sort) */
+    featuredSlugs: string[];
+    /** Footer link label leading to the stage hub */
+    footerCta: string;
+  }
+> = {
+  research: {
+    jobLabel: "Idea",
+    heading: "Before filming",
+    subhead: "Find topics with proven demand",
+    featuredSlugs: [
+      "youtube-competitor-analyzer",
+      "youtube-niche-check",
+      "youtube-outlier-finder",
+      "youtube-keyword-tool",
+    ],
+    footerCta: "Find video ideas",
+  },
+  optimize: {
+    jobLabel: "Click",
+    heading: "Before upload",
+    subhead: "Make the click package stronger",
+    featuredSlugs: [
+      "youtube-thumbnail-preview",
+      "youtube-title-generator",
+      "youtube-title-score-checker",
+      "youtube-tag-generator",
+    ],
+    footerCta: "Improve my upload",
+  },
+  publish: {
+    jobLabel: "Metadata",
+    heading: "At publish",
+    subhead: "Ship with clean metadata",
+    featuredSlugs: [
+      "youtube-description-generator",
+      "youtube-chapter-generator",
+      "youtube-hashtag-generator",
+    ],
+    footerCta: "Prepare metadata",
+  },
+  analyze: {
+    jobLabel: "Growth",
+    heading: "After publish",
+    subhead: "Learn what to fix next",
+    featuredSlugs: [
+      "youtube-video-audit",
+      "youtube-visibility-score",
+      "youtube-channel-audit",
+      "youtube-outlier-finder",
+    ],
+    footerCta: "Audit performance",
+  },
+};
 
 export default function HomePage() {
   const stageGroups = toolsByStage();
@@ -149,85 +266,169 @@ export default function HomePage() {
       {/* ───────── Hero ───────── */}
       <Container as="section" className="pt-20 pb-16 sm:pt-28 sm:pb-20 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
-          AI · Free · No signup · For YouTube creators
+          Free YouTube SEO tools · No signup · AI-powered
         </p>
         <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
-          Score, audit, and{" "}
-          <span className="text-brand-600">fix any YouTube channel</span>.
-          Free.
+          Free YouTube SEO Tools to{" "}
+          <span className="text-brand-600">Score, Audit, and Fix</span>{" "}
+          Any Channel
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 sm:text-xl">
-          Composite Visibility Score across CTR, metadata, niche headroom, and
-          growth trajectory. Whole-channel Audit with one-click AI fixes for
-          every weak dimension. Outlier Finder for breakthrough videos. Weekly
-          historical tracking — plus 16 single-purpose generators and utilities.
+          Find what to make next, fix weak uploads, and track your channel&apos;s
+          visibility over time. 21 free YouTube SEO tools powered by AI. No
+          signup, no credit card.
         </p>
       </Container>
 
-      {/* ───────── Audit feature band — flagship tool, positioned right below hero ───────── */}
-      <section className="border-y border-brand-100/70 bg-gradient-to-b from-brand-50/50 via-white to-white py-12 sm:py-16">
+      {/* ───────── Two-segment CTA: "I have a channel" vs "I'm starting one" ───────── */}
+      <section className="pb-16 sm:pb-20">
         <Container as="div">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">
-              Flagship · Video Audit + AI Fix
-            </p>
-            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-              Audit any YouTube video in 5 seconds, fix every weak spot in one click
-            </h2>
-            <p className="mt-3 text-base text-gray-600 sm:text-lg">
-              Paste a URL — get a 0-100 score for title, description, tags, hashtags,
-              and chapters. Then one click triggers an AI YouTube Coach that
-              rewrites the weak dimensions into aligned replacements you can copy
-              straight into YouTube Studio.
-            </p>
-            <HeroAuditInput />
-            <p className="mt-3 text-xs text-gray-500">
-              No signup. No email. 30 audits per day, free forever.
-            </p>
+          <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-2 sm:gap-5">
+            {/* Block A: Active YouTubers */}
+            <article className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-7 sm:p-8 transition hover:border-brand-300 hover:shadow-sm">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500 text-white shadow-sm">
+                  <Gauge className="h-5 w-5" strokeWidth={2} />
+                </div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">
+                  I have a channel
+                </p>
+              </div>
+              <h2 className="mt-5 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+                Find out what&apos;s holding your channel back
+              </h2>
+              <p className="mt-3 text-base text-gray-600 leading-relaxed">
+                Paste your channel handle or URL and get a 0&ndash;100
+                Visibility Score across click potential, metadata quality,
+                niche headroom, and growth trajectory. Then run a Channel
+                Audit to see which uploads need fixing first.
+              </p>
+              <ul className="mt-5 flex flex-wrap gap-2 text-xs">
+                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
+                  Visibility Score
+                </li>
+                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
+                  Channel Audit
+                </li>
+                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
+                  Outlier Finder
+                </li>
+                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
+                  Competitor Analyzer
+                </li>
+              </ul>
+              <div className="mt-auto pt-7 flex flex-wrap gap-2.5">
+                <Link
+                  href="/tools/youtube-visibility-score"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-brand-600 transition"
+                >
+                  Score my channel
+                  <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                </Link>
+                <Link
+                  href="/tools/youtube-channel-audit"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-brand-300 hover:text-brand-700 transition"
+                >
+                  Find weak uploads
+                </Link>
+              </div>
+            </article>
+
+            {/* Block B: New / future YouTubers */}
+            <article className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-7 sm:p-8 transition hover:border-brand-300 hover:shadow-sm">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-white shadow-sm">
+                  <Compass className="h-5 w-5" strokeWidth={2} />
+                </div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-amber-700">
+                  I&apos;m starting a channel
+                </p>
+              </div>
+              <h2 className="mt-5 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+                Validate your channel idea before you start
+              </h2>
+              <p className="mt-3 text-base text-gray-600 leading-relaxed">
+                Check whether your niche has demand, competition, and room to
+                grow. Then generate a brandable channel name, keywords, and
+                10 video ideas you can launch with.
+              </p>
+              <ul className="mt-5 flex flex-wrap gap-2 text-xs">
+                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
+                  Niche Check
+                </li>
+                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
+                  Channel Name Generator
+                </li>
+                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
+                  Video Idea Generator
+                </li>
+                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
+                  Keyword Tool
+                </li>
+              </ul>
+              <div className="mt-auto pt-7 flex flex-wrap gap-2.5">
+                <Link
+                  href="/tools/youtube-niche-check"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-amber-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-amber-600 transition"
+                >
+                  Check my niche
+                  <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                </Link>
+                <Link
+                  href="/tools/youtube-video-idea-generator"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-amber-300 hover:text-amber-700 transition"
+                >
+                  Generate channel ideas
+                </Link>
+              </div>
+            </article>
           </div>
         </Container>
       </section>
 
-      {/* ───────── The creator workflow — tools by stage ───────── */}
+      {/* ───────── The creator workflow. Tools by stage ───────── */}
       <Container as="section" id="tools" className="pb-24">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            The creator workflow
+            The creator pipeline
           </p>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
-            Your tools, by stage of the work
+            What to do at every step of your next upload
           </h2>
           <p className="mt-3 text-base text-gray-600">
-            We cover every step a YouTube creator runs through — pick a tool
-            for the stage you&apos;re at.
+            Free YouTube SEO tools for every creator moment: find a video idea,
+            improve the click package, publish clean metadata, and learn what
+            to fix next.
           </p>
         </div>
 
         <div className="mx-auto mt-12 grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-5">
           {STAGE_ORDER.map((stage, i) => {
             const stageTools = stageGroups[stage];
-            const shown = stageTools.slice(0, 4);
-            const remaining = stageTools.length - shown.length;
+            const homepageStage = HOMEPAGE_STAGES[stage];
+            const featuredTools = homepageStage.featuredSlugs
+              .map((slug) => getToolBySlug(slug))
+              .filter((t): t is NonNullable<typeof t> => Boolean(t));
             return (
               <article
                 key={stage}
                 className="flex flex-col rounded-2xl border border-gray-200 bg-white p-5"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-50 font-mono text-xs font-semibold text-brand-700 ring-1 ring-brand-200">
-                    {i + 1}
+                    {String(i + 1).padStart(2, "0")}
                   </span>
-                  <p className="text-xs font-mono tabular-nums text-gray-400">
-                    {stageTools.length} {stageTools.length === 1 ? "tool" : "tools"}
-                  </p>
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-700">
+                    {homepageStage.jobLabel}
+                  </span>
                 </div>
                 <h3 className="mt-4 text-lg font-semibold text-gray-900">
-                  {stageLabel(stage)}
+                  {homepageStage.heading}
                 </h3>
-                <p className="mt-1 text-sm text-brand-700">{stageTagline(stage)}</p>
+                <p className="mt-1 text-sm text-gray-600">{homepageStage.subhead}</p>
 
                 <ul className="mt-4 flex-1 space-y-1.5">
-                  {shown.map((tool) => (
+                  {featuredTools.map((tool) => (
                     <li key={tool.slug}>
                       <Link
                         href={`/tools/${tool.slug}`}
@@ -239,13 +440,18 @@ export default function HomePage() {
                   ))}
                 </ul>
 
-                <Link
-                  href={`/tools/${stage}`}
-                  className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-brand-700 transition"
-                >
-                  Browse all {stageTools.length} {stageLabel(stage).toLowerCase()} tools
-                  <ArrowRight className="h-3 w-3" strokeWidth={2.5} />
-                </Link>
+                <div className="mt-4 flex items-center justify-between gap-2 text-xs">
+                  <Link
+                    href={`/tools/${stage}`}
+                    className="inline-flex items-center gap-1 font-medium text-brand-700 hover:text-brand-800 transition"
+                  >
+                    {homepageStage.footerCta}
+                    <ArrowRight className="h-3 w-3" strokeWidth={2.5} />
+                  </Link>
+                  <span className="font-mono tabular-nums text-gray-400">
+                    {stageTools.length} {stageTools.length === 1 ? "tool" : "tools"}
+                  </span>
+                </div>
               </article>
             );
           })}
@@ -262,51 +468,179 @@ export default function HomePage() {
         </div>
       </Container>
 
-      {/* ───────── Tool spotlights — show, don't tell ───────── */}
+      {/* ───────── Coming soon: Transcript Generator (highest demand tool in pipeline) ───────── */}
+      <section className="border-y border-amber-100 bg-gradient-to-r from-amber-50/60 via-white to-amber-50/40 py-14 sm:py-16">
+        <Container as="div">
+          <div className="mx-auto max-w-3xl">
+            <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start sm:gap-8">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-sm sm:h-16 sm:w-16">
+                <FileText className="h-7 w-7 sm:h-8 sm:w-8" strokeWidth={1.75} />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-800 ring-1 ring-inset ring-amber-200">
+                  <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
+                  Coming soon · Most requested
+                </div>
+                <h2 className="mt-4 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+                  AI YouTube Transcript Generator
+                </h2>
+                <p className="mt-3 text-base text-gray-600 leading-relaxed">
+                  Paste any YouTube URL, get the full transcript in TXT, SRT,
+                  or VTT format. Plus a one-click AI summary, key quotes
+                  extraction, and 3-section article outline. Free, no signup,
+                  shipping shortly.
+                </p>
+                <div className="mt-5 flex flex-wrap justify-center gap-2.5 sm:justify-start">
+                  <Link
+                    href="#newsletter"
+                    className="inline-flex items-center gap-1.5 rounded-md bg-amber-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-amber-600 transition"
+                  >
+                    Notify me when it ships
+                    <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* ───────── Tool spotlights. Show, don't tell ───────── */}
       <section className="border-y border-gray-100 bg-gradient-to-b from-white via-gray-50/40 to-white">
         <Container as="div" className="divide-y divide-gray-100">
           <ToolSpotlight
+            Icon={Search}
+            eyebrow="Keyword research"
+            title="Find YouTube keywords creators are actually searching for"
+            description="Use the free YouTube keyword tool to find topics, search terms, and related keywords before you film. Build titles, tags, and descriptions around demand instead of guessing."
+            href="/tools/youtube-keyword-tool"
+            ctaLabel="Find keywords"
+            proof="keyword ideas · search intent · related terms · copy-ready list"
+            mock={<MockKeywordTool />}
+          />
+          <ToolSpotlight
             Icon={WandSparkles}
-            eyebrow="AI Generator"
+            eyebrow="AI Title Generator"
             isAI
-            title="Click-worthy titles in seconds, not hours"
-            description="Type your topic. Claude Haiku returns 10 SEO-optimized YouTube titles in different angles — curious, listicle, how-to, comparison, contrarian. Pick the one that fits, copy it, ship the video."
-            href="/tools/youtube-title-generator"
-            ctaLabel="Try the title generator"
-            mock={<MockTitleGenerator />}
-          />
-          <ToolSpotlight
-            Icon={ScanLine}
-            eyebrow="Competitor research"
             reverse
-            title="See the exact tags your competitors are ranking with"
-            description="YouTube hides tags from public view — but they're still in the page source. Paste any competitor's video URL and pull their full tag list in one click. The same intel TubeBuddy charges $19/month for, free."
-            href="/tools/youtube-tag-extractor"
-            ctaLabel="Try the tag extractor"
-            mock={<MockTagExtractor />}
+            title="Turn a video idea into click-worthy YouTube titles"
+            description="Type your topic and generate YouTube titles across proven angles: curiosity, how-to, listicle, comparison, and contrarian. Pick a stronger title before your next upload."
+            href="/tools/youtube-title-generator"
+            ctaLabel="Generate titles"
+            proof="10 title ideas · different angles · SEO-ready phrasing · copy in one click"
+            mock={<TitleGeneratorScreenshot />}
           />
           <ToolSpotlight
-            Icon={ImageDown}
-            eyebrow="Utility"
-            title="Every thumbnail size, one click"
-            description="Need a competitor's thumbnail for your design reference board? Or your own thumbnail in print-quality 1280 × 720? Paste the URL — get every available resolution at once, no watermarks, no signup."
-            href="/tools/youtube-thumbnail-downloader"
-            ctaLabel="Try the thumbnail downloader"
-            mock={<MockThumbnailDownloader />}
+            Icon={Tv}
+            eyebrow="Channel Starter"
+            isAI
+            title="Name your YouTube channel with a brandable idea"
+            description="Use the YouTube channel name generator to turn your niche, topic, or style into memorable channel names. Good for new creators, rebrands, and niche validation."
+            href="/tools/youtube-channel-name-generator"
+            ctaLabel="Generate channel names"
+            proof="brandable names · niche-based ideas · username-style options"
+            mock={<ChannelNameGeneratorScreenshots />}
+          />
+          <ToolSpotlight
+            Icon={Gauge}
+            eyebrow="Channel Audit"
+            isAI
+            reverse
+            title="Grade your whole YouTube channel in one click"
+            description="Paste a channel and get a channel-level packaging grade averaged across the last 10 uploads. The audit flags recurring weak spots, missing chapters, and weak descriptions across videos so you know what to fix next."
+            href="/tools/youtube-channel-audit"
+            ctaLabel="Audit my channel"
+            proof="channel-level grade · per-dimension averages · top recurring issues · last 10 videos scored"
+            mock={<ChannelAuditScreenshots />}
           />
         </Container>
       </section>
 
+      {/* ───────── Example audit result — real product output, not promise ───────── */}
+      <section className="border-y border-gray-100 bg-gradient-to-b from-brand-50/40 via-white to-white py-20 sm:py-24">
+        <Container as="div">
+          <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2 lg:gap-16">
+            {/* Copy */}
+            <div>
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-700 ring-1 ring-inset ring-brand-100">
+                <ClipboardCheck className="h-3.5 w-3.5" strokeWidth={2} />
+                Example output
+              </div>
+              <h2 className="mt-5 text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
+                What a YouTube audit actually shows you
+              </h2>
+              <p className="mt-4 text-base text-gray-600 sm:text-lg leading-relaxed">
+                Instead of generic YouTube SEO advice, each audit points to the
+                exact part of the upload package that needs work, and how to
+                fix it.
+              </p>
+              <ul className="mt-6 space-y-2.5 text-sm text-gray-700">
+                <li className="flex items-start gap-2">
+                  <Check
+                    className="h-4 w-4 shrink-0 text-brand-600 mt-0.5"
+                    strokeWidth={2.5}
+                  />
+                  <span>
+                    <strong className="font-semibold text-gray-900">
+                      Visibility Score
+                    </strong>{" "}
+                    summarizes how discoverable the video is in one number
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check
+                    className="h-4 w-4 shrink-0 text-brand-600 mt-0.5"
+                    strokeWidth={2.5}
+                  />
+                  <span>
+                    <strong className="font-semibold text-gray-900">
+                      Per-dimension breakdown
+                    </strong>{" "}
+                    flags weak title, description, tags, hashtags, and chapters
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check
+                    className="h-4 w-4 shrink-0 text-brand-600 mt-0.5"
+                    strokeWidth={2.5}
+                  />
+                  <span>
+                    <strong className="font-semibold text-gray-900">
+                      Fix-with-AI
+                    </strong>{" "}
+                    rewrites only the weak parts, ready to paste into YouTube
+                    Studio
+                  </span>
+                </li>
+              </ul>
+              <Link
+                href="/tools/youtube-video-audit"
+                className="mt-8 inline-flex items-center gap-1.5 rounded-md bg-brand-500 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-brand-600 transition"
+              >
+                Audit a video
+                <ArrowRight className="h-4 w-4" strokeWidth={2} />
+              </Link>
+            </div>
+
+            {/* Real product screenshot */}
+            <div>
+              <VideoAuditScreenshots />
+            </div>
+          </div>
+        </Container>
+      </section>
 
       {/* ───────── Why use ───────── */}
       <section className="py-20">
         <Container as="div">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-              Why creators use SEO Check Tools
+              Why creators choose these free YouTube SEO tools
             </h2>
             <p className="mt-3 text-base text-gray-600">
-              What you get that paid YouTube SEO suites either charge for or don&apos;t offer at all.
+              Get the parts paid YouTube SEO suites hide behind subscriptions:
+              audits, AI fixes, competitor insights, and tracking. Free, no
+              signup, privacy-first.
             </p>
           </div>
 
@@ -333,18 +667,28 @@ export default function HomePage() {
         <Container as="div">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-              Who uses SEO Check Tools
+              Built for every stage of your YouTube journey
             </h2>
             <p className="mt-3 text-base text-gray-600">
-              Anyone who works with YouTube content — solo or in a team.
+              Solo creators, growing channels, and agencies all use the same
+              workflow: validate the idea, optimize the upload, and learn what
+              to fix next.
             </p>
           </div>
 
-          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {audiences.map(({ label, description }) => (
-              <div key={label}>
-                <h3 className="text-base font-semibold text-gray-900">{label}</h3>
-                <p className="mt-1 text-sm text-gray-600 leading-relaxed">
+          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {audiences.map(({ Icon, label, description }) => (
+              <div
+                key={label}
+                className="flex flex-col rounded-2xl border border-gray-200 bg-white p-6"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-700 ring-1 ring-brand-100">
+                  <Icon className="h-4 w-4" strokeWidth={2} />
+                </div>
+                <h3 className="mt-4 text-base font-semibold text-gray-900">
+                  {label}
+                </h3>
+                <p className="mt-1.5 text-sm text-gray-600 leading-relaxed">
                   {description}
                 </p>
               </div>
@@ -353,42 +697,73 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* ───────── Switching from another tool? ───────── */}
-      <section className="py-20">
+      {/* ───────── Final CTA + inline comparison links ───────── */}
+      <section className="py-20 sm:py-24">
         <Container as="div">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-              Switching from another tool?
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
+              Ready to improve your next YouTube upload?
             </h2>
-            <p className="mt-3 text-base text-gray-600">
-              See how SEO Check Tools compares — what&apos;s the same, what&apos;s
-              different, what&apos;s missing.
+            <p className="mt-4 text-base text-gray-600 sm:text-lg">
+              Use free YouTube SEO tools to score your channel, audit a video,
+              find keywords, and fix weak metadata before you publish.
             </p>
-          </div>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            {comparisons.map((c) => (
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
-                key={c.href}
-                href={c.href}
-                className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 hover:border-brand-300 hover:bg-brand-50/40 hover:text-gray-900 transition"
+                href="/tools/youtube-visibility-score"
+                className="inline-flex items-center gap-1.5 rounded-md bg-brand-500 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-brand-600 transition"
               >
-                {c.label}
-                <ArrowRight className="h-3.5 w-3.5 text-gray-400" strokeWidth={2} />
+                Score my channel
+                <ArrowRight className="h-4 w-4" strokeWidth={2} />
               </Link>
-            ))}
+              <Link
+                href="/tools/youtube-video-audit"
+                className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:border-brand-300 hover:text-brand-700 transition"
+              >
+                Audit a video
+              </Link>
+              <Link
+                href="/tools/youtube-keyword-tool"
+                className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:border-brand-300 hover:text-brand-700 transition"
+              >
+                Find keywords
+              </Link>
+            </div>
+
+            <p className="mt-8 text-xs text-gray-500">
+              Comparing alternatives? See SEO Check Tools{" "}
+              {comparisons.map((c, i) => (
+                <span key={c.href}>
+                  <Link
+                    href={c.href}
+                    className="text-gray-600 underline decoration-gray-300 underline-offset-2 hover:text-brand-700 hover:decoration-brand-300 transition"
+                  >
+                    {c.label.replace(/^vs\s+/, "")}
+                  </Link>
+                  {i < comparisons.length - 2
+                    ? ", "
+                    : i === comparisons.length - 2
+                    ? ", and "
+                    : "."}
+                </span>
+              ))}
+            </p>
           </div>
         </Container>
       </section>
 
-      {/* ───────── Newsletter ───────── */}
-      <section className="py-16">
+      {/* ───────── Newsletter (secondary, compact) ───────── */}
+      <section
+        id="newsletter"
+        className="border-t border-gray-100 bg-gray-50/40 py-14 scroll-mt-16"
+      >
         <Container as="div">
           <div className="mx-auto max-w-xl">
             <NewsletterSignup
               source="homepage"
-              title="Get notified when we ship new tools"
-              subtitle="Occasional emails — typically when a new tool ships or a major guide drops. No spam, never sold, unsubscribe in one click."
+              title="Get new YouTube SEO tools and guides"
+              subtitle="Occasional emails with new tools, creator workflows, and practical YouTube SEO ideas. No spam, unsubscribe anytime."
             />
           </div>
         </Container>
@@ -399,10 +774,11 @@ export default function HomePage() {
         <Container as="div">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-              Frequently asked questions
+              YouTube SEO: frequently asked questions
             </h2>
             <p className="mt-3 text-base text-gray-600">
-              Quick answers to common questions about seocheck.tools.
+              What YouTube SEO is, what works in 2026, and how this free toolkit
+              fits in.
             </p>
           </div>
 
