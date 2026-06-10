@@ -10,25 +10,15 @@ type CompetitorInfo = {
   name: string;
   tagline: string;
   pricing: string;
-  url: string;
 };
 
 const COMPETITORS: Record<string, CompetitorInfo> = {
-  tubebuddy: {
-    slug: "tubebuddy",
-    name: "TubeBuddy",
-    tagline:
-      "Browser extension + mobile app that adds keyword research, tag suggestions, and bulk-edit tools to YouTube Studio.",
-    pricing: "Pro $7.50/mo, Legend $24/mo, with limited free tier.",
-    url: "https://www.tubebuddy.com/",
-  },
   vidiq: {
     slug: "vidiq",
     name: "VidIQ",
     tagline:
       "Browser extension and dashboard for YouTube creator analytics, daily ideas, and AI-assisted optimization.",
     pricing: "Pro $7.50/mo, Boost $39/mo, with limited free tier.",
-    url: "https://vidiq.com/",
   },
   tuberanker: {
     slug: "tuberanker",
@@ -36,7 +26,6 @@ const COMPETITORS: Record<string, CompetitorInfo> = {
     tagline:
       "Mid-market YouTube SEO platform with tag generator, channel audit, keyword tool, and rank tracker.",
     pricing: "Basic $19/mo, Advanced $49/mo, 14-day free trial.",
-    url: "https://tuberanker.com/",
   },
   keywordtool: {
     slug: "keywordtool",
@@ -44,7 +33,6 @@ const COMPETITORS: Record<string, CompetitorInfo> = {
     tagline:
       "Keyword research SaaS aggregating autocomplete data from YouTube, Google, Bing, Amazon, and others.",
     pricing: "Pro Basic $89/mo and up.",
-    url: "https://keywordtool.io/",
   },
   "keyword-surfer": {
     slug: "keyword-surfer",
@@ -52,7 +40,6 @@ const COMPETITORS: Record<string, CompetitorInfo> = {
     tagline:
       "Chrome extension for in-SERP keyword volume and related terms, by Surfer SEO.",
     pricing: "Free Chrome extension; Surfer SEO suite $89/mo and up.",
-    url: "https://surferseo.com/keyword-surfer-extension/",
   },
 };
 
@@ -161,18 +148,10 @@ export default function ComparisonPage({
           </p>
         </div>
 
-        <div className="mx-auto mt-10 flex max-w-2xl justify-center gap-3">
+        <div className="mx-auto mt-10 flex max-w-2xl justify-center">
           <Link href="/tools" className="btn-primary">
             Browse all our tools
           </Link>
-          <a
-            href={info.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-secondary"
-          >
-            Visit {info.name}
-          </a>
         </div>
       </Container>
     </>

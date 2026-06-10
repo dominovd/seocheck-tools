@@ -62,30 +62,69 @@ export function ToolContentSections({ slug }: Props) {
         </ul>
 
         {/* Related guide */}
-        {guide && (
-          <Link
-            href={`/guides/${guide.slug}`}
-            className="mt-14 group flex items-start gap-4 rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50/70 to-white p-5 transition hover:border-brand-300 hover:shadow-sm"
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-700">
-              <BookOpen className="h-5 w-5" strokeWidth={2} />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">
-                Read the related guide
-              </p>
-              <h3 className="mt-1 text-base font-semibold text-gray-900 group-hover:text-brand-700 transition-colors">
-                {guide.title}
-              </h3>
-              <p className="mt-1 text-sm text-gray-600 leading-relaxed">
-                {content.relatedGuideBlurb}
-              </p>
-              <p className="mt-2 text-xs text-gray-500">
-                {guide.readingTimeMinutes} min read
-              </p>
-            </div>
-          </Link>
-        )}
+        <RelatedGuideCalloutInner slug={slug} className="mt-14" />
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Internal render of the Related guide callout. Reused by both
+ * ToolContentSections (above) and the standalone RelatedGuideCallout export.
+ */
+function RelatedGuideCalloutInner({
+  slug,
+  className,
+}: {
+  slug: string;
+  className?: string;
+}) {
+  const content = TOOL_CONTENT[slug];
+  if (!content) return null;
+  const guide = getGuideBySlug(content.relatedGuideSlug);
+  if (!guide) return null;
+
+  return (
+    <Link
+      href={`/guides/${guide.slug}`}
+      className={`group flex items-start gap-4 rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50/70 to-white p-5 transition hover:border-brand-300 hover:shadow-sm ${className ?? ""}`.trim()}
+    >
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-700">
+        <BookOpen className="h-5 w-5" strokeWidth={2} />
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">
+          Read the related guide
+        </p>
+        <h3 className="mt-1 text-base font-semibold text-gray-900 group-hover:text-brand-700 transition-colors">
+          {guide.title}
+        </h3>
+        <p className="mt-1 text-sm text-gray-600 leading-relaxed">
+          {content.relatedGuideBlurb}
+        </p>
+        <p className="mt-2 text-xs text-gray-500">
+          {guide.readingTimeMinutes} min read
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+/**
+ * Standalone Related-guide callout for pages that bring their own
+ * How-to / SEO-tips content but still want the indexed link to the guide.
+ * Renders inside a section wrapper with consistent vertical rhythm.
+ */
+export function RelatedGuideCallout({ slug }: { slug: string }) {
+  const content = TOOL_CONTENT[slug];
+  if (!content) return null;
+  const guide = getGuideBySlug(content.relatedGuideSlug);
+  if (!guide) return null;
+
+  return (
+    <section className="border-t border-gray-100 bg-white py-12">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+        <RelatedGuideCalloutInner slug={slug} />
       </div>
     </section>
   );

@@ -9,6 +9,8 @@ import { softwareApplicationSchema, breadcrumbSchema } from "@/lib/seo";
 type ToolLayoutProps = {
   tool: Tool;
   children: ReactNode;
+  /** Override the hero subtitle (defaults to tool.description). */
+  subtitleOverride?: string;
 };
 
 /**
@@ -16,7 +18,7 @@ type ToolLayoutProps = {
  * structured data (SoftwareApplication + BreadcrumbList), and a slot for
  * the tool's actual UI.
  */
-export function ToolLayout({ tool, children }: ToolLayoutProps) {
+export function ToolLayout({ tool, children, subtitleOverride }: ToolLayoutProps) {
   const Icon = tool.Icon;
   const url = `${siteConfig.url}/tools/${tool.slug}`;
 
@@ -61,7 +63,9 @@ export function ToolLayout({ tool, children }: ToolLayoutProps) {
         <h1 className="mt-4 text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
           {tool.title}
         </h1>
-        <p className="mt-3 text-base text-gray-600 sm:text-lg">{tool.description}</p>
+        <p className="mt-3 text-base text-gray-600 sm:text-lg">
+          {subtitleOverride ?? tool.description}
+        </p>
       </header>
 
       <div className="mx-auto mt-10 max-w-3xl">{children}</div>

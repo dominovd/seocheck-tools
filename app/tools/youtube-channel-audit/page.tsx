@@ -1,47 +1,213 @@
 import Link from "next/link";
+import {
+  Award,
+  BarChart3,
+  AlertTriangle,
+  Repeat,
+  ListChecks,
+  Wrench,
+  Check,
+  ArrowRight,
+} from "lucide-react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { ChannelAuditTool } from "@/components/tools/ChannelAuditTool";
 import { FaqSchema } from "@/components/PageSchemas";
-import { ToolContentSections } from "@/components/ToolContentSections";
+import { RelatedGuideCallout } from "@/components/ToolContentSections";
 import { buildMetadata } from "@/lib/seo";
 import { getToolBySlug } from "@/lib/tools-catalog";
 
 const tool = getToolBySlug("youtube-channel-audit")!;
 
 export const metadata = buildMetadata({
-  title: tool.title,
-  description: tool.metaDescription,
+  title: "YouTube Channel Audit | Free SEO Checker",
+  description:
+    "Run a free YouTube channel audit. Check recent uploads for title, description, hashtags, chapters, recurring SEO issues, and channel-wide weak spots.",
   path: `tools/${tool.slug}`,
+  noBrand: true,
+  ogVariant: tool.isAI ? { ai: true } : undefined,
 });
+
+const HERO_SUBTITLE =
+  "Paste a channel to find recurring YouTube SEO issues across recent uploads: weak titles, thin descriptions, missing hashtags, poor chapters, and the first fixes to make.";
+
+type Card = { Icon: typeof Award; title: string; body: string };
+
+const WHAT_YOU_GET: Card[] = [
+  {
+    Icon: Award,
+    title: "Overall channel grade",
+    body: "A quick read on how well the channel packages recent uploads for discovery.",
+  },
+  {
+    Icon: BarChart3,
+    title: "Per-dimension scores",
+    body: "See averages for titles, descriptions, hashtags, and chapters across the last 10 uploads.",
+  },
+  {
+    Icon: AlertTriangle,
+    title: "Worst dimension",
+    body: "Find the weakest recurring area so you know what to fix first.",
+  },
+  {
+    Icon: Repeat,
+    title: "Recurring issues",
+    body: "Get AI-flagged patterns that appear across multiple uploads, not one-off mistakes.",
+  },
+  {
+    Icon: ListChecks,
+    title: "Upload breakdown",
+    body: "See which recent videos are strong, good, fair, or weak by audit dimension.",
+  },
+  {
+    Icon: Wrench,
+    title: "Next-step tools",
+    body: "Jump into Video Audit, Title Score Checker, Outlier Finder, or Competitor Analyzer to fix the problem.",
+  },
+];
+
+const HOW_TO_STEPS = [
+  {
+    title: "Paste a channel handle or URL",
+    body: "Use your own channel or a public competitor channel. The audit works with public uploads only.",
+  },
+  {
+    title: "Review the overall grade",
+    body: "Start with the channel-wide score to understand whether the recent upload package is strong, mixed, or weak.",
+  },
+  {
+    title: "Find the weakest dimension",
+    body: "Look for the lowest average across title, description, hashtags, and chapters. This is usually the first place to improve.",
+  },
+  {
+    title: "Read the recurring issues",
+    body: "The most valuable insight is not one bad video. It is the pattern that keeps showing up across uploads.",
+  },
+  {
+    title: "Fix the next 3-5 uploads first",
+    body: "Apply the audit to upcoming videos before rewriting your whole catalog. Fresh uploads are easier to improve and measure.",
+  },
+];
+
+const DIMENSIONS = [
+  {
+    title: "Title quality",
+    body: "Checks whether recent titles are clear, specific, searchable, and likely to earn clicks without overpromising.",
+  },
+  {
+    title: "Description quality",
+    body: "Checks whether descriptions give YouTube and viewers enough context, include useful keywords naturally, and support the video topic.",
+  },
+  {
+    title: "Hashtags",
+    body: "Checks whether videos use relevant hashtags without stuffing unrelated or overly broad tags.",
+  },
+  {
+    title: "Chapters",
+    body: "Checks whether videos use helpful timestamps when the format benefits from navigation and structured sections.",
+  },
+  {
+    title: "Recurring issues",
+    body: "Looks across multiple uploads to find repeated weak spots, such as vague titles, thin descriptions, missing chapters, or inconsistent metadata.",
+  },
+];
+
+const CHECKLIST = [
+  "Do recent titles make the topic and value clear?",
+  "Are the most important keywords included naturally?",
+  "Do descriptions explain the video in the first few lines?",
+  "Do videos include useful links, context, and calls to action?",
+  "Are hashtags relevant and not stuffed?",
+  "Do long videos include chapters or timestamps?",
+  "Are weak patterns repeated across several uploads?",
+  "Do outlier videos reveal a topic, title, or format worth repeating?",
+  "Are upcoming uploads using what the audit found?",
+];
+
+const RELATED_TOOLS = [
+  {
+    href: "/tools/youtube-video-audit",
+    name: "Video Audit",
+    body: "Audit one specific video in detail.",
+  },
+  {
+    href: "/tools/youtube-visibility-score",
+    name: "YouTube Visibility Score",
+    body: "Get a 0-100 channel health score across visibility and growth signals.",
+  },
+  {
+    href: "/tools/youtube-title-score-checker",
+    name: "Title Score Checker",
+    body: "Check whether weak titles are clear, specific, and clickable.",
+  },
+  {
+    href: "/tools/youtube-description-generator",
+    name: "Description Generator",
+    body: "Create stronger descriptions for videos with thin metadata.",
+  },
+  {
+    href: "/tools/youtube-outlier-finder",
+    name: "Outlier Finder",
+    body: "Find videos that performed far above the channel's normal baseline.",
+  },
+  {
+    href: "/tools/youtube-competitor-analyzer",
+    name: "Competitor Analyzer",
+    body: "Compare patterns from other channels in your niche.",
+  },
+];
 
 const FAQS = [
   {
-    q: "What's the difference between this and the Video Audit?",
-    a: "Video Audit scores ONE video against 5 dimensions. Channel Audit runs the same scoring against your channel's last 10 uploads and AGGREGATES the result, showing which dimension is consistently weak across your work. The video-level view tells you 'this video needs work'; the channel-level view tells you 'I have a pattern of weak descriptions across the entire channel'.",
+    q: "What is a YouTube Channel Audit?",
+    a: "A YouTube Channel Audit checks recent uploads and looks for recurring SEO and packaging issues across the channel. Instead of auditing one video, it shows patterns across titles, descriptions, hashtags, chapters, and overall upload quality.",
   },
   {
-    q: "What does my channel grade mean?",
-    a: "A: most videos optimized across most dimensions. B: strong overall with one or two consistent gaps. C: mixed packaging — look at the dimension breakdown. D: recurring gaps in most dimensions. F: systematic issues across the channel. The grade is based on the average overall score of the 10 audited videos.",
+    q: "How do I audit my YouTube channel for free?",
+    a: "Paste your channel handle, URL, or ID into the tool and run the audit. The tool checks recent public uploads and returns a channel grade, per-dimension scores, weak spots, and recurring issues.",
   },
   {
-    q: "Why only 4 dimensions instead of 5?",
-    a: "The Video Audit scores 5 dimensions including tags. Tags are hidden from YouTube's public API for non-owners (since 2022), so for a channel-wide audit using the API we can't get them reliably. We skip the tags dimension here — title, description, hashtags, chapters are what's measured. Run the individual Video Audit on a specific video if you need tags too.",
+    q: "What does the channel grade mean?",
+    a: "The channel grade summarizes how well recent uploads are packaged for discovery. A strong grade means the channel is consistent across titles, descriptions, hashtags, and chapters. A weak grade means the same issues likely appear across multiple uploads.",
+  },
+  {
+    q: "What is the difference between Channel Audit and Video Audit?",
+    a: "Video Audit checks one video. Channel Audit checks recent uploads and finds channel-wide patterns. Use Video Audit when you want to fix a specific upload. Use Channel Audit when you want to understand what keeps going wrong across the channel.",
   },
   {
     q: "Why audit only the last 10 uploads?",
-    a: "Channels evolve. Videos from 3 years ago tell you about a previous era. The last 10 captures your current packaging discipline — which is what's actually shipping today. We want this to surface CURRENT recurring issues so you can fix them in your next upload.",
+    a: "The last 10 uploads usually show the channel's current workflow better than older videos. They are recent enough to reveal present habits and small enough to audit quickly without turning the report into noise.",
   },
   {
-    q: "What's the 'worst dimension' tag?",
-    a: "The dimension with the lowest average score across all audited videos. If that flag is on Description, it means description quality is your single biggest channel-wide gap — fixing it across your next 5 uploads would lift more overall scores than any other change. The amber border on its row makes it visually obvious.",
+    q: "What does “worst dimension” mean?",
+    a: "The worst dimension is the area with the lowest average score across recent uploads. It helps you choose the first improvement to make, such as better titles, stronger descriptions, cleaner hashtags, or more useful chapters.",
   },
   {
-    q: "Will this work on a channel that's not mine?",
-    a: "Yes — works on any public YouTube channel. Useful for benchmarking competitors and for figuring out which dimensions they consistently win on. Run yours and a competitor's side by side and the contrast usually reveals where to invest.",
+    q: "Will this work on a channel that is not mine?",
+    a: "Yes. You can audit any public YouTube channel. This is useful for competitor research, client checks, or comparing your channel with creators in the same niche.",
   },
   {
-    q: "Why is the daily limit only 5?",
-    a: "Each audit burns ~3 YouTube API units. Combined with our quota (10K/day) and the other API-heavy tools, 5/IP keeps the daily budget safe against abuse. Cached results don't count.",
+    q: "Is this a YouTube SEO checker?",
+    a: "Yes. Channel Audit works as a free YouTube SEO checker for recent uploads. It focuses on upload packaging signals like titles, descriptions, hashtags, chapters, and repeated metadata issues.",
+  },
+  {
+    q: "Can a channel audit improve views?",
+    a: "The audit cannot guarantee more views, but it can show problems that limit discovery and clicks. Fixing weak titles, thin descriptions, missing chapters, or repeated metadata issues can make future uploads more competitive.",
+  },
+  {
+    q: "Why is the daily limit 5 audits?",
+    a: "Channel audits use YouTube API requests and AI analysis. The daily limit keeps the tool free and available while preventing abuse.",
+  },
+  {
+    q: "Does this replace YouTube Studio analytics?",
+    a: "No. YouTube Studio is still the source for impressions, CTR, retention, traffic sources, and audience data. Channel Audit is a fast SEO and packaging review that helps you decide what to fix.",
+  },
+  {
+    q: "Can I use this for client channels?",
+    a: "Yes. You can use it for client research, prospect audits, or quick channel checks. For private data or deeper analytics, you still need access to the client's YouTube Studio.",
+  },
+  {
+    q: "How is the audit calculated?",
+    a: "The tool resolves your channel handle to a channel ID, pulls the last 10 public uploads, and runs each video through the same scoring engine used by Video Audit (title, description, hashtags, chapters). Per-dimension scores are averaged across all 10 videos, and the lowest average is flagged as the worst dimension. The recurring issues are extracted by an AI model based on the per-video scorecard, not generic best practices.",
   },
 ];
 
@@ -49,97 +215,252 @@ export default function YouTubeChannelAuditPage() {
   return (
     <>
       <FaqSchema faqs={FAQS} />
-      <ToolLayout tool={tool}>
+      <ToolLayout tool={tool} subtitleOverride={HERO_SUBTITLE}>
         <ChannelAuditTool />
       </ToolLayout>
 
-      <ToolContentSections slug={tool.slug} />
+      {/* What you'll get */}
+      <section className="border-t border-gray-100 bg-white py-16 sm:py-20">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+              What you&apos;ll get
+            </h2>
+            <p className="mt-3 text-base text-gray-600 leading-relaxed">
+              Channel Audit turns recent uploads into a channel-wide SEO
+              report, so you can stop fixing one video at a time and find the
+              pattern worth improving first.
+            </p>
+          </div>
 
-      <section className="border-t border-gray-100 bg-gray-50/40 py-16">
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {WHAT_YOU_GET.map(({ Icon, title, body }) => (
+              <div
+                key={title}
+                className="rounded-2xl border border-gray-200 bg-white p-5"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-600 ring-1 ring-inset ring-brand-100">
+                  <Icon className="h-5 w-5" strokeWidth={2} />
+                </div>
+                <h3 className="mt-4 text-base font-semibold text-gray-900">
+                  {title}
+                </h3>
+                <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+                  {body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How to use */}
+      <section className="border-t border-gray-100 bg-gray-50/40 py-16 sm:py-20">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-semibold tracking-tight text-gray-900">
-            About the Channel Audit
+          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl text-center">
+            How to use the YouTube Channel Audit
+          </h2>
+
+          <ol className="mt-12 space-y-6">
+            {HOW_TO_STEPS.map((step, i) => (
+              <li key={step.title} className="flex gap-4">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-700 ring-1 ring-inset ring-brand-200">
+                  {i + 1}
+                </span>
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900">
+                    {step.title}
+                  </h3>
+                  <p className="mt-1.5 text-sm text-gray-700 leading-relaxed">
+                    {step.body}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* About */}
+      <section className="border-t border-gray-100 bg-white py-16 sm:py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+            What the YouTube Channel Audit checks
+          </h2>
+          <p className="mt-5 text-base text-gray-700 leading-relaxed">
+            Video Audit answers &ldquo;is this one video well-packaged?&rdquo;
+            Channel Audit answers a bigger question: &ldquo;what am I
+            repeatedly weak at across my uploads?&rdquo; That second question
+            is often more useful because fixing a recurring problem can
+            improve every future upload.
+          </p>
+          <p className="mt-4 text-base text-gray-700 leading-relaxed">
+            Paste a channel and the tool checks recent public uploads across
+            key YouTube SEO signals: title quality, description quality,
+            hashtags, and chapters. It then summarizes the average scores, the
+            weakest dimension, and the recurring issues most likely holding
+            the channel back.
+          </p>
+          <p className="mt-4 text-base text-gray-700 leading-relaxed">
+            Use it as a free YouTube SEO checker when you want a fast audit
+            before planning new videos, updating metadata, or comparing your
+            channel with competitors.
+          </p>
+        </div>
+      </section>
+
+      {/* What each dimension means */}
+      <section className="border-t border-gray-100 bg-gray-50/40 py-16 sm:py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+            What each audit dimension means
+          </h2>
+
+          <ul className="mt-8 space-y-5">
+            {DIMENSIONS.map((d) => (
+              <li key={d.title}>
+                <h3 className="text-base font-semibold text-gray-900">
+                  {d.title}
+                </h3>
+                <p className="mt-1.5 text-sm text-gray-700 leading-relaxed">
+                  {d.body}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* Channel audit checklist */}
+      <section className="border-t border-gray-100 bg-white py-16 sm:py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+            YouTube channel audit checklist
           </h2>
           <p className="mt-4 text-base text-gray-700 leading-relaxed">
-            Video Audit answers &quot;is this video well-packaged?&quot; Channel Audit
-            answers a different question: &quot;am I weak at one thing across
-            everything I publish?&quot;. The second question is the more valuable
-            one — fixing a recurring problem across your next 10 uploads compounds
-            far more than perfecting one video.
-          </p>
-          <p className="mt-3 text-base text-gray-700 leading-relaxed">
-            Paste your channel; the tool pulls the last 10 uploads, runs each
-            through the Video Audit engine, then aggregates: per-dimension averages,
-            band distribution (how many Strong / Good / Fair / Weak across all 10),
-            an overall channel grade, and a Claude-generated list of the top 3
-            recurring issues. The dimension with the lowest average score is
-            flagged as your &quot;worst&quot; — fix it there first.
+            Use this checklist when reviewing your channel manually or
+            interpreting the audit results.
           </p>
 
-          <h3 className="mt-10 text-lg font-semibold text-gray-900">How it works</h3>
-          <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm text-gray-700">
-            <li>
-              Channel input resolved to channel ID + uploads playlist ID via the
-              Data API.
-            </li>
-            <li>
-              <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">playlistItems.list</code>
-              returns the latest 10 video IDs.
-            </li>
-            <li>
-              <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">videos.list</code>
-              batched on those 10 IDs returns snippet + statistics + contentDetails.
-            </li>
-            <li>
-              Each video is built into a VideoInfo and run through the existing
-              <Link href="/tools/youtube-video-audit" className="link">Video Audit</Link>
-              engine with the tags dimension excluded.
-            </li>
-            <li>
-              Per-dimension stats aggregated across all 10 videos (average score,
-              band counts). The lowest-average dimension is flagged as &quot;worst&quot;.
-            </li>
-            <li>
-              Per-dimension scorecard + per-video overall scores passed to Claude
-              Haiku, which extracts up to 3 recurring issues with references to
-              the actual counts. Generic best practices are explicitly forbidden.
-            </li>
-          </ol>
-          <p className="mt-3 text-xs text-gray-500">
-            Total YouTube quota per non-cached analysis: ~3 units. The cheapest
-            of our YouTube-API-backed tools.
-          </p>
+          <ul className="mt-8 space-y-3 rounded-2xl border border-gray-200 bg-white p-5">
+            {CHECKLIST.map((item) => (
+              <li key={item} className="flex items-start gap-3 text-sm text-gray-800">
+                <Check
+                  className="h-4 w-4 shrink-0 text-brand-600 mt-0.5"
+                  strokeWidth={2.5}
+                  aria-hidden="true"
+                />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
-          <h3 className="mt-12 text-lg font-semibold text-gray-900">
-            Frequently asked questions
-          </h3>
-          <div className="mt-4 divide-y divide-gray-200">
-            {FAQS.map(({ q, a }) => (
-              <details key={q} className="group py-4">
-                <summary className="flex cursor-pointer items-center justify-between text-base font-medium text-gray-900">
-                  {q}
-                  <span className="ml-4 shrink-0 text-gray-400 transition-transform group-open:rotate-45 text-xl leading-none">
-                    +
+      <RelatedGuideCallout slug={tool.slug} />
+
+      {/* FAQ */}
+      <section className="border-t border-gray-100 bg-gray-50/40 py-16 sm:py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl text-center">
+            Frequently asked
+          </h2>
+          <dl className="mt-10 divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white">
+            {FAQS.map((item) => (
+              <details
+                key={item.q}
+                className="group px-5 py-4 sm:px-6 [&_summary::-webkit-details-marker]:hidden"
+              >
+                <summary className="flex cursor-pointer items-start justify-between gap-3 text-left text-sm font-semibold text-gray-900 sm:text-base">
+                  <span>{item.q}</span>
+                  <span className="mt-0.5 text-gray-400 transition-transform group-open:rotate-180">
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
                   </span>
                 </summary>
-                <p className="mt-2 text-sm text-gray-600 leading-relaxed">{a}</p>
+                <dd className="mt-3 text-sm text-gray-700 leading-relaxed">
+                  {item.a}
+                </dd>
               </details>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      {/* Related tools */}
+      <section className="border-t border-gray-100 bg-white py-16 sm:py-20">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+              Fix what the audit finds
+            </h2>
+            <p className="mt-3 text-base text-gray-600 leading-relaxed">
+              Use these tools to drill into the weak areas from your channel
+              audit.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {RELATED_TOOLS.map((r) => (
+              <Link
+                key={r.href}
+                href={r.href}
+                className="group flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-brand-200 hover:shadow-sm"
+              >
+                <p className="text-base font-semibold text-gray-900 group-hover:text-brand-700 transition">
+                  {r.name}
+                </p>
+                <p className="mt-2 text-xs text-gray-600 leading-relaxed">
+                  {r.body}
+                </p>
+                <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-brand-600 group-hover:text-brand-700 transition">
+                  Open tool
+                  <ArrowRight
+                    className="h-3 w-3 transition-transform group-hover:translate-x-0.5"
+                    strokeWidth={2.25}
+                  />
+                </span>
+              </Link>
             ))}
           </div>
 
-          <div className="mt-12 rounded-lg border border-gray-200 bg-white p-5">
-            <h3 className="text-base font-semibold text-gray-900">Related tools</h3>
-            <p className="mt-1 text-sm text-gray-600">
-              Channel Audit lives in the Analyze stage. The natural next steps from here:
-            </p>
-            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-              <li><Link href="/tools/youtube-video-audit" className="link text-sm">Video Audit (single video) →</Link></li>
-              <li><Link href="/tools/youtube-outlier-finder" className="link text-sm">Outlier Finder →</Link></li>
-              <li><Link href="/tools/youtube-competitor-analyzer" className="link text-sm">Competitor Channel Analyzer →</Link></li>
-              <li><Link href="/tools/youtube-money-calculator" className="link text-sm">Money Calculator →</Link></li>
-              <li><Link href="/tools/analyze" className="link text-sm">All Analyze tools →</Link></li>
-              <li><Link href="/tools" className="link text-sm">All YouTube tools →</Link></li>
-            </ul>
+          <div className="mt-8 text-center">
+            <Link href="/tools" className="link text-sm">
+              Browse all YouTube SEO tools →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="border-t border-gray-100 bg-gray-50/40 py-20 sm:py-24">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
+            Ready to audit your YouTube channel?
+          </h2>
+          <p className="mt-4 text-base text-gray-600 sm:text-lg leading-relaxed">
+            Paste your channel handle and get a free YouTube Channel Audit in
+            seconds.
+          </p>
+          <div className="mt-10">
+            <a
+              href="#"
+              className="inline-flex items-center gap-1.5 rounded-md bg-brand-500 px-6 py-3 text-sm font-medium text-white shadow-sm hover:bg-brand-600 transition"
+            >
+              Audit channel
+              <ArrowRight className="h-4 w-4" strokeWidth={2} />
+            </a>
           </div>
         </div>
       </section>
