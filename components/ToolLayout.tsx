@@ -9,8 +9,16 @@ import { softwareApplicationSchema, breadcrumbSchema } from "@/lib/seo";
 type ToolLayoutProps = {
   tool: Tool;
   children: ReactNode;
+  /** Override the H1 (defaults to tool.title). */
+  titleOverride?: string;
   /** Override the hero subtitle (defaults to tool.description). */
   subtitleOverride?: string;
+  /**
+   * Override the description used in the WebApplication JSON-LD schema only.
+   * Display title is unaffected; lets pages match schema description to the
+   * page meta description without changing the catalog entry.
+   */
+  schemaDescriptionOverride?: string;
 };
 
 /**
@@ -18,14 +26,20 @@ type ToolLayoutProps = {
  * structured data (SoftwareApplication + BreadcrumbList), and a slot for
  * the tool's actual UI.
  */
-export function ToolLayout({ tool, children, subtitleOverride }: ToolLayoutProps) {
+export function ToolLayout({
+  tool,
+  children,
+  titleOverride,
+  subtitleOverride,
+  schemaDescriptionOverride,
+}: ToolLayoutProps) {
   const Icon = tool.Icon;
   const url = `${siteConfig.url}/tools/${tool.slug}`;
 
   const schemas = [
     softwareApplicationSchema({
       name: tool.title,
-      description: tool.description,
+      description: schemaDescriptionOverride ?? tool.description,
       url,
     }),
     breadcrumbSchema([
@@ -61,7 +75,7 @@ export function ToolLayout({ tool, children, subtitleOverride }: ToolLayoutProps
         )}
 
         <h1 className="mt-4 text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
-          {tool.title}
+          {titleOverride ?? tool.title}
         </h1>
         <p className="mt-3 text-base text-gray-600 sm:text-lg">
           {subtitleOverride ?? tool.description}
