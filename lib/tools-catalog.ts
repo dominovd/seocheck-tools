@@ -141,9 +141,9 @@ export const TOOLS: Tool[] = [
     shortTitle: "Visibility Score",
     taskLabel: "Get a channel's Visibility Score",
     description:
-      "Paste a channel — get a 0-100 composite Visibility Score across CTR Potential, Metadata Quality, Niche Headroom, and Growth Trajectory.",
+      "Paste a channel and get a 0-100 Visibility Score across CTR potential, metadata quality, growth trajectory, and niche reach.",
     metaDescription:
-      "Free YouTube Visibility Score. Paste any channel — get a composite 0-100 score across CTR Potential, Metadata Quality, Niche Headroom, and Growth Trajectory, with AI summary.",
+      "Check your YouTube channel Visibility Score for free. Get a 0-100 channel SEO score across CTR potential, metadata quality, growth trajectory, and niche reach.",
     category: "ai",
     stage: "analyze",
     Icon: Gauge,

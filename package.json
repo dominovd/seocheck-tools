@@ -8,17 +8,21 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "draft-update": "tsx scripts/draft-update.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",
     "@upstash/redis": "^1.34.0",
     "@vercel/analytics": "^1.4.1",
     "@vercel/og": "^0.6.4",
+    "fast-xml-parser": "^4.5.0",
+    "gray-matter": "^4.0.3",
     "lucide-react": "^0.460.0",
     "next": "14.2.18",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.15",
@@ -30,6 +34,7 @@
     "eslint-config-next": "14.2.18",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.15",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.3"
   },
   "engines": {

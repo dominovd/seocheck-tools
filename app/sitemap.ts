@@ -2,6 +2,18 @@ import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/site-config";
 import { liveTools, STAGE_ORDER } from "@/lib/tools-catalog";
 import { GUIDES } from "@/lib/guides-catalog";
+import { getAllUpdates } from "@/lib/updates";
+
+/**
+ * Updates feed indexing strategy (per seocheck-tools-updates-feed memory):
+ *  - /updates index → always in sitemap, high priority.
+ *  - Individual update posts → ROLLING WINDOW of the 10 most recent posts only.
+ *  - Older posts stay indexable (no noindex) but drop out of sitemap to focus
+ *    Google's crawl budget on fresh content.
+ *  - Last-48-hour posts also appear in /sitemap-news.xml (Google News namespace),
+ *    handled separately at app/sitemap-news.xml/route.ts.
+ */
+const UPDATES_SITEMAP_WINDOW = 10;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -72,5 +84,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  return [...staticPages, ...stageHubPages, ...toolPages, ...guidePages];
+  // Updates feed: index page + rolling window of N most recent posts.
+  const allUpdates = getAllUpdates();
+  const recentUpdates = allUpdates.slice(0, UPDATES_SITEMAP_WINDOW);
+
+  const updatesPages: MetadataRoute.Sitemap = [
+    {
+      url: `${siteConfig.url}/updates`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    ...recentUpdates.map((post, i) => ({
+      url: `${siteConfig.url}/updates/${post.slug}`,
+      lastModified: new Date(post.date),
+      changeFrequency: "monthly" as const,
+      // Newest gets the strongest boost, then small decay across the window
+      // so Google sees the recency order in the sitemap signal too.
+      priority: i === 0 ? 0.85 : 0.8,
+    })),
+  ];
+
+  return [
+    ...staticPages,
+    ...stageHubPages,
+    ...toolPages,
+    ...guidePages,
+    ...updatesPages,
+  ];
 }

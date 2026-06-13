@@ -50,6 +50,7 @@ export function Footer() {
             links={[
               { href: "/tools", label: "All tools" },
               { href: "/guides", label: "Guides" },
+              { href: "/updates", label: "Updates" },
               { href: "/about", label: "About" },
               { href: "/contact", label: "Contact" },
             ]}
