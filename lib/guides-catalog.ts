@@ -26,7 +26,7 @@ export const GUIDES: Guide[] = [
     title: "YouTube SEO in 2026: The Complete Guide",
     shortTitle: "YouTube SEO 2026 Guide",
     description:
-      "Everything that actually matters for ranking on YouTube in 2026 — titles, thumbnails, descriptions, tags, chapters, and the signals YouTube weights most.",
+      "Learn YouTube SEO in 2026: how to choose topics, write better titles and descriptions, optimize thumbnails, use tags and chapters, and audit videos after publishing.",
     publishedAt: "2026-05-29",
     readingTimeMinutes: 12,
     wordCount: 2400,

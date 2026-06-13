@@ -1,368 +1,840 @@
 import Link from "next/link";
+import Image from "next/image";
 import { GuideLayout } from "@/components/GuideLayout";
 import { buildMetadata } from "@/lib/seo";
 import { getGuideBySlug } from "@/lib/guides-catalog";
 
 const guide = getGuideBySlug("youtube-seo-2026-complete-guide")!;
 
-export const metadata = buildMetadata({
-  title: guide.title,
-  description: guide.description,
+const META_DESCRIPTION =
+  "Learn YouTube SEO in 2026: how to choose topics, write better titles and descriptions, optimize thumbnails, use tags and chapters, and audit videos after publishing.";
+const OG_DESCRIPTION =
+  "A practical YouTube SEO guide for 2026: topic research, titles, thumbnails, descriptions, tags, chapters, retention, analytics, and post-publish optimization.";
+
+const base = buildMetadata({
+  title: "YouTube SEO in 2026: Complete Guide to Ranking Videos",
+  description: META_DESCRIPTION,
   path: `guides/${guide.slug}`,
+  noBrand: true,
 });
+
+export const metadata = {
+  ...base,
+  openGraph: {
+    ...base.openGraph,
+    description: OG_DESCRIPTION,
+  },
+  twitter: {
+    ...base.twitter,
+    description: OG_DESCRIPTION,
+  },
+};
+
+const HOW_TO_STEPS = [
+  {
+    name: "Choose a clear topic",
+    text: "Pick a specific topic so YouTube can place the video and viewers can decide whether it is for them. Write a one-sentence topic statement before drafting the title.",
+  },
+  {
+    name: "Validate demand before recording",
+    text: "Check whether people are searching for the topic, whether current videos earn meaningful views, and whether smaller channels can break through.",
+  },
+  {
+    name: "Write a title people understand and want to click",
+    text: "A good title helps both YouTube and the viewer understand the topic while giving a reason to click. Keep titles readable on mobile, often around 40-70 characters.",
+  },
+  {
+    name: "Build the thumbnail and title together",
+    text: "Treat title and thumbnail as one piece of packaging. Do not repeat the same words; let the title carry the searchable promise and the thumbnail add a fast visual reason to care.",
+  },
+  {
+    name: "Write a useful description",
+    text: "Open with a useful first sentence, summarize what the viewer will learn, add chapters and key links, and use natural language instead of keyword dumps.",
+  },
+  {
+    name: "Use tags for disambiguation, not magic ranking",
+    text: "Use tags for misspellings, alternate names, and closely related variants. Do not dump unrelated popular keywords.",
+  },
+  {
+    name: "Add chapters when they help the viewer",
+    text: "Use chapters when the video has clear sections, viewers may want to jump to a part, or the video is long enough that navigation improves the experience.",
+  },
+  {
+    name: "Publish with the first 48 hours in mind",
+    text: "Confirm packaging matches the video, watch CTR, retention, and traffic sources after publish, and avoid making multiple changes at once.",
+  },
+  {
+    name: "Audit and improve after publishing",
+    text: "Build a feedback loop: if CTR is low, test the title or thumbnail. If retention drops early, improve the hook. If search traffic is low, improve topic clarity. If browse traffic is low, study packaging and viewer satisfaction.",
+  },
+];
+
+const FAQS = [
+  {
+    q: "Does YouTube SEO still matter in 2026?",
+    a: "Yes. YouTube SEO still matters because YouTube needs to understand what a video is about and who should see it. What changed is that metadata alone is not enough. Titles, thumbnails, retention, satisfaction, and topic clarity all work together.",
+  },
+  {
+    q: "What is the most important YouTube SEO factor?",
+    a: "There is no single factor that works in isolation. The strongest practical combination is a clear topic, clickable title and thumbnail, accurate metadata, and a video that satisfies the viewer who clicked.",
+  },
+  {
+    q: "Do YouTube tags still matter?",
+    a: "Tags matter less than many older guides suggest. Use them for misspellings, alternate names, and disambiguation. Do not expect tags to make an unrelated or weakly packaged video rank.",
+  },
+  {
+    q: "How long should a YouTube title be?",
+    a: "There is no perfect title length, but many effective titles are short enough to read quickly on mobile. A practical range is often 40-70 characters. Clarity matters more than hitting an exact number.",
+  },
+  {
+    q: "Should I update titles and thumbnails after publishing?",
+    a: "Yes, if the data suggests packaging is underperforming. If CTR is weak and retention is decent, a title or thumbnail test can help. Change one major element at a time so you can learn from the result.",
+  },
+  {
+    q: "Do descriptions help YouTube rankings?",
+    a: "Descriptions help YouTube and viewers understand the video. They are not a magic ranking factor, but a clear description supports relevance, search matching, and viewer trust.",
+  },
+  {
+    q: "Are hashtags useful on YouTube?",
+    a: "Hashtags can help categorize content and create clickable topic paths, but they should be relevant and limited. The first few hashtags matter most because YouTube may show them more prominently.",
+  },
+  {
+    q: "What should a beginner optimize first?",
+    a: "Start with topic clarity, title, and thumbnail. Those determine whether YouTube can place the video and whether viewers choose to click. Then improve the description, tags, chapters, and post-publish audit process.",
+  },
+];
 
 export default function YouTubeSeoCompleteGuidePage() {
   return (
-    <GuideLayout guide={guide}>
+    <GuideLayout
+      guide={guide}
+      howToSteps={HOW_TO_STEPS}
+      howToTotalTimeISO="PT15M"
+      faqs={FAQS}
+    >
       <p>
-        YouTube SEO in 2026 is not what it was in 2020. The platform&apos;s
-        ranking system has quietly absorbed everything Google learned about
-        AI-augmented search, and the signals that move the needle today are
-        different from the ones every five-year-old &quot;ultimate guide&quot;
-        will tell you about. This article is the working framework I&apos;d
-        give a creator starting today.
+        YouTube SEO in 2026 is not just about adding keywords to a title.
+        Keywords still matter, but they are only one part of a larger
+        system: YouTube needs to understand what your video is about,
+        viewers need to want to click it, and the video needs to satisfy
+        the people who do click.
+      </p>
+
+      <p>The short version:</p>
+
+      <blockquote>
+        YouTube SEO = clear topic + strong packaging + helpful metadata +
+        satisfied viewers.
+      </blockquote>
+
+      <p>
+        If your topic is vague, YouTube has trouble placing the video. If
+        your title and thumbnail are weak, people do not click. If the
+        video fails to deliver on the promise, retention drops and YouTube
+        has less reason to keep recommending it.
       </p>
 
       <p>
-        Skip ahead to the tools mentioned throughout:{" "}
-        <Link href="/tools">all 21 free tools</Link>. Each tool exists because
-        a specific step in this guide deserved its own utility.
+        This guide walks through the full workflow: choosing a topic,
+        validating demand, writing titles, designing thumbnails, using
+        descriptions and tags, adding chapters, watching early analytics,
+        and improving videos after publish.
       </p>
 
-      <h2>The model in one paragraph</h2>
+      <nav
+        aria-label="Table of contents"
+        className="not-prose my-8 rounded-2xl border border-gray-200 bg-gray-50/60 p-5 sm:p-6"
+      >
+        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+          In this guide
+        </p>
+
+        <div className="mt-4 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+          <a
+            href="#what-changed"
+            className="text-sm text-gray-700 hover:text-brand-700 transition"
+          >
+            What changed in YouTube SEO in 2026
+          </a>
+          <a
+            href="#how-discovery-works"
+            className="text-sm text-gray-700 hover:text-brand-700 transition"
+          >
+            How YouTube discovery works
+          </a>
+        </div>
+
+        <p className="mt-5 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+          9-step workflow
+        </p>
+        <ol className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+          {[
+            { href: "#step-1", label: "Choose a clear topic" },
+            { href: "#step-2", label: "Validate demand before recording" },
+            { href: "#step-3", label: "Write a title people want to click" },
+            { href: "#step-4", label: "Build thumbnail and title together" },
+            { href: "#step-5", label: "Write a useful description" },
+            { href: "#step-6", label: "Use tags for disambiguation" },
+            { href: "#step-7", label: "Add chapters when they help" },
+            { href: "#step-8", label: "Publish with the first 48 hours in mind" },
+            { href: "#step-9", label: "Audit and improve after publishing" },
+          ].map((item, i) => (
+            <li key={item.href} className="flex items-start gap-2 text-sm">
+              <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-[11px] font-mono font-semibold text-brand-700 ring-1 ring-inset ring-brand-200">
+                {i + 1}
+              </span>
+              <a
+                href={item.href}
+                className="text-gray-700 hover:text-brand-700 transition"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ol>
+
+        <div className="mt-5 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+          <a
+            href="#checklist"
+            className="text-sm text-gray-700 hover:text-brand-700 transition"
+          >
+            YouTube SEO checklist
+          </a>
+          <a
+            href="#workflow"
+            className="text-sm text-gray-700 hover:text-brand-700 transition"
+          >
+            Recommended tool workflow
+          </a>
+          <a
+            href="#faq"
+            className="text-sm text-gray-700 hover:text-brand-700 transition"
+          >
+            FAQ
+          </a>
+        </div>
+      </nav>
+
+      <h2 id="what-changed">What changed in YouTube SEO in 2026</h2>
       <p>
-        YouTube runs two distinct ranking systems, and your video is judged by
-        both. <strong>Search</strong> matches your video to queries typed into
-        the YouTube search bar. <strong>Browse</strong> decides whether your
-        video gets surfaced on someone&apos;s home feed, suggested column, or
-        Shorts shelf. Search rewards keyword relevance and click-through.
-        Browse rewards watch behaviour and viewer retention. A video that
-        wins both gets the algorithmic compounding that turns small channels
-        into mid-sized ones. A video that wins only one stays niche.
+        The fundamentals are stable: YouTube still needs to match videos
+        with viewers and keep those viewers satisfied. What changed is the
+        amount of competition around every topic.
       </p>
-
-      <h2>What signals matter most in 2026</h2>
       <p>
-        Drawn from creator-shared analytics, public YouTube statements, and a
-        decade of observed behaviour, the signals that visibly move
-        impressions:
+        In 2026, creators are publishing with better tools, faster AI
+        workflows, stronger thumbnails, and more aggressive topic
+        research. That raises the baseline. A generic video with a
+        keyword-stuffed title is easier to ignore because viewers have
+        better alternatives.
       </p>
-
+      <p>The biggest practical shifts:</p>
       <ol>
         <li>
-          <strong>Click-through rate from impressions.</strong> The single
-          biggest determinant of whether your video gets more impressions in
-          the next hour. CTR is driven almost entirely by the title and
-          thumbnail.
+          <strong>Packaging matters earlier.</strong> Your title and
+          thumbnail shape whether YouTube can get enough early viewer
+          behavior to evaluate the video.
         </li>
         <li>
-          <strong>Average view duration and retention curve.</strong>{" "}
-          Specifically the shape of the retention curve in the first 30
-          seconds — if it doesn&apos;t flatten, YouTube infers your video
-          delivers on the title.
+          <strong>Specific topics beat broad topics.</strong> A precise
+          topic gives YouTube a clearer audience and gives viewers a
+          clearer reason to click.
         </li>
         <li>
-          <strong>Topical match.</strong> Title, description, captions, and
-          tags collectively tell YouTube what the video is about. Without
-          this signal in the first hour after upload, before watch behaviour
-          exists, your video can&apos;t be surfaced anywhere relevant.
+          <strong>AI-generated content needs a real angle.</strong> AI
+          can help with titles, descriptions, outlines, and ideation, but
+          generic AI content blends into the background.
         </li>
         <li>
-          <strong>Session length contribution.</strong> Does watching your
-          video lead to viewers watching more YouTube? This is heavily
-          weighted in browse-surface ranking.
+          <strong>Metadata is a support signal.</strong> Titles,
+          descriptions, tags, captions, hashtags, and chapters help
+          YouTube understand the video, but they cannot rescue weak
+          viewer response.
         </li>
         <li>
-          <strong>Engagement signals (likes, comments, shares).</strong> Less
-          important than the above but still measurable. Comments correlate
-          best with browse-surface lift.
+          <strong>Post-publish iteration matters.</strong> Updating a
+          weak title or thumbnail after real data comes in is part of
+          modern YouTube SEO.
         </li>
       </ol>
 
+      <h2 id="how-discovery-works">How YouTube discovery works</h2>
       <p>
-        Notice what&apos;s <em>not</em> on this list: tags, hashtag count,
-        upload time, video length within reason, or description length. Those
-        are tools — not signals. They affect the signals above without being
-        ranking factors themselves.
+        YouTube discovery is not one ranking system. Your video can appear
+        in several places:
       </p>
-
-      <h2>Step 1: Decide what your video is actually about</h2>
+      <ul>
+        <li>YouTube Search</li>
+        <li>Home feed</li>
+        <li>Suggested videos</li>
+        <li>Shorts feed</li>
+        <li>Channel pages</li>
+        <li>External Google results</li>
+      </ul>
       <p>
-        The sharper the answer to &quot;what is this video about?&quot;, the
-        easier every later step becomes. Generic videos don&apos;t rank
-        because YouTube can&apos;t place them anywhere specific in its
-        topical graph. &quot;Tech review&quot; is too broad. &quot;Honest
-        long-term review of the M5 MacBook Pro for video editors who already
-        own an M2&quot; is searchable, browsable, and ranks naturally
-        because YouTube knows exactly who to show it to.
+        For SEO, the two big mental models are <strong>Search</strong> and{" "}
+        <strong>Browse</strong>.
       </p>
-
       <p>
-        Before you write anything else, write the niche statement in one
-        sentence. If you can&apos;t, the title and description will not save
-        the video.
+        Search starts with a query. Someone types a phrase into YouTube,
+        and YouTube tries to return videos that match the intent. Metadata
+        is especially important here: title, description, captions,
+        chapters, and other context help YouTube understand relevance.
       </p>
-
-      <h3>Find what people actually search for</h3>
       <p>
-        Start with our{" "}
-        <Link href="/tools/youtube-keyword-tool">Keyword Tool</Link> — it
-        surfaces YouTube&apos;s own autocomplete suggestions for any seed
-        term, expandable to 100+ long-tail variants. This is what people
-        actually type. Use the variants to refine your niche statement.
+        Browse starts with the viewer. YouTube decides what to recommend
+        based on viewer interests and behavior. Packaging and satisfaction
+        signals matter heavily here: whether people click, how long they
+        watch, whether they keep watching YouTube after your video, and
+        whether similar viewers respond well.
       </p>
+      <p>The best videos usually satisfy both:</p>
+      <ul>
+        <li>Search understands what the video is about.</li>
+        <li>Browse sees that the right viewers respond well.</li>
+      </ul>
 
-      <h2>Step 2: Title and thumbnail (drives CTR)</h2>
+      <h2 id="step-1">Step 1: Choose a clear topic</h2>
+      <p>Every SEO decision gets easier when the topic is specific.</p>
       <p>
-        Title and thumbnail are the only signals YouTube has before impressions
-        turn into actual viewer behaviour. They&apos;re responsible for
-        anywhere from 60 to 90 percent of whether the algorithm gives you
-        more impressions or quietly stops.
+        <strong>Weak topic:</strong> Productivity apps
       </p>
-
       <p>
-        Aim for titles that are <strong>40-70 characters</strong> long. Above
-        70, YouTube truncates them with an ellipsis in search results, browse
-        feeds, and the related-videos column — costing you visual real estate
-        at the exact moment the viewer decides whether to click. Below 30,
-        you usually can&apos;t pack enough keyword + curiosity to compete.
+        <strong>Stronger topic:</strong> Best productivity apps for solo
+        founders who manage clients, notes, and weekly planning
       </p>
-
       <p>
-        Mix angles: curiosity (open loops), listicles (numbered), how-to,
-        comparison/vs, contrarian, story. Sticking to one angle for every
-        video flattens your channel into &quot;always X&quot; in the
-        algorithm&apos;s eyes — easier to ignore.
+        <strong>Weak topic:</strong> Camera review
       </p>
-
       <p>
-        Our <Link href="/tools/youtube-title-generator">AI Title Generator</Link>{" "}
-        produces ten title candidates in different angles for any topic,
-        ready to A/B test. Pick the one that&apos;s honest to your video.
+        <strong>Stronger topic:</strong> Sony ZV-E10 II review for
+        beginner YouTubers filming indoors
       </p>
-
-      <h3>Thumbnails: what works in 2026</h3>
-      <p>
-        YouTube&apos;s thumbnail aesthetic is heading toward simpler, not
-        louder. Faces still help when the channel is personality-led. Large
-        legible text (3-5 words max) helps when the title alone undersells.
-        Bright colour blocks help on mobile feeds. What doesn&apos;t help:
-        more than three visual elements competing for attention.
-      </p>
-
+      <p>A clear topic does three things:</p>
+      <ul>
+        <li>It tells YouTube where the video belongs.</li>
+        <li>It tells viewers whether the video is for them.</li>
+        <li>It gives you a sharper title, thumbnail, and description.</li>
+      </ul>
+      <p>Before you write a title, write a one-sentence topic statement:</p>
+      <blockquote>
+        This video helps [viewer] solve [problem] in [specific situation].
+      </blockquote>
+      <p>Examples:</p>
+      <ul>
+        <li>
+          This video helps new YouTubers choose a beginner camera for
+          indoor talking-head videos.
+        </li>
+        <li>
+          This video helps small business owners use YouTube keywords
+          before planning a content calendar.
+        </li>
+        <li>
+          This video helps Notion users decide whether to switch to a
+          simpler notes app in 2026.
+        </li>
+      </ul>
       <p>
         Use the{" "}
-        <Link href="/tools/youtube-thumbnail-downloader">
-          Thumbnail Downloader
-        </Link>{" "}
-        to grab competitor thumbnails in your niche at full resolution and
-        compare what&apos;s working.
+        <Link href="/tools/youtube-keyword-tool">YouTube Keyword Tool</Link>{" "}
+        to expand the topic into real search phrases people type.
       </p>
 
-      <h2>Step 3: Description (drives topical match)</h2>
+      <h2 id="step-2">Step 2: Validate demand before recording</h2>
       <p>
-        The first 120 characters of your description show up in search
-        results and the &quot;more&quot; preview before viewers click — write
-        them like a sub-title that delivers the why. Most creators waste
-        these characters on subscribe prompts.
+        A topic can sound good and still be a bad use of production time.
       </p>
-
-      <p>
-        Below that, write 2-3 short paragraphs of what the video actually
-        contains. Use the natural keywords your title suggested. Don&apos;t
-        keyword-stuff: YouTube&apos;s 2024 algorithm update started penalising
-        descriptions that read like SEO-bait.
-      </p>
-
-      <p>
-        Pair with chapters. Chapters appear as clickable markers on the
-        progress bar and significantly increase average view duration when
-        the video is long enough to merit them. They also help YouTube
-        understand the structure of the video.
-      </p>
-
-      <p>
-        Two tools to round this out:{" "}
-        <Link href="/tools/youtube-description-generator">
-          AI Description Generator
-        </Link>{" "}
-        produces a structured description with hook, body, chapters
-        placeholder, and CTA;{" "}
-        <Link href="/tools/youtube-chapter-generator">Chapter Generator</Link>
-        {" "}validates your timestamps against YouTube&apos;s four rules
-        (first must be 0:00, at least 3 chapters, each ≥ 10 seconds,
-        ascending order).
-      </p>
-
-      <h2>Step 4: Tags and hashtags (signal disambiguation)</h2>
-      <p>
-        Tags <em>still</em> matter — just less than they used to. YouTube has
-        said tags play a &quot;minimal role&quot; in discovery. The honest
-        framing: tags help with three things specifically.
-      </p>
-
+      <p>Before recording, check three things:</p>
       <ol>
+        <li>Are people searching for this?</li>
+        <li>Are current videos getting meaningful views?</li>
         <li>
-          <strong>Misspellings of your topic.</strong> Tags are where
-          creators capture common typos of their primary keyword — the place
-          where the title can&apos;t reasonably go.
-        </li>
-        <li>
-          <strong>Disambiguation when your title is short.</strong> If your
-          title is &quot;Rome&quot; tags tell YouTube whether you mean the
-          city, the empire, or the HBO show.
-        </li>
-        <li>
-          <strong>First-hour signal.</strong> Before engagement data exists,
-          tags are part of YouTube&apos;s evidence that your video is about
-          the topic you say it is.
+          Can smaller channels break through, or are results dominated by
+          established channels?
         </li>
       </ol>
-
       <p>
-        YouTube caps total tag length at 500 characters including commas. A
-        healthy mix is roughly 30% broad terms, 50% mid-specific, 20%
-        long-tail. Our{" "}
-        <Link href="/tools/youtube-tag-generator">AI Tag Generator</Link>{" "}
-        produces 20-30 tags in that ratio and auto-trims to fit the 500-char
-        limit. To see what competitors are tagging, use the{" "}
-        <Link href="/tools/youtube-tag-extractor">Tag Extractor</Link> —
-        YouTube hides tags from the public UI but they&apos;re still in the
-        page source.
+        This matters because demand alone is not enough. A topic can have
+        demand but still be too competitive for a new channel. Another
+        topic can have lower search volume but a better opening because
+        smaller channels are already earning views.
+      </p>
+      <p>
+        Use <Link href="/tools/youtube-niche-check">Niche Check</Link> when
+        you need a go/no-go signal before making a video. Use{" "}
+        <Link href="/tools/youtube-competitor-analyzer">
+          Competitor Analyzer
+        </Link>{" "}
+        when you already know the niche and want to study channels inside
+        it.
       </p>
 
-      <h3>Hashtags vs tags</h3>
-      <p>
-        Hashtags are <em>public</em> and clickable (they appear above your
-        title); tags are private metadata. Different functions, different
-        best practices. YouTube displays only the first three hashtags from
-        your description, so the order matters. Use the{" "}
-        <Link href="/tools/youtube-hashtag-generator">Hashtag Generator</Link>{" "}
-        for ranked options.
-      </p>
-
-      <h2>Step 5: Watch the first hour</h2>
-      <p>
-        Most of YouTube&apos;s algorithmic decisions about a new upload are
-        made in the first one to four hours after publish. The video is shown
-        to a small &quot;test&quot; audience drawn from your subscriber base
-        and topic-matched browsers. If the test audience&apos;s CTR is above
-        average and retention curve doesn&apos;t flatten too fast, the video
-        gets expanded distribution. If not, it stays niche forever.
-      </p>
-
-      <p>
-        Practical implications:
-      </p>
-
+      <h2 id="step-3">
+        Step 3: Write a title people understand and want to click
+      </h2>
+      <p>A good YouTube title has two jobs:</p>
       <ul>
+        <li>Help YouTube and viewers understand the topic.</li>
+        <li>Give the right viewer a reason to click.</li>
+      </ul>
+      <p>Most weak titles fail because they do only one of those jobs.</p>
+      <p>
+        <strong>Keyword-only title:</strong> YouTube SEO Tips 2026
+      </p>
+      <p>
+        <strong>Clearer title:</strong> YouTube SEO in 2026: 9 Fixes That
+        Help Videos Get Found
+      </p>
+      <p>
+        <strong>Curiosity-only title:</strong> I Changed This and My
+        Channel Exploded
+      </p>
+      <p>
+        <strong>Clearer title:</strong> I Rewrote 20 YouTube Titles. Here
+        is What Improved CTR
+      </p>
+      <p>Useful title formats:</p>
+      <ul>
+        <li>How to [result] without [pain]</li>
+        <li>[Tool/Product] Review After [time period]</li>
+        <li>[X] Mistakes That Keep [audience] From [goal]</li>
+        <li>[A] vs [B]: Which Is Better for [specific use case]?</li>
+        <li>I Tried [method] for [time period]. Here is What Happened</li>
+        <li>The [specific audience] Guide to [topic]</li>
+      </ul>
+      <p>
+        Keep titles readable on mobile. As a practical rule, many titles
+        work best around 40-70 characters, but clarity matters more than a
+        fixed number.
+      </p>
+      <p>
+        Use the{" "}
+        <Link href="/tools/youtube-title-generator">Title Generator</Link>{" "}
+        for angles, then run finalists through the{" "}
+        <Link href="/tools/youtube-title-score-checker">
+          Title Score Checker
+        </Link>
+        .
+      </p>
+
+      {/* Title Generator screenshot */}
+      <figure className="my-10 not-prose">
+        <div className="overflow-hidden rounded-2xl ring-1 ring-gray-200 bg-white shadow-sm">
+          <Image
+            src="/screenshots/title-generator.webp"
+            alt="AI YouTube Title Generator showing 10 generated titles for a React tutorial topic"
+            width={1220}
+            height={1506}
+            className="w-full h-auto"
+          />
+        </div>
+        <figcaption className="mt-3 text-center text-xs text-gray-500">
+          Example output: the Title Generator returns 10 angles you can
+          shortlist, then score before publishing.
+        </figcaption>
+      </figure>
+
+      <h2 id="step-4">Step 4: Build the thumbnail and title together</h2>
+      <p>
+        The title and thumbnail are one piece of packaging. They should
+        not repeat the exact same idea.
+      </p>
+      <p>
+        <strong>Weak pairing:</strong>
+        <br />
+        Title: Best Budget Cameras for YouTube
+        <br />
+        Thumbnail text: Best Budget Cameras for YouTube
+      </p>
+      <p>
+        <strong>Stronger pairing:</strong>
+        <br />
+        Title: Best Budget Cameras for YouTube Beginners in 2026
+        <br />
+        Thumbnail text: Under $700
+      </p>
+      <p>
+        The title carries the searchable promise. The thumbnail adds a
+        fast visual reason to care.
+      </p>
+      <p>Good thumbnail principles:</p>
+      <ul>
+        <li>One clear focal point.</li>
+        <li>Strong contrast on mobile.</li>
+        <li>Minimal text, usually 0-5 words.</li>
+        <li>No tiny details that disappear in feed.</li>
+        <li>Emotion or outcome when relevant.</li>
         <li>
-          Publish when your subscribers are most likely to watch immediately
-          — the first hour matters more than the next 24.
-        </li>
-        <li>
-          Notify any community (email list, Discord, niche subreddit) that&apos;s
-          likely to engage in the first hour.
-        </li>
-        <li>
-          Don&apos;t republish the same video with a new title. YouTube
-          treats it as a fresh upload but penalises it as duplicate.
+          Visual difference from competitors in the same result set.
         </li>
       </ul>
-
-      <h2>Step 6: Iterate on what you learn</h2>
       <p>
-        Once a video has 48 hours of data, look at your CTR (visible in
-        YouTube Studio &gt; Analytics &gt; Reach). If CTR is below your
-        channel average, the title or thumbnail underperformed — try changing
-        one of them (not both). YouTube allows you to edit either at any
-        time and re-tests with the new version.
+        Before publishing, preview the thumbnail next to the title in
+        realistic placements: search, home feed, sidebar, and mobile. Use{" "}
+        <Link href="/tools/youtube-thumbnail-preview">Thumbnail Preview</Link>{" "}
+        for this.
       </p>
 
+      <h2 id="step-5">Step 5: Write a useful description</h2>
       <p>
-        If retention drops sharply in the first 30 seconds, your hook is
-        weak. You can&apos;t fix this without re-editing the video, but it&apos;s
-        the most valuable signal for future videos. The shape of the
-        retention curve is more useful than the average.
+        The description is not where you dump keywords. It is where you
+        clarify the video for both viewers and YouTube.
+      </p>
+      <p>
+        A strong description starts with a useful first sentence. Those
+        first lines can appear in previews, so do not waste them on a
+        generic subscribe request.
+      </p>
+      <p>Description structure:</p>
+      <ol>
+        <li>First 1-2 sentences: what the video helps with.</li>
+        <li>Short summary: what the viewer will learn.</li>
+        <li>Key links or resources.</li>
+        <li>Chapters, if useful.</li>
+        <li>Light CTA.</li>
+        <li>Disclosure or affiliate notes, if needed.</li>
+      </ol>
+      <p>Example:</p>
+      <blockquote>
+        Learn how to choose YouTube keywords that match your video idea
+        before you write the title. In this video, I show a simple
+        workflow for finding long-tail topics, checking competition, and
+        turning one seed idea into a publish-ready title.
+        <br />
+        <br />
+        We cover:
+        <br />- How YouTube autocomplete helps with topic research
+        <br />- How to judge whether a keyword is too broad
+        <br />- How to turn keyword ideas into titles
+        <br />- What to check before publishing
+      </blockquote>
+      <p>
+        Use natural language. If a phrase would sound strange to a viewer,
+        do not force it into the description.
+      </p>
+      <p>
+        Use the{" "}
+        <Link href="/tools/youtube-description-generator">
+          Description Generator
+        </Link>{" "}
+        to draft a structured version, then edit it so it matches the
+        actual video.
       </p>
 
-      <h2>Earnings reality check</h2>
+      <h2 id="step-6">
+        Step 6: Use tags for disambiguation, not magic ranking
+      </h2>
       <p>
-        YouTube&apos;s Partner Program shares 55% of ad revenue with
-        creators. CPMs vary wildly by niche (finance and insurance pay
-        $15-40 per 1000 ad views; gaming pays $2-5). Use our{" "}
-        <Link href="/tools/youtube-money-calculator">Money Calculator</Link>
-        {" "}with your specific niche and audience region for an
-        order-of-magnitude estimate. Don&apos;t plan finances around it —
-        real earnings can swing 30-50% by season alone.
+        Tags still have a role, but they are not the ranking lever many
+        old guides make them out to be.
       </p>
-
-      <h2>What we&apos;re skipping deliberately</h2>
       <p>
-        Three things every other YouTube SEO guide gives airtime to, that
-        don&apos;t matter in 2026:
+        YouTube&apos;s own guidance says tags can be useful when content
+        is commonly misspelled, but the title, thumbnail, and description
+        are more important for discovery.
       </p>
+      <p>Use tags for:</p>
+      <ul>
+        <li>Misspellings.</li>
+        <li>Alternate names.</li>
+        <li>Closely related topic variants.</li>
+        <li>Disambiguation when a topic has multiple meanings.</li>
+        <li>Supporting long-tail phrases that would be awkward in the title.</li>
+      </ul>
+      <p>
+        Do not use tags as a dumping ground for unrelated popular
+        keywords. That creates weak relevance and can make the metadata
+        look sloppy.
+      </p>
+      <p>Practical tag mix:</p>
       <ul>
         <li>
-          <strong>Upload schedule consistency.</strong> Helps habitual
-          viewers, doesn&apos;t affect ranking.
+          <strong>Primary topic:</strong> youtube seo, youtube seo 2026
         </li>
         <li>
-          <strong>Video length thresholds.</strong> &quot;8-12 minutes is
-          ideal&quot; is folklore. Longer videos can convert better if
-          retention holds. Shorter videos can convert better when they&apos;re
-          tight. YouTube doesn&apos;t favour either as a structural rule.
+          <strong>Specific topic:</strong> youtube title optimization,
+          youtube description optimization, youtube keyword research
         </li>
         <li>
-          <strong>End screens / cards.</strong> Helpful for retention within
-          your channel, irrelevant for ranking.
+          <strong>Long-tail:</strong> how to rank youtube videos in 2026,
+          youtube seo for beginners
+        </li>
+        <li>
+          <strong>Misspellings or variants:</strong> yt seo, youtube
+          search optimization
         </li>
       </ul>
-
-      <h2>One-page workflow</h2>
       <p>
-        For each video, the sequence:
+        Use the <Link href="/tools/youtube-tag-generator">Tag Generator</Link>{" "}
+        for ideas and the{" "}
+        <Link href="/tools/youtube-tag-extractor">Tag Extractor</Link> to
+        inspect how competitors label similar videos.
       </p>
+
+      <h2 id="step-7">Step 7: Add chapters when they help the viewer</h2>
+      <p>
+        Chapters help viewers navigate longer videos. They can also make
+        the structure easier to understand.
+      </p>
+      <p>Use chapters when:</p>
+      <ul>
+        <li>The video has clear sections.</li>
+        <li>Viewers may want to jump to a specific part.</li>
+        <li>
+          The video is long enough that navigation improves the
+          experience.
+        </li>
+      </ul>
+      <p>
+        Do not add fake chapters to a short video just because a checklist
+        told you to. If chapters do not help the viewer, they are
+        clutter.
+      </p>
+      <p>Good chapter format:</p>
+      <blockquote>
+        0:00 Intro
+        <br />
+        0:42 Why YouTube SEO changed
+        <br />
+        2:15 Topic research
+        <br />
+        4:10 Titles and thumbnails
+        <br />
+        6:35 Descriptions and tags
+        <br />
+        8:20 Post-publish audit
+      </blockquote>
+      <p>
+        Use the{" "}
+        <Link href="/tools/youtube-chapter-generator">Chapter Generator</Link>{" "}
+        to check timestamp ordering and formatting.
+      </p>
+
+      <h2 id="step-8">
+        Step 8: Publish with the first 48 hours in mind
+      </h2>
+      <p>
+        Early performance matters because YouTube needs evidence. That
+        does not mean the first hour permanently decides everything, but
+        the early window gives the system useful signals about who
+        responds to the video.
+      </p>
+      <p>Before publishing:</p>
+      <ul>
+        <li>Make sure the title and thumbnail match the actual video.</li>
+        <li>Check the first sentence of the description.</li>
+        <li>Add chapters if useful.</li>
+        <li>Confirm tags and hashtags are relevant.</li>
+        <li>
+          Share the video where the right viewers will actually watch,
+          not just click.
+        </li>
+      </ul>
+      <p>After publishing:</p>
+      <ul>
+        <li>Watch impressions and CTR.</li>
+        <li>Watch retention, especially early drop-off.</li>
+        <li>Watch traffic sources.</li>
+        <li>Read comments for mismatch between expectation and delivery.</li>
+      </ul>
+      <p>
+        Avoid making five changes at once. If you change the title and
+        thumbnail at the same time, you will not know which change
+        helped.
+      </p>
+
+      <h2 id="step-9">Step 9: Audit and improve after publishing</h2>
+      <p>
+        Most creators publish and move on. Better creators build a
+        feedback loop.
+      </p>
+      <p>After 24-48 hours, ask:</p>
+      <ul>
+        <li>Did the right people click?</li>
+        <li>Did the video deliver on the title and thumbnail?</li>
+        <li>Where did viewers drop?</li>
+        <li>Did search traffic appear?</li>
+        <li>Did suggested or browse traffic appear?</li>
+        <li>Are comments confused, satisfied, or asking for a follow-up?</li>
+      </ul>
+      <p>If CTR is low, test the title or thumbnail.</p>
+      <p>
+        If retention drops early, improve the hook in the next video. You
+        usually cannot fix a weak opening with metadata.
+      </p>
+      <p>
+        If search traffic is low but retention is good, improve topic
+        clarity in the title, description, and chapters.
+      </p>
+      <p>
+        If browse traffic is low, study packaging and viewer
+        satisfaction. Browse often needs a stronger promise and a broader
+        viewer appeal.
+      </p>
+      <p>
+        Use <Link href="/tools/youtube-video-audit">Video Audit</Link> for
+        a metadata and packaging check. Use{" "}
+        <Link href="/tools/youtube-visibility-score">Visibility Score</Link>{" "}
+        and{" "}
+        <Link href="/tools/youtube-channel-audit">Channel Audit</Link> when
+        you want to review channel-level patterns.
+      </p>
+
+      {/* Video Audit screenshots */}
+      <figure className="my-10 not-prose">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="overflow-hidden rounded-2xl ring-1 ring-gray-200 bg-white shadow-sm">
+            <Image
+              src="/screenshots/video-audit-1.webp"
+              alt="YouTube Video Audit result showing overall SEO score of 65 with weaknesses summary and a Fix with AI button"
+              width={1386}
+              height={1480}
+              className="w-full h-auto"
+            />
+          </div>
+          <div className="overflow-hidden rounded-2xl ring-1 ring-gray-200 bg-white shadow-sm">
+            <Image
+              src="/screenshots/video-audit-2.webp"
+              alt="Video audit per-dimension breakdown across title, description, tags, hashtags and chapters"
+              width={1294}
+              height={1372}
+              className="w-full h-auto"
+            />
+          </div>
+        </div>
+        <figcaption className="mt-3 text-center text-xs text-gray-500">
+          Video Audit returns an overall score and a per-dimension
+          breakdown so you know which field to fix first.
+        </figcaption>
+      </figure>
+
+      <h2 id="checklist">YouTube SEO checklist</h2>
+      <p>
+        <strong>Before recording:</strong>
+      </p>
+      <ul>
+        <li>Define the viewer and problem.</li>
+        <li>Write a one-sentence topic statement.</li>
+        <li>Check YouTube keyword ideas.</li>
+        <li>Validate demand and competition.</li>
+        <li>Study top-performing competitor videos.</li>
+      </ul>
+      <p>
+        <strong>Before publishing:</strong>
+      </p>
+      <ul>
+        <li>Title is clear and clickable.</li>
+        <li>Thumbnail is readable on mobile.</li>
+        <li>Title and thumbnail work together.</li>
+        <li>Description starts with a useful summary.</li>
+        <li>Tags support relevance and disambiguation.</li>
+        <li>Hashtags are relevant and ordered.</li>
+        <li>Chapters help viewers navigate.</li>
+      </ul>
+      <p>
+        <strong>After publishing:</strong>
+      </p>
+      <ul>
+        <li>Check CTR.</li>
+        <li>Check retention curve.</li>
+        <li>Check traffic sources.</li>
+        <li>Read comments for expectation mismatch.</li>
+        <li>Test one packaging change at a time if needed.</li>
+        <li>Feed the lesson into the next video.</li>
+      </ul>
+
+      <h2 id="workflow">Recommended tool workflow</h2>
+      <p>For a new video:</p>
       <ol>
         <li>
-          Write the niche statement in one sentence. Test it against{" "}
-          <Link href="/tools/youtube-keyword-tool">Keyword Tool</Link>{" "}
-          autocomplete to confirm real search demand.
+          Use <Link href="/tools/youtube-keyword-tool">Keyword Tool</Link>{" "}
+          to discover topic phrasing.
         </li>
         <li>
-          Generate 10 title candidates with the{" "}
-          <Link href="/tools/youtube-title-generator">Title Generator</Link>.
-          Pick the one that&apos;s honest and shortest.
+          Use <Link href="/tools/youtube-niche-check">Niche Check</Link> to
+          validate the topic.
         </li>
-        <li>Design the thumbnail.</li>
         <li>
-          Write the description with the{" "}
+          Use{" "}
+          <Link href="/tools/youtube-competitor-analyzer">
+            Competitor Analyzer
+          </Link>{" "}
+          to study winning channels.
+        </li>
+        <li>
+          Use{" "}
+          <Link href="/tools/youtube-title-generator">Title Generator</Link>{" "}
+          and{" "}
+          <Link href="/tools/youtube-title-score-checker">
+            Title Score Checker
+          </Link>{" "}
+          to refine titles.
+        </li>
+        <li>
+          Use{" "}
+          <Link href="/tools/youtube-thumbnail-preview">Thumbnail Preview</Link>{" "}
+          before upload.
+        </li>
+        <li>
+          Use{" "}
           <Link href="/tools/youtube-description-generator">
             Description Generator
           </Link>
-          . Put the strongest 120 characters first.
-        </li>
-        <li>
-          Generate tags with the{" "}
-          <Link href="/tools/youtube-tag-generator">Tag Generator</Link>;
-          generate 3 hashtags with the{" "}
-          <Link href="/tools/youtube-hashtag-generator">Hashtag Generator</Link>.
-        </li>
-        <li>
-          Format your chapters with the{" "}
+          ,{" "}
+          <Link href="/tools/youtube-tag-generator">Tag Generator</Link>, and{" "}
           <Link href="/tools/youtube-chapter-generator">Chapter Generator</Link>{" "}
-          and paste them into the description.
+          to prepare metadata.
         </li>
         <li>
-          Publish at peak subscriber-engagement time.
-        </li>
-        <li>
-          Wait 48 hours. Look at CTR + retention. Iterate the next video.
+          Use <Link href="/tools/youtube-video-audit">Video Audit</Link>{" "}
+          after publishing.
         </li>
       </ol>
 
+      <h2 id="faq">FAQ</h2>
+      <dl className="not-prose mt-6 divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white">
+        {FAQS.map((item) => (
+          <details
+            key={item.q}
+            className="group px-5 py-4 sm:px-6 [&_summary::-webkit-details-marker]:hidden"
+          >
+            <summary className="flex cursor-pointer items-start justify-between gap-3 text-left text-sm font-semibold text-gray-900 sm:text-base">
+              <span>{item.q}</span>
+              <span className="mt-0.5 text-gray-400 transition-transform group-open:rotate-180">
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </span>
+            </summary>
+            <dd className="mt-3 text-sm text-gray-700 leading-relaxed">
+              {item.a}
+            </dd>
+          </details>
+        ))}
+      </dl>
+
+      <h2>Closing</h2>
       <p>
-        That&apos;s the whole framework. Everything else is decoration.
+        YouTube SEO in 2026 is not about tricking the algorithm. It is
+        about making the video easier to understand, easier to choose,
+        and more satisfying for the viewer who clicked.
+      </p>
+      <p>
+        Do that consistently and the technical pieces start to work
+        together: search can understand the video, browse can test it
+        with the right audience, and your analytics can show what to
+        improve next.
       </p>
     </GuideLayout>
   );

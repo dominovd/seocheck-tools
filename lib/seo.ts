@@ -199,6 +199,8 @@ export function articleSchema(opts: {
   url: string;
   datePublished: string;
   dateModified?: string;
+  /** Featured / hero image URL — required for Google Discover and Top Stories. */
+  image?: string;
 }) {
   return {
     "@context": "https://schema.org",
@@ -208,6 +210,7 @@ export function articleSchema(opts: {
     url: opts.url,
     datePublished: opts.datePublished,
     dateModified: opts.dateModified ?? opts.datePublished,
+    ...(opts.image ? { image: [opts.image] } : {}),
     author: {
       "@type": "Organization",
       name: siteConfig.name,
@@ -222,5 +225,31 @@ export function articleSchema(opts: {
         url: `${siteConfig.url}/icon.svg`,
       },
     },
+  };
+}
+
+/** HowTo schema — for step-by-step guides. Eligible for SERP rich result. */
+export function howToSchema(opts: {
+  name: string;
+  description: string;
+  url: string;
+  image?: string;
+  totalTimeISO?: string;
+  steps: { name: string; text: string; url?: string }[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: opts.name,
+    description: opts.description,
+    ...(opts.image ? { image: [opts.image] } : {}),
+    ...(opts.totalTimeISO ? { totalTime: opts.totalTimeISO } : {}),
+    step: opts.steps.map((s, i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      name: s.name,
+      text: s.text,
+      ...(s.url ? { url: s.url } : { url: `${opts.url}#step-${i + 1}` }),
+    })),
   };
 }

@@ -2,27 +2,56 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Container } from "./Container";
 import { JsonLd } from "./JsonLd";
-import { articleSchema, breadcrumbSchema } from "@/lib/seo";
+import {
+  articleSchema,
+  breadcrumbSchema,
+  faqPageSchema,
+  howToSchema,
+} from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
 import type { Guide } from "@/lib/guides-catalog";
 
 type GuideLayoutProps = {
   guide: Guide;
   children: ReactNode;
+  /** Featured image URL for Article + HowTo schema. Defaults to dynamic OG. */
+  image?: string;
+  /** If provided, also emits HowTo JSON-LD alongside Article. */
+  howToSteps?: { name: string; text: string }[];
+  /** ISO-8601 duration like "PT15M" for HowTo totalTime. */
+  howToTotalTimeISO?: string;
+  /** If provided, also emits FAQPage JSON-LD. */
+  faqs?: { q: string; a: string }[];
 };
 
 /**
  * Common chrome + JSON-LD for every cornerstone guide.
- * Emits Article schema and Home → Guides → Current breadcrumb.
+ * Emits Article schema + breadcrumb, plus optional HowTo / FAQPage schemas
+ * and an explicit featured image for Discover / Top Stories eligibility.
  */
-export function GuideLayout({ guide, children }: GuideLayoutProps) {
+export function GuideLayout({
+  guide,
+  children,
+  image,
+  howToSteps,
+  howToTotalTimeISO,
+  faqs,
+}: GuideLayoutProps) {
   const url = `${siteConfig.url}/guides/${guide.slug}`;
-  const schemas = [
+  const featuredImage =
+    image ??
+    `${siteConfig.url}/api/og?${new URLSearchParams({
+      title: guide.title.slice(0, 80),
+      subtitle: guide.description.slice(0, 120),
+    }).toString()}`;
+
+  const schemas: object[] = [
     articleSchema({
       headline: guide.title,
       description: guide.description,
       url,
       datePublished: guide.publishedAt,
+      image: featuredImage,
     }),
     breadcrumbSchema([
       { name: "Home", url: siteConfig.url },
@@ -30,6 +59,23 @@ export function GuideLayout({ guide, children }: GuideLayoutProps) {
       { name: guide.shortTitle, url },
     ]),
   ];
+
+  if (howToSteps && howToSteps.length > 0) {
+    schemas.push(
+      howToSchema({
+        name: guide.title,
+        description: guide.description,
+        url,
+        image: featuredImage,
+        totalTimeISO: howToTotalTimeISO,
+        steps: howToSteps,
+      }),
+    );
+  }
+
+  if (faqs && faqs.length > 0) {
+    schemas.push(faqPageSchema(faqs));
+  }
 
   return (
     <Container as="main" className="py-12 sm:py-16">

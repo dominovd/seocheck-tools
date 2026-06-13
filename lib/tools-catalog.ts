@@ -90,7 +90,7 @@ export const TOOLS: Tool[] = [
     shortTitle: "Niche Check",
     taskLabel: "Check a topic's opportunity",
     description:
-      "Paste a topic — get a verdict (ENTER NOW / NICHE GAP / HIGH COMPETITION / OVERSATURATED / WEAK DEMAND / NEUTRAL) with a 0-10 score, signals, and evidence.",
+      "Validate a topic before recording with demand, competition, freshness, and small-channel breakthrough signals.",
     metaDescription:
       "Free YouTube niche check. Paste a topic, get a one-word verdict with score, signals, and top-20 evidence. Find under-saturated niches before recording.",
     category: "ai",
@@ -107,7 +107,7 @@ export const TOOLS: Tool[] = [
     shortTitle: "Outlier Finder",
     taskLabel: "Find a channel's outlier videos",
     description:
-      "Paste a channel — find the videos that outperformed its median by 3× or more, with AI patterns explaining what made them outliers.",
+      "Find the videos that broke a channel's usual performance pattern and see what made those outliers work.",
     metaDescription:
       "Free YouTube outlier finder. Paste any channel — see which videos overperformed the channel's median by 3× or more, with AI analysis of what made them outliers vs average videos.",
     category: "ai",
@@ -124,7 +124,7 @@ export const TOOLS: Tool[] = [
     shortTitle: "Competitor Analyzer",
     taskLabel: "Analyze a competitor channel",
     description:
-      "Paste any YouTube channel — get their top 10 videos by views with title scores, view counts, and 3 patterns you can borrow.",
+      "Study a competitor channel and uncover the videos, title structures, and repeatable content patterns behind their biggest wins.",
     metaDescription:
       "Free YouTube competitor analyzer. Paste a channel — see their top 10 videos by views with title scores, engagement metrics, and 3 concrete patterns their videos share.",
     category: "ai",
@@ -264,7 +264,7 @@ export const TOOLS: Tool[] = [
     shortTitle: "Keyword Tool",
     taskLabel: "Find keywords",
     description:
-      "Discover what people are searching on YouTube. Get 20+ keyword suggestions from any seed term.",
+      "Turn a seed topic into YouTube keyword ideas people actually search for, then use them for titles, tags, and video planning.",
     metaDescription:
       "Free YouTube keyword tool. Get 20+ keyword suggestions from any seed term using YouTube's own autocomplete data.",
     category: "utility",
