@@ -1,10 +1,14 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { discoverNew } from "@/lib/sources/discover";
-import { appendEntries, writeSeen } from "@/lib/sources/seen-urls";
+import {
+  appendEntries,
+  serializeSeen,
+  SEEN_SOURCES_PATH,
+} from "@/lib/sources/seen-urls";
 import type { SeenEntry } from "@/lib/sources/seen-urls";
 import { runDraftPipeline } from "@/lib/updates-pipeline";
-import { putFile } from "@/lib/github";
+import { commitFiles } from "@/lib/github";
 
 export const runtime = "nodejs";
 // Node runtime (not edge) so the GitHub helper's Buffer import resolves.
@@ -79,13 +83,15 @@ export async function GET(req: NextRequest) {
     const deferred = freshItems.length - toProcess.length;
 
     const newSeenEntries: SeenEntry[] = [];
+    const filesToCommit: Array<{ path: string; content: string }> = [];
     let drafted = 0;
     let published = 0;
     let rejected = 0;
     let totalCostUsd = 0;
 
-    // Process items serially to keep per-cycle commit volume sensible
-    // and avoid GitHub API rate spikes.
+    // Process items serially. Collect (not commit) drafts and the state
+    // update; batch them into ONE Git Data API commit at the end so
+    // Vercel sees a single push event and runs one build per cron cycle.
     for (const item of toProcess) {
       try {
         const result = await runDraftPipeline({
@@ -111,12 +117,7 @@ export async function GET(req: NextRequest) {
           continue;
         }
 
-        // Commit the markdown file.
-        await putFile({
-          path: result.filePath,
-          content: result.markdown,
-          message: `feat(updates): ${result.severity} ${result.category} — ${result.slug}`,
-        });
+        filesToCommit.push({ path: result.filePath, content: result.markdown });
 
         newSeenEntries.push({
           url: item.url,
@@ -133,7 +134,7 @@ export async function GET(req: NextRequest) {
         log.push({
           phase: "drafted",
           url: item.url,
-          outcome: "committed",
+          outcome: "queued-for-commit",
           path: result.filePath,
           confidence: result.confidence,
           severity: result.severity,
@@ -150,10 +151,20 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Commit updated seen-sources.json if we processed anything.
+    // Batched commit. ONE git push event regardless of how many files.
     if (newSeenEntries.length > 0) {
       const nextState = appendEntries(state, newSeenEntries);
-      await writeSeen(nextState, stateSha);
+      filesToCommit.push({
+        path: SEEN_SOURCES_PATH,
+        content: serializeSeen(nextState),
+      });
+
+      const summary = `feat(updates): cron cycle — ${published} published, ${drafted - published} drafts, ${rejected} rejected`;
+      const { commitSha } = await commitFiles({
+        files: filesToCommit,
+        message: summary,
+      });
+      log.push({ phase: "commit", filesCommitted: filesToCommit.length, commitSha });
     }
 
     return NextResponse.json({

@@ -20,7 +20,7 @@
     },
     {
       "path": "/api/cron/scan-update-sources",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 12 * * *"
     }
   ]
 }

@@ -85,3 +85,11 @@ export async function writeSeen(state: SeenState, sha?: string): Promise<void> {
     sha,
   });
 }
+
+/** Path constant exported for batched cron commits. */
+export const SEEN_SOURCES_PATH = STATE_PATH;
+
+/** Serializes a state object the same way writeSeen does (newline at end). */
+export function serializeSeen(state: SeenState): string {
+  return JSON.stringify(state, null, 2) + "\n";
+}
