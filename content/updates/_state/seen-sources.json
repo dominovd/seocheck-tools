@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "url": "https://blog.youtube/creator-and-artist-stories/mrbeast-500-million-youtube-subscribers",
+      "discoveredAt": "2026-06-13T16:39:52.539Z",
+      "status": "rejected"
+    },
+    {
+      "url": "https://blog.youtube/news-and-events/watch-womens-cricket-t20-world-cup-youtube",
+      "discoveredAt": "2026-06-13T16:39:57.718Z",
+      "status": "published",
+      "slug": "2026-06-icc-womens-t20-world-cup-2026-streams-live-on-youtube-globally"
+    },
+    {
+      "url": "https://blog.youtube/news-and-events/youtube-music-nights-exclusive-live-concerts",
+      "discoveredAt": "2026-06-13T16:40:04.240Z",
+      "status": "published",
+      "slug": "2026-06-youtube-music-nights-features-exclusive-live-concert-performances"
+    },
+    {
+      "url": "https://blog.youtube/news-and-events/youtube-fifa-world-cup-lineup",
+      "discoveredAt": "2026-06-13T16:40:11.665Z",
+      "status": "published",
+      "slug": "2026-06-youtube-partners-with-fifa-to-feature-creators-at-world-cup-2026"
+    },
+    {
+      "url": "https://blog.youtube/news-and-events/watch-fifa-world-cup-youtube",
+      "discoveredAt": "2026-06-13T16:40:14.254Z",
+      "status": "rejected"
+    }
+  ]
+}
