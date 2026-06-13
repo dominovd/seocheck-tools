@@ -1,5 +1,6 @@
 import { Container } from "@/components/Container";
 import { BreadcrumbSchema } from "@/components/PageSchemas";
+import { ExternalLink } from "@/components/ExternalLink";
 import { buildMetadata } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
 
@@ -146,14 +147,13 @@ export default function PrivacyPage() {
             <strong>Anthropic.</strong> AI generation requests are forwarded to
             Anthropic&apos;s Claude API for processing. Anthropic&apos;s privacy
             policy:{" "}
-            <a
+            <ExternalLink
               href="https://www.anthropic.com/legal/privacy"
               className="link"
-              target="_blank"
-              rel="noopener noreferrer"
+              hideIcon
             >
               anthropic.com/legal/privacy
-            </a>
+            </ExternalLink>
             . Anthropic retains API request data for up to 30 days for trust
             &amp; safety review before deletion; they do not use API data for
             model training.
@@ -162,40 +162,37 @@ export default function PrivacyPage() {
             <strong>Cloudflare.</strong> Cloudflare hosts our DNS, provides
             DDoS protection, and runs the Turnstile bot challenge on AI tool
             endpoints. Their privacy policy:{" "}
-            <a
+            <ExternalLink
               href="https://www.cloudflare.com/privacypolicy/"
               className="link"
-              target="_blank"
-              rel="noopener noreferrer"
+              hideIcon
             >
               cloudflare.com/privacypolicy
-            </a>
+            </ExternalLink>
             .
           </li>
           <li>
             <strong>Vercel.</strong> Vercel hosts the site and provides the
             cookieless page-view analytics. Their privacy policy:{" "}
-            <a
+            <ExternalLink
               href="https://vercel.com/legal/privacy-policy"
               className="link"
-              target="_blank"
-              rel="noopener noreferrer"
+              hideIcon
             >
               vercel.com/legal/privacy-policy
-            </a>
+            </ExternalLink>
             .
           </li>
           <li>
             <strong>Upstash.</strong> Upstash provides the Redis instance we
             use for rate limiting and short-term caching. Their privacy policy:{" "}
-            <a
+            <ExternalLink
               href="https://upstash.com/trust/privacy.pdf"
               className="link"
-              target="_blank"
-              rel="noopener noreferrer"
+              hideIcon
             >
               upstash.com/trust/privacy.pdf
-            </a>
+            </ExternalLink>
             .
           </li>
           <li>
@@ -203,24 +200,22 @@ export default function PrivacyPage() {
             that looks up channel or video data, we query the YouTube Data
             API v3 server-side to fetch publicly available metadata. Google&apos;s
             privacy policy:{" "}
-            <a
+            <ExternalLink
               href="https://policies.google.com/privacy"
               className="link"
-              target="_blank"
-              rel="noopener noreferrer"
+              hideIcon
             >
               policies.google.com/privacy
-            </a>
+            </ExternalLink>
             . Use of the YouTube Data API is governed by the YouTube API
             Services Terms of Service:{" "}
-            <a
+            <ExternalLink
               href="https://developers.google.com/youtube/terms/api-services-terms-of-service"
               className="link"
-              target="_blank"
-              rel="noopener noreferrer"
+              hideIcon
             >
               developers.google.com/youtube/terms/api-services-terms-of-service
-            </a>
+            </ExternalLink>
             . See the dedicated &ldquo;YouTube API Services&rdquo; section
             below.
           </li>
@@ -241,23 +236,21 @@ export default function PrivacyPage() {
         </p>
         <p className="mt-3 text-base text-gray-700 leading-relaxed">
           By using these tools you agree to be bound by the{" "}
-          <a
+          <ExternalLink
             href="https://developers.google.com/youtube/terms/api-services-terms-of-service"
             className="link"
-            target="_blank"
-            rel="noopener noreferrer"
+            hideIcon
           >
             YouTube API Services Terms of Service
-          </a>{" "}
+          </ExternalLink>{" "}
           and acknowledge that data we surface from YouTube is governed by{" "}
-          <a
+          <ExternalLink
             href="https://policies.google.com/privacy"
             className="link"
-            target="_blank"
-            rel="noopener noreferrer"
+            hideIcon
           >
             Google&apos;s Privacy Policy
-          </a>
+          </ExternalLink>
           .
         </p>
 
@@ -295,14 +288,13 @@ export default function PrivacyPage() {
         <p className="mt-2 text-base text-gray-700 leading-relaxed">
           Because we don&apos;t request OAuth scopes from your Google account,
           there is normally nothing for you to revoke at{" "}
-          <a
+          <ExternalLink
             href="https://myaccount.google.com/permissions"
             className="link"
-            target="_blank"
-            rel="noopener noreferrer"
+            hideIcon
           >
             myaccount.google.com/permissions
-          </a>
+          </ExternalLink>
           . To remove cached YouTube data we hold about a channel, email{" "}
           <a href={`mailto:${siteConfig.contactEmail}`} className="link">
             {siteConfig.contactEmail}

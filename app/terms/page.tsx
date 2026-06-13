@@ -1,5 +1,6 @@
 import { Container } from "@/components/Container";
 import { BreadcrumbSchema } from "@/components/PageSchemas";
+import { ExternalLink } from "@/components/ExternalLink";
 import { buildMetadata } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
 
@@ -106,14 +107,13 @@ export default function TermsPage() {
           <li>
             Anything that violates Anthropic&apos;s usage policies for the
             Claude API, which our AI tools relay:{" "}
-            <a
+            <ExternalLink
               href="https://www.anthropic.com/legal/aup"
               className="link"
-              target="_blank"
-              rel="noopener noreferrer"
+              hideIcon
             >
               anthropic.com/legal/aup
-            </a>
+            </ExternalLink>
             .
           </li>
         </ul>

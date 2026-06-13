@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { GuideLayout } from "@/components/GuideLayout";
+import { ExternalLink } from "@/components/ExternalLink";
 import { buildMetadata } from "@/lib/seo";
 import { getGuideBySlug } from "@/lib/guides-catalog";
 
@@ -224,13 +225,9 @@ export default function YouTubeTagsBestPracticesPage() {
       </ul>
       <p>
         YouTube&apos;s own{" "}
-        <a
-          href="https://support.google.com/youtube/answer/146402"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <ExternalLink href="https://support.google.com/youtube/answer/146402">
           Help guidance
-        </a>{" "}
+        </ExternalLink>{" "}
         says tags can be useful if the content is commonly misspelled, but
         that the video&apos;s title, thumbnail, and description are more
         important for discovery.
