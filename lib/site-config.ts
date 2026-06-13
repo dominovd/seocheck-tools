@@ -20,7 +20,7 @@ export const siteConfig = {
   locale: "en_US",
   twitterCreator: "@seochecktools",
   contactEmail: "hello@seocheck.tools",
-  copyright: `© ${new Date().getFullYear()} SEO Check Tools — free forever`,
+  copyright: `© ${new Date().getFullYear()} SEO Check Tools`,
   googleSiteVerification: "Z9Wa4TR3TWf_MOGXOAHrz083v49JOACyIdjRYqZpC7M",
   bingSiteVerification: "1CE576589CB313123B0B3A5762459DA4",
 } as const;

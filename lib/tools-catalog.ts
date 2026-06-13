@@ -107,7 +107,7 @@ export const TOOLS: Tool[] = [
     shortTitle: "Outlier Finder",
     taskLabel: "Find a channel's outlier videos",
     description:
-      "Find the videos that broke a channel's usual performance pattern and see what made those outliers work.",
+      "Find the videos that beat a channel's normal baseline by 3x or more, with AI notes on what changed in topic, title, and format.",
     metaDescription:
       "Free YouTube outlier finder. Paste any channel — see which videos overperformed the channel's median by 3× or more, with AI analysis of what made them outliers vs average videos.",
     category: "ai",
@@ -196,9 +196,9 @@ export const TOOLS: Tool[] = [
     shortTitle: "Thumbnail Preview",
     taskLabel: "Preview a thumbnail in YouTube UI",
     description:
-      "See how your thumbnail + title actually reads in YouTube search, home feed, sidebar, and mobile — before you publish.",
+      "Check how your YouTube thumbnail and title read in search, sidebar, mobile, and dark mode before you publish.",
     metaDescription:
-      "Free YouTube thumbnail preview tool. Render any thumbnail + title in real YouTube UI contexts (search, home, sidebar, mobile) to test CTR before publishing.",
+      "Free YouTube thumbnail preview tool. Test your thumbnail and title in search, home feed, sidebar, mobile, and dark mode before publishing.",
     category: "utility",
     stage: "optimize",
     Icon: Eye,
@@ -213,9 +213,9 @@ export const TOOLS: Tool[] = [
     shortTitle: "Thumbnail Downloader",
     taskLabel: "Download a thumbnail",
     description:
-      "Download any YouTube video's thumbnail in every available resolution — instantly, no watermarks.",
+      "Download HD and standard thumbnails from any YouTube video, Shorts URL, youtu.be link, or raw video ID.",
     metaDescription:
-      "Free YouTube thumbnail downloader. Get HD, max resolution, and standard thumbnails from any YouTube URL. No signup, no watermark.",
+      "Free YouTube thumbnail downloader. Paste any video or Shorts URL to download HD, maxresdefault, hqdefault, and standard thumbnail images. No signup.",
     category: "downloader",
     stage: "optimize",
     Icon: ImageDown,
@@ -230,9 +230,9 @@ export const TOOLS: Tool[] = [
     shortTitle: "Money Calculator",
     taskLabel: "Estimate earnings",
     description:
-      "Estimate YouTube earnings by views, niche, and engagement. Includes niche-specific CPM presets.",
+      "Estimate YouTube ad revenue from views, niche, and audience region with CPM, RPM, and revenue-share ranges.",
     metaDescription:
-      "Free YouTube earnings calculator. Estimate revenue by views with niche-specific CPM rates (gaming, finance, tech, lifestyle).",
+      "Estimate YouTube earnings from views, niche, audience region, CPM/RPM, and YouTube's revenue share. Free calculator for ad revenue ranges, not inflated guesses.",
     category: "calculator",
     stage: "analyze",
     Icon: Calculator,
@@ -247,7 +247,7 @@ export const TOOLS: Tool[] = [
     shortTitle: "Tag Extractor",
     taskLabel: "Extract a competitor's tags",
     description:
-      "Reveal the exact tags any YouTube video is using. Paste a competitor's URL to see their SEO setup.",
+      "Extract hidden tags from any YouTube video and use competitor metadata to improve your own tag strategy.",
     metaDescription:
       "Free YouTube tag extractor. See the tags any competitor's video is using by pasting a YouTube URL. No signup required.",
     category: "utility",
@@ -281,9 +281,9 @@ export const TOOLS: Tool[] = [
     shortTitle: "Channel ID Finder",
     taskLabel: "Find a channel ID",
     description:
-      "Extract the YouTube channel ID from any channel URL, custom URL, handle, or video link.",
+      "Convert any YouTube handle, URL, or video link into the permanent UC channel ID.",
     metaDescription:
-      "Find YouTube channel ID from any URL format — custom URLs, handles (@username), video links, or legacy channel URLs.",
+      "Find a YouTube channel ID from any handle, custom URL, video link, Shorts URL, or legacy /user/ URL. Get the permanent UC ID and RSS feed URL.",
     category: "utility",
     stage: "research",
     Icon: Fingerprint,
@@ -298,9 +298,9 @@ export const TOOLS: Tool[] = [
     shortTitle: "Embed Generator",
     taskLabel: "Generate embed code",
     description:
-      "Generate custom YouTube embed code with autoplay, start/end times, controls, mute, and loop.",
+      "Generate custom YouTube embed code with autoplay, start/end times, controls, captions, loop, and responsive 16:9 wrapper.",
     metaDescription:
-      "Generate custom YouTube embed code. Set autoplay, start/end times, controls, captions, and loop with one click.",
+      "Generate custom YouTube embed code for any video. Set autoplay, mute, start/end time, captions, loop, controls, responsive layout, and privacy-enhanced mode.",
     category: "generator",
     stage: "publish",
     Icon: Code2,
@@ -315,9 +315,9 @@ export const TOOLS: Tool[] = [
     shortTitle: "Chapter Generator",
     taskLabel: "Format chapters",
     description:
-      "Format chapters and timestamps for YouTube descriptions. Validates ordering and the required 0:00 start.",
+      "Format and validate YouTube chapters. Catches the 0:00 start, 3-chapter minimum, 10-second rule, and ordering before you publish.",
     metaDescription:
-      "Format YouTube chapters and timestamps for descriptions. Validates ordering, the required 0:00 start, and minimum chapter length.",
+      "Generate and validate YouTube chapters for your video description. Format timestamps, check the required 0:00 start, fix ordering, and copy a paste-ready chapter block.",
     category: "generator",
     stage: "publish",
     Icon: ListVideo,
@@ -353,9 +353,9 @@ export const TOOLS: Tool[] = [
     shortTitle: "Description Generator",
     taskLabel: "Write a description",
     description:
-      "Generate a complete YouTube description with intro, body, CTA, hashtags, and chapter placeholders.",
+      "Generate a complete YouTube description with intro, summary, CTA, links, chapter placeholder, and hashtags.",
     metaDescription:
-      "Free AI YouTube description generator. Includes intro, body, CTA, hashtags, and chapter formatting in one click.",
+      "Free AI YouTube description generator. Create publish-ready descriptions with a strong intro, natural keywords, CTA, links, chapters placeholder, and hashtags.",
     category: "ai",
     stage: "publish",
     Icon: PenLine,
@@ -370,9 +370,9 @@ export const TOOLS: Tool[] = [
     shortTitle: "Tag Generator",
     taskLabel: "Generate tags",
     description:
-      "Generate 20-30 relevant tags for your YouTube video. Mix of broad terms and long-tail keywords.",
+      "Generate relevant YouTube tags for any video topic, ready to paste into YouTube Studio.",
     metaDescription:
-      "Free AI YouTube tag generator. Get 20+ relevant tags for any video — mix of broad and long-tail keywords.",
+      "Free AI YouTube tag generator. Enter your video topic to get relevant broad, long-tail, and spelling-variant tags trimmed for YouTube's 500-character limit.",
     category: "ai",
     stage: "optimize",
     Icon: Tags,
@@ -387,9 +387,9 @@ export const TOOLS: Tool[] = [
     shortTitle: "Hashtag Generator",
     taskLabel: "Generate hashtags",
     description:
-      "Get 15 relevant YouTube hashtags ranked by competition — niche-specific and broad-reach mix.",
+      "Generate relevant YouTube hashtags for videos and Shorts, ready to paste into your title or description.",
     metaDescription:
-      "Free AI YouTube hashtag generator. 15 relevant hashtags ranked by competition for any niche or topic.",
+      "Free AI YouTube hashtag generator. Enter a video topic to get relevant hashtags for videos and Shorts, with top 3 picks for YouTube's visible hashtag display.",
     category: "ai",
     stage: "optimize",
     Icon: Hash,
@@ -404,9 +404,9 @@ export const TOOLS: Tool[] = [
     shortTitle: "Video Ideas",
     taskLabel: "Get video ideas",
     description:
-      "Get 10 fresh video ideas for your niche, each with a brief premise and angle.",
+      "Turn a niche into 10 filmable YouTube ideas with clear angles, formats, and viewer promises.",
     metaDescription:
-      "Free AI YouTube video idea generator. 10 fresh video ideas with premises for any niche or channel topic.",
+      "Free AI YouTube video idea generator. Enter a niche or channel topic to get 10 filmable video ideas with angles, formats, and premises. No signup.",
     category: "ai",
     stage: "research",
     Icon: Lightbulb,
@@ -421,9 +421,9 @@ export const TOOLS: Tool[] = [
     shortTitle: "Title Score Checker",
     taskLabel: "Score a title",
     description:
-      "Score any YouTube title 0-100 against documented best practices. Compare up to 5 variants side-by-side.",
+      "Score any YouTube title 0-100 and compare up to 5 variants before you publish.",
     metaDescription:
-      "Free YouTube title score checker. Evaluate any title against length, structure, angle, and clickbait-risk heuristics. Compare variants side-by-side.",
+      "Free YouTube title score checker. Test title length, clarity, angle, keyword placement, truncation risk, and clickbait signals. Compare up to 5 variants.",
     category: "utility",
     stage: "optimize",
     Icon: Gauge,

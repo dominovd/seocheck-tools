@@ -33,20 +33,20 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "how-to-write-youtube-titles",
-    title: "How to Write YouTube Titles That Actually Get Clicks",
+    title: "How to Write YouTube Titles That Get Clicks in 2026",
     shortTitle: "Writing Titles",
     description:
-      "The five angles top creators rotate through, the 40-70 character sweet spot, and the mistakes that kill CTR before the video even has a chance.",
+      "Learn how to write YouTube titles that get clicks: title formulas, examples, ideal length, common mistakes, A/B testing tips, and templates for better CTR.",
     publishedAt: "2026-05-29",
     readingTimeMinutes: 9,
     wordCount: 1800,
   },
   {
     slug: "youtube-tags-best-practices-2026",
-    title: "YouTube Tags in 2026: What Still Works (And What Doesn't)",
+    title: "YouTube Tags Best Practices 2026: What Still Works",
     shortTitle: "Tags Best Practices",
     description:
-      "Tags don't matter the way they used to — but they still matter for the right reasons. Here's a working framework with the 500-character rule, broad/long-tail mix, and the misspelling angle.",
+      "Learn YouTube tags best practices for 2026: when tags matter, how to use the 500-character limit, tag examples, tags vs hashtags, mistakes, and a checklist.",
     publishedAt: "2026-05-29",
     readingTimeMinutes: 8,
     wordCount: 1700,
