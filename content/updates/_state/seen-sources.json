@@ -53,6 +53,33 @@
       "url": "https://blog.youtube/news-and-events/youtube-european-creator-consultation-survey",
       "discoveredAt": "2026-06-14T12:01:33.817Z",
       "status": "rejected"
+    },
+    {
+      "url": "https://blog.youtube/news-and-events/youtube-primetime-channels-fox-one-peacock",
+      "discoveredAt": "2026-06-15T12:00:42.828Z",
+      "status": "rejected"
+    },
+    {
+      "url": "https://blog.youtube/news-and-events/new-youtube-premium-features-podcast-fans",
+      "discoveredAt": "2026-06-15T12:00:45.179Z",
+      "status": "rejected"
+    },
+    {
+      "url": "https://blog.youtube/news-and-events/improving-ai-labels-viewers-creators",
+      "discoveredAt": "2026-06-15T12:00:50.114Z",
+      "status": "published",
+      "slug": "2026-05-creators-must-disclose-ai-use-in-videos-with-new-label-placement"
+    },
+    {
+      "url": "https://blog.youtube/creator-and-artist-stories/youtube-emmy-contenders",
+      "discoveredAt": "2026-06-15T12:00:53.310Z",
+      "status": "rejected"
+    },
+    {
+      "url": "https://blog.youtube/news-and-events/youtube-news-google-io-2026",
+      "discoveredAt": "2026-06-15T12:00:57.522Z",
+      "status": "published",
+      "slug": "2026-05-creators-can-remix-shorts-with-gemini-omni-ai"
     }
   ]
 }
