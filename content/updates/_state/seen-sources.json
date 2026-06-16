@@ -80,6 +80,32 @@
       "discoveredAt": "2026-06-15T12:00:57.522Z",
       "status": "published",
       "slug": "2026-05-creators-can-remix-shorts-with-gemini-omni-ai"
+    },
+    {
+      "url": "https://blog.youtube/creator-and-artist-stories/nba-arenas-30-days-make-a-wish",
+      "discoveredAt": "2026-06-16T12:00:26.153Z",
+      "status": "rejected"
+    },
+    {
+      "url": "https://blog.youtube/creator-and-artist-stories/youtube-auto-dubbing-explained",
+      "discoveredAt": "2026-06-16T12:00:31.744Z",
+      "status": "published",
+      "slug": "2026-05-auto-dubbing-available-in-27-languages-for-creator-reach"
+    },
+    {
+      "url": "https://blog.youtube/news-and-events/youtube-bbc-nfts-skills-program",
+      "discoveredAt": "2026-06-16T12:00:35.628Z",
+      "status": "rejected"
+    },
+    {
+      "url": "https://blog.youtube/creator-and-artist-stories/behind-the-scenes-jesser",
+      "discoveredAt": "2026-06-16T12:00:38.129Z",
+      "status": "rejected"
+    },
+    {
+      "url": "https://blog.youtube/creator-and-artist-stories/behind-the-scenes-alex-cooper",
+      "discoveredAt": "2026-06-16T12:00:40.521Z",
+      "status": "rejected"
     }
   ]
 }
