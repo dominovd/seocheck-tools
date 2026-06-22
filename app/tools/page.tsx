@@ -82,7 +82,6 @@ const GOAL_GROUPS: GoalGroup[] = [
     blurb: "Find recurring weak spots and score channel-level health.",
     toolSlugs: [
       "youtube-channel-audit",
-      "youtube-visibility-score",
       "youtube-money-calculator",
     ],
   },

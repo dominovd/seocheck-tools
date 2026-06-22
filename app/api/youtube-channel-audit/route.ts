@@ -5,49 +5,44 @@ import { parseJsonOutput } from "@/lib/ai/parse-json";
 import { resolveChannelInput, lookupCacheKey } from "@/lib/youtube/channel-resolver";
 import {
   fetchChannel,
-  fetchLatestVideoIds,
+  fetchVideoIdsFromPlaylist,
   fetchVideoBatchPaginated,
 } from "@/lib/youtube/youtube-api";
-import { videoInfoFromApi } from "@/lib/youtube/extract-video-info";
-import { auditVideo, type AuditBand } from "@/lib/youtube/video-audit";
 import {
-  computeGrade,
-  CHANNEL_AUDIT_SYSTEM_PROMPT,
+  aggregateDimensions,
+  buildChannelAuditSummaryMessage,
   buildChannelAuditUserMessage,
+  CHANNEL_AUDIT_SUMMARY_SYSTEM_PROMPT,
+  CHANNEL_AUDIT_SYSTEM_PROMPT,
+  computeChannelAudit,
+  rankIssueCandidates,
   type ChannelAuditResult,
-  type ChannelAuditVideo,
-  type DimensionStats,
 } from "@/lib/youtube/channel-audit";
+import { videoInfoFromApi } from "@/lib/youtube/extract-video-info";
+import { auditVideo } from "@/lib/youtube/video-audit";
 import { logAudit } from "@/lib/analytics/audit-log";
 
 export const runtime = "edge";
 
 /**
- * Channel Audit API.
+ * Channel Audit API — unified channel dashboard.
  *
  * YouTube quota per non-cached call:
- *   - channels.list (1 unit)         resolve channel + uploads playlist
- *   - playlistItems.list (1 unit)    latest 10 video IDs
- *   - videos.list (1 unit)           batched stats + snippet for the 10
- *   Total: 3 units. Cheapest of our YouTube-API tools.
+ *   - channels.list (1 unit)         resolve channel + uploads + topicDetails
+ *   - playlistItems.list (1 unit)    latest 30 video IDs (single page, 30 <= 50)
+ *   - videos.list (1 unit)           batched stats + snippet for the 30
+ *   Total: 3 units. LLM: 2 Haiku calls (issues + summary), each ~300 tokens.
  *
- * Daily limit: 5 per IP. LLM call optional — falls back to empty
- * recurringIssues with analysisFailed=true if Haiku errors.
+ * Daily limit: 5 per IP. Both LLM calls are best-effort — fall back to
+ * deterministic candidates + null summary if either errors.
  */
 
 type Input = { channel: string };
 
 const TOOL_SLUG = "youtube-channel-audit";
 const DAILY_LIMIT = 5;
-const VIDEO_COUNT = 10;
-const MIN_VIDEOS = 3;
-
-const DIM_LABELS: Record<string, string> = {
-  title: "Title",
-  description: "Description",
-  hashtags: "Hashtags",
-  chapters: "Chapters",
-};
+const WINDOW_SIZE = 30;
+const MIN_VIDEOS = 5;
 
 export async function POST(req: NextRequest) {
   return protectAI<Input, ChannelAuditResult>(req, {
@@ -85,7 +80,7 @@ export async function POST(req: NextRequest) {
           ? ({ type: "handle", value } as const)
           : ({ type: "legacy", value } as const);
 
-      // Step 1 — resolve channel
+      // Step 1 — resolve channel + topicCategories
       const channel = await fetchChannel(lookup, apiKey);
       if (!channel) {
         throw new Error("Couldn't find that channel. Double-check the handle, URL, or ID.");
@@ -94,137 +89,131 @@ export async function POST(req: NextRequest) {
         throw new Error("Channel has no uploads playlist (no public videos).");
       }
 
-      // Step 2 — latest 10 IDs
-      const ids = await fetchLatestVideoIds(channel.uploadsPlaylistId, VIDEO_COUNT, apiKey);
+      // Step 2 — latest 30 IDs (single page, since 30 ≤ 50)
+      const ids = await fetchVideoIdsFromPlaylist(
+        channel.uploadsPlaylistId,
+        WINDOW_SIZE,
+        apiKey
+      );
       if (ids.length < MIN_VIDEOS) {
         throw new Error(
-          `This channel only has ${ids.length} public uploads — too small a sample for a meaningful channel-level audit (we need at least ${MIN_VIDEOS}).`
+          `This channel only has ${ids.length} public uploads — too small a sample for a meaningful channel audit (we need at least ${MIN_VIDEOS}).`
         );
       }
 
       // Step 3 — batched videos.list
       const videoMap = await fetchVideoBatchPaginated(ids, apiKey);
+      if (videoMap.size === 0) {
+        throw new Error("Couldn't retrieve enough video details to audit.");
+      }
 
-      // Step 4 — audit each video (omitTags since API doesn't return tags for non-owners)
-      const audited: ChannelAuditVideo[] = ids
+      // Pre-compute dimension stats so we can build issue candidates for the LLM.
+      // (computeChannelAudit re-audits internally, but cheap — these are pure functions.)
+      const audited = ids
         .map((id) => {
           const data = videoMap.get(id);
           if (!data) return null;
           const info = videoInfoFromApi(id, data);
-          const audit = auditVideo(info, { omitTags: true });
-          return {
-            videoId: id,
-            videoUrl: `https://www.youtube.com/watch?v=${id}`,
-            title: data.title,
-            thumbnailUrl: data.thumbnailUrl,
-            publishDate: data.publishDate,
-            viewCount: data.viewCount,
-            audit,
-          } satisfies ChannelAuditVideo;
+          return { id, audit: auditVideo(info, { omitTags: true }) };
         })
-        .filter((v): v is ChannelAuditVideo => v !== null);
+        .filter((v): v is { id: string; audit: ReturnType<typeof auditVideo> } => v !== null);
 
-      if (audited.length === 0) {
-        throw new Error("Couldn't retrieve enough video details to audit.");
-      }
-
-      // Step 5 — aggregate per dimension
-      const dimKeys = audited[0].audit.dimensions.map((d) => d.key);
-      const dimensions: DimensionStats[] = dimKeys.map((key) => {
-        const scores: number[] = [];
-        const bandCounts: Record<AuditBand, number> = {
-          strong: 0,
-          good: 0,
-          fair: 0,
-          weak: 0,
-        };
-        for (const v of audited) {
-          const d = v.audit.dimensions.find((dd) => dd.key === key);
-          if (!d) continue;
-          scores.push(d.score);
-          bandCounts[d.band] += 1;
-        }
-        const averageScore =
-          scores.length > 0
-            ? Math.round(scores.reduce((s, x) => s + x, 0) / scores.length)
-            : 0;
-        return {
-          key,
-          label: DIM_LABELS[key] ?? key,
-          averageScore,
-          bandCounts,
-          isWorst: false, // marked below
-        };
-      });
-
-      // Mark worst dimension (lowest averageScore)
-      if (dimensions.length > 0) {
-        const minAvg = Math.min(...dimensions.map((d) => d.averageScore));
-        for (const d of dimensions) {
-          if (d.averageScore === minAvg) d.isWorst = true;
-        }
-      }
-
-      // Overall channel score = average of per-video overall scores
-      const averageScore = Math.round(
-        audited.reduce((s, v) => s + v.audit.overallScore, 0) / audited.length
+      const dimensions = aggregateDimensions(
+        audited.map((v) => ({
+          videoId: v.id,
+          videoUrl: `https://www.youtube.com/watch?v=${v.id}`,
+          title: videoMap.get(v.id)?.title ?? "",
+          thumbnailUrl: videoMap.get(v.id)?.thumbnailUrl ?? null,
+          publishDate: videoMap.get(v.id)?.publishDate ?? null,
+          viewCount: videoMap.get(v.id)?.viewCount ?? null,
+          audit: v.audit,
+        }))
       );
-      const grade = computeGrade(averageScore);
 
-      // Step 6 — LLM recurring issues
-      let recurringIssues: string[] = [];
+      const candidates = rankIssueCandidates(dimensions, audited.length);
+
+      // Step 4a — LLM rewrites issue text (best-effort)
+      let llmIssues: Array<{ dimensionKey: string; text: string }> = [];
       let analysisFailed = false;
       let llmCostUsd = 0;
-      try {
-        const llmResult = await callClaude<{ issues: string[] }>({
-          system: CHANNEL_AUDIT_SYSTEM_PROMPT,
-          user: buildChannelAuditUserMessage(channel.title, dimensions, audited),
-          maxTokens: 500,
-          temperature: 0.5,
-          parse: (raw) => {
-            const data = parseJsonOutput<{ issues: string[] }>(raw);
-            if (!data || !Array.isArray(data.issues)) {
-              throw new Error("Channel audit returned an unexpected shape.");
-            }
-            return {
-              issues: data.issues
-                .filter((p): p is string => typeof p === "string" && p.trim().length > 0)
-                .map((p) => p.trim())
-                .slice(0, 3),
-            };
-          },
-        });
-        recurringIssues = llmResult.parsed.issues;
-        llmCostUsd = llmResult.costUsd;
-      } catch (err) {
-        console.error("[channel-audit] LLM analysis failed", err);
-        analysisFailed = true;
+      if (candidates.length > 0) {
+        try {
+          const result = await callClaude<{ issues: Array<{ dimensionKey: string; text: string }> }>({
+            system: CHANNEL_AUDIT_SYSTEM_PROMPT,
+            user: buildChannelAuditUserMessage(channel.title, candidates, audited.length),
+            maxTokens: 500,
+            temperature: 0.4,
+            parse: (raw) => {
+              const data = parseJsonOutput<{ issues: Array<{ dimensionKey: string; text: string }> }>(raw);
+              if (!data || !Array.isArray(data.issues)) {
+                throw new Error("Channel audit issues returned an unexpected shape.");
+              }
+              return {
+                issues: data.issues
+                  .filter(
+                    (i): i is { dimensionKey: string; text: string } =>
+                      !!i &&
+                      typeof i.dimensionKey === "string" &&
+                      typeof i.text === "string" &&
+                      i.text.trim().length > 0
+                  )
+                  .map((i) => ({ dimensionKey: i.dimensionKey, text: i.text.trim() })),
+              };
+            },
+          });
+          llmIssues = result.parsed.issues;
+          llmCostUsd += result.costUsd;
+        } catch (err) {
+          console.error("[channel-audit] issue rewrite failed", err);
+          analysisFailed = true;
+        }
       }
 
-      const result: ChannelAuditResult = {
-        channel: {
-          id: channel.id,
-          title: channel.title,
-          handle: channel.handle,
-          thumbnailUrl: channel.thumbnailUrl,
-          subscriberCount: channel.subscriberCount,
-          videoCount: channel.videoCount,
-        },
-        videoCount: audited.length,
-        averageScore,
-        grade,
-        dimensions,
-        videos: audited,
-        recurringIssues,
+      // Build the unified result so we can ask the LLM for a summary
+      // grounded in the actual subscores.
+      const partialResult = computeChannelAudit({
+        channel,
+        videoIds: ids,
+        videoMap,
+        llmIssues,
         analysisFailed,
-      };
+      });
 
-      // Anonymous audit logging — foundation for YouTube Studies.
-      const dimScores: Record<string, number | null> = { overall: averageScore };
-      for (const d of dimensions) dimScores[d.key] = d.averageScore;
-      await logAudit("channel-audit", channel.id, dimScores).catch(() => {});
+      // Step 4b — one-sentence positioning summary (best-effort, separate call)
+      let summary: string | null = null;
+      try {
+        const result = await callClaude<{ summary: string }>({
+          system: CHANNEL_AUDIT_SUMMARY_SYSTEM_PROMPT,
+          user: buildChannelAuditSummaryMessage(channel.title, partialResult.subscores),
+          maxTokens: 120,
+          temperature: 0.5,
+          parse: (raw) => {
+            const data = parseJsonOutput<{ summary: string }>(raw);
+            if (!data || typeof data.summary !== "string") {
+              throw new Error("Summary returned an unexpected shape.");
+            }
+            return { summary: data.summary.trim() };
+          },
+        });
+        summary = result.parsed.summary;
+        llmCostUsd += result.costUsd;
+      } catch (err) {
+        console.error("[channel-audit] summary failed", err);
+      }
 
-      return { output: result, costUsd: llmCostUsd };
+      const finalResult: ChannelAuditResult = { ...partialResult, summary };
+
+      // Anonymous audit logging — foundation for YouTube Studies cohort analysis.
+      // Uses the unified subscore keys so historical data can be queried consistently.
+      await logAudit("channel-audit", channel.id, {
+        overall: finalResult.overallScore,
+        ctr: finalResult.subscores[0]?.score ?? null,
+        metadata: finalResult.subscores[1]?.score ?? null,
+        headroom: finalResult.subscores[2]?.score ?? null,
+        trajectory: finalResult.subscores[3]?.score ?? null,
+      }).catch(() => {});
+
+      return { output: finalResult, costUsd: llmCostUsd };
     },
   });
 }

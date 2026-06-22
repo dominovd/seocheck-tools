@@ -116,14 +116,9 @@ const TIER_LABELS: Record<CpmRow["tier"], { label: string; color: string }> = {
 
 const RELATED_TOOLS = [
   {
-    href: "/tools/youtube-visibility-score",
-    name: "Visibility Score",
-    body: "Score the channel across CTR, metadata, headroom, and growth.",
-  },
-  {
     href: "/tools/youtube-channel-audit",
     name: "Channel Audit",
-    body: "Audit the channel's recent metadata and recurring issues.",
+    body: "Score the channel 0-100 across CTR, metadata, headroom, and growth, with severity-ranked recurring fixes.",
   },
   {
     href: "/tools/youtube-video-audit",

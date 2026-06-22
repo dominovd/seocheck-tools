@@ -19,49 +19,49 @@ import { getToolBySlug } from "@/lib/tools-catalog";
 const tool = getToolBySlug("youtube-channel-audit")!;
 
 export const metadata = buildMetadata({
-  title: "YouTube Channel Audit | Free SEO Checker",
+  title: "YouTube Channel Audit | Free Visibility Score & SEO Checker",
   description:
-    "Run a free YouTube channel audit. Check recent uploads for title, description, hashtags, chapters, recurring SEO issues, and channel-wide weak spots.",
+    "Run a free YouTube channel audit. Get a 0-100 Visibility Score across CTR potential, metadata quality, niche headroom, and growth trajectory, with severity-ranked recurring fixes across the last 30 uploads.",
   path: `tools/${tool.slug}`,
   noBrand: true,
   ogVariant: tool.isAI ? { ai: true } : undefined,
 });
 
 const HERO_SUBTITLE =
-  "Paste a channel to find recurring YouTube SEO issues across recent uploads: weak titles, thin descriptions, missing hashtags, poor chapters, and the first fixes to make.";
+  "Paste any YouTube channel and get a free 0-100 channel SEO score across title strength, metadata quality, niche reach, and recent growth momentum, plus severity-ranked recurring fixes across the last 30 uploads.";
 
 type Card = { Icon: typeof Award; title: string; body: string };
 
 const WHAT_YOU_GET: Card[] = [
   {
     Icon: Award,
-    title: "Overall channel grade",
-    body: "A quick read on how well the channel packages recent uploads for discovery.",
+    title: "0-100 Visibility Score",
+    body: "A quotable headline number for the channel composed of 4 weighted subscores. Shareable in your bio or pinned comment.",
   },
   {
     Icon: BarChart3,
-    title: "Per-dimension scores",
-    body: "See averages for titles, descriptions, hashtags, and chapters across the last 10 uploads.",
+    title: "4 dashboard subscores",
+    body: "CTR Potential, Metadata Quality, Niche Headroom, and Growth Trajectory — each scored 0-100 with one-line evidence.",
   },
   {
     Icon: AlertTriangle,
-    title: "Worst dimension",
-    body: "Find the weakest recurring area so you know what to fix first.",
+    title: "Severity-ranked fixes",
+    body: "Recurring issues across the last 30 uploads, tagged High, Medium, or Low priority with the actual count of videos affected.",
   },
   {
     Icon: Repeat,
-    title: "Recurring issues",
-    body: "Get AI-flagged patterns that appear across multiple uploads, not one-off mistakes.",
+    title: "Per-dimension breakdown",
+    body: "How title, description, hashtags, and chapters hold up — averages plus a strong/good/fair/weak band breakdown.",
   },
   {
     Icon: ListChecks,
-    title: "Upload breakdown",
-    body: "See which recent videos are strong, good, fair, or weak by audit dimension.",
+    title: "Upload-by-upload audit",
+    body: "Each of the last 30 videos gets its own per-dimension scorecard so you can spot which uploads pull the channel down.",
   },
   {
     Icon: Wrench,
-    title: "Next-step tools",
-    body: "Jump into Video Audit, Title Score Checker, Outlier Finder, or Competitor Analyzer to fix the problem.",
+    title: "Channel snapshot",
+    body: "Subscriber count, total videos, creation date, and primary niche auto-detected from YouTube topic categories.",
   },
 ];
 
@@ -130,11 +130,6 @@ const RELATED_TOOLS = [
     body: "Audit one specific video in detail.",
   },
   {
-    href: "/tools/youtube-visibility-score",
-    name: "YouTube Visibility Score",
-    body: "Get a 0-100 channel health score across visibility and growth signals.",
-  },
-  {
     href: "/tools/youtube-title-score-checker",
     name: "Title Score Checker",
     body: "Check whether weak titles are clear, specific, and clickable.",
@@ -174,8 +169,8 @@ const FAQS = [
     a: "Video Audit checks one video. Channel Audit checks recent uploads and finds channel-wide patterns. Use Video Audit when you want to fix a specific upload. Use Channel Audit when you want to understand what keeps going wrong across the channel.",
   },
   {
-    q: "Why audit only the last 10 uploads?",
-    a: "The last 10 uploads usually show the channel's current workflow better than older videos. They are recent enough to reveal present habits and small enough to audit quickly without turning the report into noise.",
+    q: "Why audit only the last 30 uploads?",
+    a: "The last 30 uploads usually show the channel's current workflow better than older videos. They are recent enough to reveal present habits and large enough to compute meaningful niche-headroom and growth-trajectory statistics without slowing the audit down.",
   },
   {
     q: "What does “worst dimension” mean?",
@@ -207,7 +202,7 @@ const FAQS = [
   },
   {
     q: "How is the audit calculated?",
-    a: "The tool resolves your channel handle to a channel ID, pulls the last 10 public uploads, and runs each video through the same scoring engine used by Video Audit (title, description, hashtags, chapters). Per-dimension scores are averaged across all 10 videos, and the lowest average is flagged as the worst dimension. The recurring issues are extracted by an AI model based on the per-video scorecard, not generic best practices.",
+    a: "The tool resolves your channel handle to a channel ID, pulls the last 30 public uploads, and runs each video through the same scoring engine used by Video Audit (title, description, hashtags, chapters). Those feed the Metadata Quality subscore. CTR Potential uses average title scores, Niche Headroom uses median views vs subscribers, and Growth Trajectory uses the outlier rate (videos that beat 1.5× the channel median). The overall 0-100 Visibility Score is a weighted blend of all four. Recurring fixes are ranked by severity from the actual band counts, then AI rewrites each into a creator-actionable sentence.",
   },
 ];
 

@@ -675,10 +675,8 @@ export default function YouTubeSeoCompleteGuidePage() {
       <p>
         Use <Link href="/tools/youtube-video-audit">Video Audit</Link> for
         a metadata and packaging check. Use{" "}
-        <Link href="/tools/youtube-visibility-score">Visibility Score</Link>{" "}
-        and{" "}
         <Link href="/tools/youtube-channel-audit">Channel Audit</Link> when
-        you want to review channel-level patterns.
+        you want to review channel-level patterns and pull a 0-100 Visibility Score.
       </p>
 
       {/* Video Audit screenshots */}

@@ -254,7 +254,6 @@ const HOMEPAGE_STAGES: Record<
     subhead: "Learn what to fix next",
     featuredSlugs: [
       "youtube-video-audit",
-      "youtube-visibility-score",
       "youtube-channel-audit",
       "youtube-outlier-finder",
     ],
@@ -288,14 +287,14 @@ export default function HomePage() {
             {/* Subtitle */}
             <p className="mt-6 max-w-xl text-base text-gray-600 sm:text-lg leading-relaxed mx-auto lg:mx-0">
               Find what to make next, fix weak uploads, and track your
-              channel&apos;s visibility over time. 21 free YouTube SEO tools
+              channel&apos;s visibility over time. 20 free YouTube SEO tools
               powered by AI.
             </p>
 
             {/* Primary + secondary CTAs */}
             <div className="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-3">
               <Link
-                href="/tools/youtube-visibility-score"
+                href="/tools/youtube-channel-audit"
                 className="inline-flex items-center gap-1.5 rounded-md bg-brand-500 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-brand-600 transition"
               >
                 Start checking
@@ -611,7 +610,7 @@ export default function HomePage() {
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
-                href="/tools/youtube-visibility-score"
+                href="/tools/youtube-channel-audit"
                 className="inline-flex items-center gap-1.5 rounded-md bg-brand-500 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-brand-600 transition"
               >
                 Score my channel

@@ -149,9 +149,9 @@ const RELATED_TOOLS = [
     body: "Download thumbnails from videos on the channel.",
   },
   {
-    href: "/tools/youtube-visibility-score",
-    name: "Visibility Score",
-    body: "Score the channel across CTR, metadata, headroom, and growth.",
+    href: "/tools/youtube-channel-audit",
+    name: "Channel Audit",
+    body: "Score the channel 0-100 across CTR, metadata, headroom, and growth.",
   },
 ];
 

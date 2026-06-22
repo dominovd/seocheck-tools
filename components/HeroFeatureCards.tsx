@@ -3,7 +3,7 @@ import { Check, Sparkles, Shield, Zap, type LucideIcon } from "lucide-react";
 /**
  * 4-card feature strip rendered under the hero CTAs. Each card has a
  * small brand-tinted icon, bold label, and one-line subtitle. Matches
- * the "100% Free / AI-Powered / Secure & Private / 21 SEO Tools"
+ * the "100% Free / AI-Powered / Secure & Private / 20 SEO Tools"
  * pattern from the approved homepage mockup.
  */
 
@@ -31,7 +31,7 @@ const FEATURES: Feature[] = [
   },
   {
     Icon: Zap,
-    label: "21 SEO Tools",
+    label: "20 SEO Tools",
     subtitle: "All in one place",
   },
 ];

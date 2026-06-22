@@ -136,37 +136,20 @@ export const TOOLS: Tool[] = [
     status: "live",
   },
   {
-    slug: "youtube-visibility-score",
-    title: "YouTube Visibility Score",
-    shortTitle: "Visibility Score",
-    taskLabel: "Get a channel's Visibility Score",
-    description:
-      "Paste a channel and get a 0-100 Visibility Score across CTR potential, metadata quality, growth trajectory, and niche reach.",
-    metaDescription:
-      "Check your YouTube channel Visibility Score for free. Get a 0-100 channel SEO score across CTR potential, metadata quality, growth trajectory, and niche reach.",
-    category: "ai",
-    stage: "analyze",
-    Icon: Gauge,
-    isAI: true,
-    searchVolume: 15000,
-    priority: 0.98,
-    status: "live",
-  },
-  {
     slug: "youtube-channel-audit",
     title: "YouTube Channel Audit",
     shortTitle: "Channel Audit",
     taskLabel: "Audit a whole YouTube channel",
     description:
-      "Paste a channel — get a channel-wide grade across title, description, hashtags, and chapters, plus AI-flagged recurring issues across the last 10 uploads.",
+      "Paste a channel and get a 0-100 Visibility Score across CTR potential, metadata quality, niche headroom, and growth trajectory, plus AI-flagged recurring fixes across the last 30 uploads.",
     metaDescription:
-      "Free YouTube channel audit. Paste any channel — get a channel-level grade with per-dimension breakdown and AI-identified recurring issues across the last 10 uploads.",
+      "Free YouTube channel audit. Paste any channel — get a Visibility Score (CTR, metadata, headroom, growth), severity-ranked recommended fixes, and per-dimension breakdown across the last 30 uploads.",
     category: "ai",
     stage: "analyze",
-    Icon: ClipboardList,
+    Icon: Gauge,
     isAI: true,
-    searchVolume: 12000,
-    priority: 0.95,
+    searchVolume: 27000,
+    priority: 0.98,
     status: "live",
   },
   {
@@ -512,7 +495,7 @@ export const stageDescription = (s: ToolStage): string => {
     case "publish":
       return "The final mile before you hit publish. Tools that format the description, chapters, and embeds the way YouTube expects — pair them with the AI Description Generator after the Video Audit to ship a complete package.";
     case "analyze":
-      return "After your video is live, or before you make the next bet. The YouTube Visibility Score gives you a composite 0-100 number across CTR, metadata, headroom, and growth trajectory. Channel Audit aggregates weakness patterns across your last 10 uploads. Video Audit drills into a single video with one-click AI fixes. Money Calculator projects earnings. Plus weekly historical tracking on any channel you mark to follow.";
+      return "After your video is live, or before you make the next bet. The Channel Audit gives you a 0-100 Visibility Score across CTR, metadata, headroom, and growth trajectory, plus severity-ranked recurring fixes from the last 30 uploads. Video Audit drills into a single video with one-click AI fixes. Money Calculator projects earnings. Plus weekly historical tracking on any channel you mark to follow.";
   }
 };
 

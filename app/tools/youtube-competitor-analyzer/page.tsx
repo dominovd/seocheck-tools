@@ -157,12 +157,7 @@ const RELATED_TOOLS = [
   {
     href: "/tools/youtube-channel-audit",
     name: "YouTube Channel Audit",
-    body: "Compare your own channel against the competitor patterns you find here.",
-  },
-  {
-    href: "/tools/youtube-visibility-score",
-    name: "Visibility Score",
-    body: "Get a 0-100 channel health score for you or any competitor.",
+    body: "Score your own channel and any competitor 0-100 across CTR, metadata, headroom, and growth.",
   },
 ];
 

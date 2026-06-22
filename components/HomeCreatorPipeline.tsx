@@ -83,7 +83,6 @@ const HOMEPAGE_STAGES: Record<
     subhead: "Learn what to fix next",
     featuredSlugs: [
       "youtube-video-audit",
-      "youtube-visibility-score",
       "youtube-channel-audit",
       "youtube-outlier-finder",
     ],

@@ -18,6 +18,19 @@ const nextConfig = {
     ],
   },
 
+  // Permanent redirects — preserve link equity from deprecated URLs.
+  async redirects() {
+    return [
+      // Visibility Score was merged into Channel Audit (2026-06).
+      // 301 permanent so search engines roll the signal over.
+      {
+        source: "/tools/youtube-visibility-score",
+        destination: "/tools/youtube-channel-audit",
+        permanent: true,
+      },
+    ];
+  },
+
   // Security headers — applies to every response
   async headers() {
     return [

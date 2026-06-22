@@ -210,7 +210,7 @@ export default function AboutPage() {
             <li>Estimate revenue.</li>
             <li>
               Check{" "}
-              <Link href="/tools/youtube-visibility-score" className="link">
+              <Link href="/tools/youtube-channel-audit" className="link">
                 visibility signals
               </Link>{" "}
               and track channel progress over time.

@@ -21,17 +21,19 @@ export async function verifyTurnstile(
   token: string | null | undefined,
   clientIp: string
 ): Promise<{ ok: true } | { ok: false; reason: string }> {
-  if (!token) return { ok: false, reason: "missing-token" };
-
   const secret = process.env.TURNSTILE_SECRET_KEY;
+
+  // In local dev without Turnstile configured, allow through with or
+  // without a token to make development possible. PRODUCTION must always
+  // have TURNSTILE_SECRET_KEY set, and tokens are required there.
   if (!secret) {
-    // In local dev without Turnstile configured, allow through to make
-    // development possible. PRODUCTION must always have this set.
     if (process.env.NODE_ENV !== "production") {
       return { ok: true };
     }
     return { ok: false, reason: "server-not-configured" };
   }
+
+  if (!token) return { ok: false, reason: "missing-token" };
 
   const body = new URLSearchParams({
     secret,

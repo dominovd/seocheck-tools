@@ -113,8 +113,12 @@ export type ChannelData = {
   subscriberCount: number | null;
   videoCount: number | null;
   viewCount: number | null;
+  /** When the channel was created (ISO date, YYYY-MM-DD). */
+  publishedAt: string | null;
   /** ID of the channel's "uploads" playlist — useful for chronological browsing. */
   uploadsPlaylistId: string | null;
+  /** Wikipedia URLs YouTube classifies this channel under. Used to derive primary niche. */
+  topicCategories: string[];
 };
 
 type ChannelsApiResponse = {
@@ -124,6 +128,7 @@ type ChannelsApiResponse = {
       title?: string;
       description?: string;
       customUrl?: string;
+      publishedAt?: string;
       thumbnails?: {
         high?: { url?: string };
         medium?: { url?: string };
@@ -139,6 +144,9 @@ type ChannelsApiResponse = {
     contentDetails?: {
       relatedPlaylists?: { uploads?: string };
     };
+    topicDetails?: {
+      topicCategories?: string[];
+    };
   }>;
 };
 
@@ -151,7 +159,7 @@ export async function fetchChannel(
   apiKey: string
 ): Promise<ChannelData | null> {
   const params = new URLSearchParams({
-    part: "snippet,statistics,contentDetails",
+    part: "snippet,statistics,contentDetails,topicDetails",
     key: apiKey,
   });
   if (lookup.type === "id") {
@@ -176,6 +184,7 @@ export async function fetchChannel(
     const sn = item.snippet ?? {};
     const st = item.statistics ?? {};
     const cd = item.contentDetails ?? {};
+    const td = item.topicDetails ?? {};
 
     return {
       id: item.id,
@@ -194,7 +203,9 @@ export async function fetchChannel(
         : null,
       videoCount: st.videoCount ? parseInt(st.videoCount, 10) : null,
       viewCount: st.viewCount ? parseInt(st.viewCount, 10) : null,
+      publishedAt: sn.publishedAt ? sn.publishedAt.slice(0, 10) : null,
       uploadsPlaylistId: cd.relatedPlaylists?.uploads ?? null,
+      topicCategories: Array.isArray(td.topicCategories) ? td.topicCategories : [],
     };
   } catch {
     return null;
