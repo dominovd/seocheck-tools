@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   CircleDollarSign,
   Lock,
@@ -19,11 +20,15 @@ import {
   Briefcase,
   ClipboardCheck,
   Check,
+  Eye,
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { FaqSchema } from "@/components/PageSchemas";
 import { TrackedDetails } from "@/components/TrackedDetails";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
+import { HeroFeatureCards } from "@/components/HeroFeatureCards";
+import { HomeGrowthPathCards } from "@/components/HomeGrowthPathCards";
+import { HomeCreatorPipeline } from "@/components/HomeCreatorPipeline";
 import { ToolSpotlight } from "@/components/spotlights/ToolSpotlight";
 import { MockKeywordTool } from "@/components/spotlights/MockKeywordTool";
 import {
@@ -264,209 +269,78 @@ export default function HomePage() {
     <>
       <FaqSchema faqs={faqs} />
       {/* ───────── Hero ───────── */}
-      <Container as="section" className="pt-20 pb-16 sm:pt-28 sm:pb-20 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
-          Free YouTube SEO tools · No signup · AI-powered
-        </p>
-        <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
-          Free YouTube SEO Tools to{" "}
-          <span className="text-brand-600">Score, Audit, and Fix</span>{" "}
-          Any Channel
-        </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 sm:text-xl">
-          Find what to make next, fix weak uploads, and track your channel&apos;s
-          visibility over time. 21 free YouTube SEO tools powered by AI. No
-          signup, no credit card.
-        </p>
+      <Container as="section" className="pt-12 pb-16 sm:pt-16 sm:pb-20">
+        <div className="grid items-start gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-12">
+          {/* LEFT — copy, CTAs, feature cards */}
+          <div className="text-center lg:text-left">
+            {/* Eyebrow pill */}
+            <div className="inline-flex items-center rounded-full bg-brand-50 px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-brand-800 ring-1 ring-inset ring-brand-100">
+              Free YouTube SEO tools · No signup · AI-powered
+            </div>
+
+            {/* H1 — big, bold, brand accent on the action verbs */}
+            <h1 className="mt-6 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-[3.5rem] xl:text-6xl leading-[1.05]">
+              Free YouTube SEO Tools to{" "}
+              <span className="text-brand-500">Score, Audit, and Fix</span>{" "}
+              Any Channel
+            </h1>
+
+            {/* Subtitle */}
+            <p className="mt-6 max-w-xl text-base text-gray-600 sm:text-lg leading-relaxed mx-auto lg:mx-0">
+              Find what to make next, fix weak uploads, and track your
+              channel&apos;s visibility over time. 21 free YouTube SEO tools
+              powered by AI.
+            </p>
+
+            {/* Primary + secondary CTAs */}
+            <div className="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-3">
+              <Link
+                href="/tools/youtube-visibility-score"
+                className="inline-flex items-center gap-1.5 rounded-md bg-brand-500 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-brand-600 transition"
+              >
+                Start checking
+                <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
+              </Link>
+              <Link
+                href="/tools"
+                className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-6 py-3 text-base font-medium text-gray-800 hover:border-brand-300 hover:text-brand-700 transition"
+              >
+                Browse tools
+              </Link>
+            </div>
+
+            {/* 4 feature cards */}
+            <div className="mt-8">
+              <HeroFeatureCards />
+            </div>
+          </div>
+
+          {/* RIGHT — product dashboard mockup */}
+          <div className="relative">
+            <div
+              className="relative overflow-hidden rounded-2xl bg-white"
+              style={{ aspectRatio: "16 / 10" }}
+            >
+              <Image
+                src="/dashboard-hero.webp"
+                alt="SEO Check Tools dashboard showing channel score, keyword opportunities, fix list, and visibility trend"
+                fill
+                priority
+                sizes="(min-width: 1024px) 55vw, 100vw"
+                className="scale-[1.05] object-contain"
+              />
+            </div>
+          </div>
+        </div>
       </Container>
 
-      {/* ───────── Two-segment CTA: "I have a channel" vs "I'm starting one" ───────── */}
-      <section className="pb-16 sm:pb-20">
-        <Container as="div">
-          <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-2 sm:gap-5">
-            {/* Block A: Active YouTubers */}
-            <article className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-7 sm:p-8 transition hover:border-brand-300 hover:shadow-sm">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500 text-white shadow-sm">
-                  <Gauge className="h-5 w-5" strokeWidth={2} />
-                </div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">
-                  I have a channel
-                </p>
-              </div>
-              <h2 className="mt-5 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-                Find out what&apos;s holding your channel back
-              </h2>
-              <p className="mt-3 text-base text-gray-600 leading-relaxed">
-                Paste your channel handle or URL and get a 0&ndash;100
-                Visibility Score across click potential, metadata quality,
-                niche headroom, and growth trajectory. Then run a Channel
-                Audit to see which uploads need fixing first.
-              </p>
-              <ul className="mt-5 flex flex-wrap gap-2 text-xs">
-                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
-                  Visibility Score
-                </li>
-                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
-                  Channel Audit
-                </li>
-                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
-                  Outlier Finder
-                </li>
-                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
-                  Competitor Analyzer
-                </li>
-              </ul>
-              <div className="mt-auto pt-7 flex flex-wrap gap-2.5">
-                <Link
-                  href="/tools/youtube-visibility-score"
-                  className="inline-flex items-center gap-1.5 rounded-md bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-brand-600 transition"
-                >
-                  Score my channel
-                  <ArrowRight className="h-4 w-4" strokeWidth={2} />
-                </Link>
-                <Link
-                  href="/tools/youtube-channel-audit"
-                  className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-brand-300 hover:text-brand-700 transition"
-                >
-                  Find weak uploads
-                </Link>
-              </div>
-            </article>
-
-            {/* Block B: New / future YouTubers */}
-            <article className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-7 sm:p-8 transition hover:border-brand-300 hover:shadow-sm">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-white shadow-sm">
-                  <Compass className="h-5 w-5" strokeWidth={2} />
-                </div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-amber-700">
-                  I&apos;m starting a channel
-                </p>
-              </div>
-              <h2 className="mt-5 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-                Validate your channel idea before you start
-              </h2>
-              <p className="mt-3 text-base text-gray-600 leading-relaxed">
-                Check whether your niche has demand, competition, and room to
-                grow. Then generate a brandable channel name, keywords, and
-                10 video ideas you can launch with.
-              </p>
-              <ul className="mt-5 flex flex-wrap gap-2 text-xs">
-                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
-                  Niche Check
-                </li>
-                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
-                  Channel Name Generator
-                </li>
-                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
-                  Video Idea Generator
-                </li>
-                <li className="rounded-full bg-gray-50 px-2.5 py-1 text-gray-700 ring-1 ring-gray-200">
-                  Keyword Tool
-                </li>
-              </ul>
-              <div className="mt-auto pt-7 flex flex-wrap gap-2.5">
-                <Link
-                  href="/tools/youtube-niche-check"
-                  className="inline-flex items-center gap-1.5 rounded-md bg-amber-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-amber-600 transition"
-                >
-                  Check my niche
-                  <ArrowRight className="h-4 w-4" strokeWidth={2} />
-                </Link>
-                <Link
-                  href="/tools/youtube-video-idea-generator"
-                  className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-amber-300 hover:text-amber-700 transition"
-                >
-                  Generate channel ideas
-                </Link>
-              </div>
-            </article>
-          </div>
-        </Container>
-      </section>
+      {/* ───────── Growth-path cards: "Choose your YouTube growth path" ───────── */}
+      <Container as="div">
+        <HomeGrowthPathCards />
+      </Container>
 
       {/* ───────── The creator workflow. Tools by stage ───────── */}
-      <Container as="section" id="tools" className="pb-24">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            The creator pipeline
-          </p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
-            What to do at every step of your next upload
-          </h2>
-          <p className="mt-3 text-base text-gray-600">
-            Free YouTube SEO tools for every creator moment: find a video idea,
-            improve the click package, publish clean metadata, and learn what
-            to fix next.
-          </p>
-        </div>
-
-        <div className="mx-auto mt-12 grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-5">
-          {STAGE_ORDER.map((stage, i) => {
-            const stageTools = stageGroups[stage];
-            const homepageStage = HOMEPAGE_STAGES[stage];
-            const featuredTools = homepageStage.featuredSlugs
-              .map((slug) => getToolBySlug(slug))
-              .filter((t): t is NonNullable<typeof t> => Boolean(t));
-            return (
-              <article
-                key={stage}
-                className="flex flex-col rounded-2xl border border-gray-200 bg-white p-5"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-50 font-mono text-xs font-semibold text-brand-700 ring-1 ring-brand-200">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-700">
-                    {homepageStage.jobLabel}
-                  </span>
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-gray-900">
-                  {homepageStage.heading}
-                </h3>
-                <p className="mt-1 text-sm text-gray-600">{homepageStage.subhead}</p>
-
-                <ul className="mt-4 flex-1 space-y-1.5">
-                  {featuredTools.map((tool) => (
-                    <li key={tool.slug}>
-                      <Link
-                        href={`/tools/${tool.slug}`}
-                        className="text-sm text-gray-700 hover:text-brand-700 transition"
-                      >
-                        {tool.shortTitle}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mt-4 flex items-center justify-between gap-2 text-xs">
-                  <Link
-                    href={`/tools/${stage}`}
-                    className="inline-flex items-center gap-1 font-medium text-brand-700 hover:text-brand-800 transition"
-                  >
-                    {homepageStage.footerCta}
-                    <ArrowRight className="h-3 w-3" strokeWidth={2.5} />
-                  </Link>
-                  <span className="font-mono tabular-nums text-gray-400">
-                    {stageTools.length} {stageTools.length === 1 ? "tool" : "tools"}
-                  </span>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-
-        <div className="mt-10 text-center">
-          <Link
-            href="/tools"
-            className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:border-brand-300 hover:bg-brand-50/40 hover:text-gray-900 transition"
-          >
-            View all 21 tools
-            <ArrowRight className="h-4 w-4 text-gray-400" strokeWidth={2} />
-          </Link>
-        </div>
-      </Container>
+      <HomeCreatorPipeline />
 
       {/* ───────── Coming soon: Transcript Generator (highest demand tool in pipeline) ───────── */}
       <section className="border-y border-amber-100 bg-gradient-to-r from-amber-50/60 via-white to-amber-50/40 py-14 sm:py-16">
@@ -509,16 +383,29 @@ export default function HomePage() {
       <section className="border-y border-gray-100 bg-gradient-to-b from-white via-gray-50/40 to-white">
         <Container as="div" className="divide-y divide-gray-100">
           <ToolSpotlight
+            number={1}
             Icon={Search}
             eyebrow="Keyword research"
             title="Find YouTube keywords creators are actually searching for"
             description="Use the free YouTube keyword tool to find topics, search terms, and related keywords before you film. Build titles, tags, and descriptions around demand instead of guessing."
             href="/tools/youtube-keyword-tool"
             ctaLabel="Find keywords"
-            proof="keyword ideas · search intent · related terms · copy-ready list"
-            mock={<MockKeywordTool />}
+            featurePills={[
+              "Keyword ideas",
+              "Search intent",
+              "Related terms",
+              "Copy-ready list",
+            ]}
+            subFeatures={[
+              { Icon: TrendingUp, label: "Data from YouTube autocomplete" },
+              { Icon: Target, label: "Uncover high-opportunity topics" },
+              { Icon: Upload, label: "Export and use instantly" },
+            ]}
+            imageSrc="/spotlight-keyword-tool.webp"
+            imageAlt="Free YouTube Keyword Tool showing seed keyword react useEffect, best opportunity useEffect cleanup function with +18% trend, and 8 keyword ideas with intent labels and opportunity bars"
           />
           <ToolSpotlight
+            number={2}
             Icon={WandSparkles}
             eyebrow="AI Title Generator"
             isAI
@@ -527,10 +414,22 @@ export default function HomePage() {
             description="Type your topic and generate YouTube titles across proven angles: curiosity, how-to, listicle, comparison, and contrarian. Pick a stronger title before your next upload."
             href="/tools/youtube-title-generator"
             ctaLabel="Generate titles"
-            proof="10 title ideas · different angles · SEO-ready phrasing · copy in one click"
-            mock={<TitleGeneratorScreenshot />}
+            featureRow={[
+              "10 title ideas",
+              "Different angles",
+              "SEO-ready phrasing",
+              "Copy in one click",
+            ]}
+            secondaryCta={{
+              label: "View example",
+              href: "/tools/youtube-title-generator",
+              Icon: Eye,
+            }}
+            imageSrc="/spotlight-title-generator.webp"
+            imageAlt="AI YouTube Title Generator with topic Learn React in 2026, style tabs and 6 generated titles scored for click potential with one-click copy"
           />
           <ToolSpotlight
+            number={3}
             Icon={Tv}
             eyebrow="Channel Starter"
             isAI
@@ -542,6 +441,7 @@ export default function HomePage() {
             mock={<ChannelNameGeneratorScreenshots />}
           />
           <ToolSpotlight
+            number={4}
             Icon={Gauge}
             eyebrow="Channel Audit"
             isAI
