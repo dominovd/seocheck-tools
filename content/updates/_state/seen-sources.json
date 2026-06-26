@@ -121,6 +121,17 @@
       "url": "https://blog.youtube/news-and-events/where-to-find-youtube-this-event-season",
       "discoveredAt": "2026-06-22T12:00:30.247Z",
       "status": "rejected"
+    },
+    {
+      "url": "https://blog.youtube/news-and-events/youtube-shorts-experience-updates-features",
+      "discoveredAt": "2026-06-26T12:00:55.124Z",
+      "status": "published",
+      "slug": "2026-06-youtube-shorts-player-adds-clear-screen-mode-and-playback-speed-controls"
+    },
+    {
+      "url": "https://blog.youtube/news-and-events/youtube-creators-fifa-world-cup",
+      "discoveredAt": "2026-06-26T12:00:57.967Z",
+      "status": "rejected"
     }
   ]
 }
