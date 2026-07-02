@@ -152,6 +152,17 @@
       "url": "https://blog.youtube/creator-and-artist-stories/maya-higa-alveus-animal-sanctuary",
       "discoveredAt": "2026-07-01T12:01:50.209Z",
       "status": "rejected"
+    },
+    {
+      "url": "https://blog.youtube/news-and-events/youtube-supervised-kid-accounts-middle-east",
+      "discoveredAt": "2026-07-02T12:00:43.424Z",
+      "status": "published",
+      "slug": "2026-07-supervised-kid-accounts-now-available-in-turkiye-and-mena"
+    },
+    {
+      "url": "https://blog.youtube/creator-and-artist-stories/youtube-brand-deal-desk-creator-series",
+      "discoveredAt": "2026-07-02T12:00:46.855Z",
+      "status": "rejected"
     }
   ]
 }
