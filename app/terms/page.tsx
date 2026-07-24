@@ -11,7 +11,7 @@ export const metadata = buildMetadata({
   path: "terms",
 });
 
-const EFFECTIVE_DATE = "May 29, 2026";
+const EFFECTIVE_DATE = "July 24, 2026";
 
 export default function TermsPage() {
   return (
@@ -49,6 +49,35 @@ export default function TermsPage() {
           content creators: title and description generators, tag tools,
           thumbnail downloads, calculators, and similar. Use is free and does
           not require an account.
+        </p>
+
+        <h2 className="mt-10 text-xl font-semibold text-gray-900">
+          YouTube API Services and YouTube Terms of Service
+        </h2>
+        <p className="mt-3 text-base text-gray-700 leading-relaxed">
+          Several tools on {siteConfig.name} use the YouTube API Services to
+          fetch public information about channels and videos (view counts,
+          upload dates, titles, descriptions, hashtags, and similar). By
+          using {siteConfig.name}, you also agree to be bound by the{" "}
+          <ExternalLink
+            href="https://www.youtube.com/t/terms"
+            className="link"
+            hideIcon
+          >
+            YouTube Terms of Service
+          </ExternalLink>
+          .
+        </p>
+        <p className="mt-3 text-base text-gray-700 leading-relaxed">
+          You can review Google&apos;s privacy practices for API data at the{" "}
+          <ExternalLink
+            href="https://policies.google.com/privacy"
+            className="link"
+            hideIcon
+          >
+            Google Privacy Policy
+          </ExternalLink>
+          .
         </p>
 
         <h2 className="mt-10 text-xl font-semibold text-gray-900">

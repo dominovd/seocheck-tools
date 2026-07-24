@@ -225,7 +225,7 @@ export default function PrivacyPage() {
           YouTube API Services
         </h2>
         <p className="mt-3 text-base text-gray-700 leading-relaxed">
-          Several tools on this site — Channel Audit, Visibility Score, Outlier
+          Several tools on this site — Channel Audit, Video Audit, Outlier
           Finder, Niche Check, Channel ID Finder, Historical Tracking, and the
           Competitor Channel Analyzer — query the YouTube Data API v3 to fetch
           publicly available channel and video metadata (channel statistics,
@@ -269,16 +269,10 @@ export default function PrivacyPage() {
             <strong>Channel snapshots for Historical Tracking (up to 26
             weekly snapshots per channel).</strong> When a user opts into
             tracking a channel, we run a weekly background re-audit and store
-            the resulting metrics (Visibility Score breakdown, subscriber and
-            view counts, upload cadence) so the trend chart can render. These
-            snapshots are keyed by channel ID, not by the user who added the
-            channel.
-          </li>
-          <li>
-            <strong>Derived metrics (Visibility Score, sub-scores).</strong>{" "}
-            Per the YouTube API derived-metrics policy, our Visibility Score
-            is computed by us, clearly labelled as our own metric, and not
-            sourced or implied to be sourced directly from YouTube&apos;s API.
+            raw YouTube-provided metrics (subscriber count, view count,
+            per-video view counts, upload dates) so the trend chart can
+            render. These snapshots are keyed by channel ID, not by the user
+            who added the channel.
           </li>
         </ul>
 
@@ -300,8 +294,8 @@ export default function PrivacyPage() {
             {siteConfig.contactEmail}
           </a>{" "}
           with the channel URL or channel ID. We will purge the short-term
-          query cache, any Visibility Score snapshots, and any Historical
-          Tracking history for that channel within 7 days of the request.
+          query cache and any Historical Tracking snapshots for that channel
+          within 7 days of the request.
         </p>
 
         <h2 className="mt-10 text-xl font-semibold text-gray-900">
