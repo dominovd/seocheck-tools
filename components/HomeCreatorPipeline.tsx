@@ -294,7 +294,7 @@ function ResearchMockup() {
   );
 }
 
-// ─── STAGE 2: OPTIMIZE (Thumbnail preview + Title score) ─────────────────
+// ─── STAGE 2: OPTIMIZE (Thumbnail preview + Title signals) ───────────────
 
 function OptimizeMockup() {
   return (
@@ -317,16 +317,33 @@ function OptimizeMockup() {
           </div>
         </div>
       </div>
-      {/* Title score */}
+      {/* Title signals */}
       <div>
         <p className="mb-1 text-[9px] font-semibold text-gray-900">
-          Title score
+          Title signals
         </p>
-        <div className="flex items-center justify-center">
-          <ScoreCircle value={86} />
-        </div>
+        <ul className="space-y-1">
+          <SignalLine ok label="Length 41c" />
+          <SignalLine ok label="Angle clear" />
+          <SignalLine label="Add keyword" />
+        </ul>
       </div>
     </div>
+  );
+}
+
+function SignalLine({ ok = false, label }: { ok?: boolean; label: string }) {
+  return (
+    <li className="flex items-center gap-1">
+      <span
+        className={`inline-flex h-2.5 w-2.5 shrink-0 items-center justify-center rounded-full ${
+          ok ? "bg-brand-100 text-brand-700" : "bg-amber-100 text-amber-700"
+        }`}
+      >
+        <Check className="h-1.5 w-1.5" strokeWidth={3.5} aria-hidden="true" />
+      </span>
+      <span className="text-[8px] leading-tight text-gray-700">{label}</span>
+    </li>
   );
 }
 
@@ -366,26 +383,37 @@ function PublishMockup() {
   );
 }
 
-// ─── STAGE 4: ANALYZE (Visibility + Views trend) ─────────────────────────
+// ─── STAGE 4: ANALYZE (raw channel facts + recent uploads trend) ─────────
 
 function AnalyzeMockup() {
   const points =
     "2,18 8,16 14,17 20,13 26,15 32,11 38,12 44,8 50,9 56,5 58,3";
   return (
     <div className="grid grid-cols-2 gap-2 rounded-xl border border-gray-200 bg-white p-2.5">
-      {/* Visibility score */}
+      {/* Channel facts */}
       <div>
         <p className="mb-1 text-[9px] font-semibold text-gray-900">
-          Visibility score
+          Channel facts
         </p>
-        <div className="flex items-center justify-center">
-          <ScoreCircle value={92} />
-        </div>
+        <ul className="space-y-1 text-[8px] text-gray-700">
+          <li className="flex justify-between">
+            <span className="text-gray-500">Uploads</span>
+            <span className="font-semibold text-gray-900">30</span>
+          </li>
+          <li className="flex justify-between">
+            <span className="text-gray-500">Median views</span>
+            <span className="font-semibold text-gray-900">3.2K</span>
+          </li>
+          <li className="flex justify-between">
+            <span className="text-gray-500">Cadence</span>
+            <span className="font-semibold text-gray-900">2x / wk</span>
+          </li>
+        </ul>
       </div>
-      {/* Views trend */}
+      {/* Recent uploads chart */}
       <div>
         <p className="mb-1 text-[9px] font-semibold text-gray-900">
-          Views trend
+          Views per upload
         </p>
         <svg
           viewBox="0 0 60 24"
@@ -413,54 +441,7 @@ function AnalyzeMockup() {
             strokeLinejoin="round"
           />
         </svg>
-        <p className="mt-0.5 text-[11px] font-bold leading-none text-brand-600">
-          +24%
-        </p>
-        <p className="text-[8px] text-gray-500">vs last 30 days</p>
-      </div>
-    </div>
-  );
-}
-
-// ─── REUSED: small circular score widget ─────────────────────────────────
-
-function ScoreCircle({ value }: { value: number }) {
-  // r=15, circumference = 2 * PI * 15 ≈ 94.25
-  const C = 2 * Math.PI * 15;
-  const filled = (value / 100) * C;
-  return (
-    <div className="relative h-14 w-14">
-      <svg
-        viewBox="0 0 36 36"
-        className="absolute inset-0 -rotate-90"
-        aria-hidden="true"
-      >
-        <circle
-          cx="18"
-          cy="18"
-          r="15"
-          fill="none"
-          stroke="#e5e7eb"
-          strokeWidth="3"
-        />
-        <circle
-          cx="18"
-          cy="18"
-          r="15"
-          fill="none"
-          stroke="#10b981"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeDasharray={`${filled.toFixed(2)}, ${C.toFixed(2)}`}
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-sm font-bold leading-none text-gray-900">
-          {value}
-        </span>
-        <span className="mt-0.5 text-[7px] leading-none text-gray-500">
-          /100
-        </span>
+        <p className="mt-0.5 text-[8px] text-gray-500">last 30 uploads</p>
       </div>
     </div>
   );

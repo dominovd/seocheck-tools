@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import {
   CircleDollarSign,
   Lock,
@@ -277,7 +276,7 @@ export default function HomePage() {
             {/* H1 — big, bold, brand accent on the action verbs */}
             <h1 className="mt-6 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-[3.5rem] xl:text-6xl leading-[1.05]">
               Free YouTube SEO Tools to{" "}
-              <span className="text-brand-500">Score, Audit, and Fix</span>{" "}
+              <span className="text-brand-500">Audit, Improve, and Grow</span>{" "}
               Any Channel
             </h1>
 
@@ -312,21 +311,8 @@ export default function HomePage() {
           </div>
 
           {/* RIGHT — product dashboard mockup */}
-          <div className="relative">
-            <div
-              className="relative overflow-hidden rounded-2xl bg-white"
-              style={{ aspectRatio: "16 / 10" }}
-            >
-              <Image
-                src="/dashboard-hero.webp"
-                alt="SEO Check Tools dashboard showing channel score, keyword opportunities, fix list, and visibility trend"
-                fill
-                priority
-                sizes="(min-width: 1024px) 55vw, 100vw"
-                className="scale-[1.05] object-contain"
-              />
-            </div>
-          </div>
+          {/* Hero mockup — clean textual dashboard preview, no scoring */}
+          <HeroDashboardPreview />
         </div>
       </Container>
 
@@ -397,8 +383,6 @@ export default function HomePage() {
               { Icon: Target, label: "Uncover high-opportunity topics" },
               { Icon: Upload, label: "Export and use instantly" },
             ]}
-            imageSrc="/spotlight-keyword-tool.webp"
-            imageAlt="Free YouTube Keyword Tool showing seed keyword react useEffect, best opportunity useEffect cleanup function with +18% trend, and 8 keyword ideas with intent labels and opportunity bars"
           />
           <ToolSpotlight
             number={2}
@@ -421,8 +405,6 @@ export default function HomePage() {
               href: "/tools/youtube-title-generator",
               Icon: Eye,
             }}
-            imageSrc="/spotlight-title-generator.webp"
-            imageAlt="AI YouTube Title Generator with topic Learn React in 2026, style tabs and 6 generated titles scored for click potential with one-click copy"
           />
           <ToolSpotlight
             number={3}
@@ -696,5 +678,127 @@ export default function HomePage() {
         </Container>
       </section>
     </>
+  );
+}
+
+/**
+ * Hero dashboard preview — a fully static SVG/HTML mockup. Shows the
+ * flow of a Channel Audit result without any derived numeric metrics.
+ * Replaces the removed dashboard-hero.webp which displayed a composite
+ * "Channel score 92/100" and "Fix list: 17 fixes" surfaced in the
+ * compliance report.
+ */
+function HeroDashboardPreview() {
+  return (
+    <div className="relative">
+      <div
+        className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+        style={{ aspectRatio: "16 / 10" }}
+      >
+        <div className="grid h-full grid-cols-[140px_1fr]">
+          {/* Sidebar */}
+          <aside className="hidden border-r border-gray-100 bg-gray-50/60 p-4 sm:block">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-brand-500 text-white">
+                <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+              </span>
+              <span className="text-[11px] font-semibold text-gray-900">
+                SEO Check Tools
+              </span>
+            </div>
+            <ul className="mt-5 space-y-2 text-[11px] text-gray-600">
+              <li className="rounded-md bg-brand-50 px-2 py-1.5 font-semibold text-brand-700">
+                Channel Audit
+              </li>
+              <li className="px-2 py-1.5">Video Audit</li>
+              <li className="px-2 py-1.5">Keyword Tool</li>
+              <li className="px-2 py-1.5">Outlier Finder</li>
+              <li className="px-2 py-1.5">Niche Check</li>
+              <li className="px-2 py-1.5">Title Analyzer</li>
+            </ul>
+          </aside>
+
+          {/* Content */}
+          <div className="flex flex-col gap-3 p-4 sm:p-5">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                Channel overview
+              </p>
+              <h3 className="mt-0.5 text-sm font-semibold text-gray-900">
+                @your-channel · last 30 uploads
+              </h3>
+            </div>
+
+            {/* Aggregation tiles */}
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {[
+                { label: "Uploads", value: "30" },
+                { label: "Median views", value: "3.2K" },
+                { label: "Cadence", value: "2x / wk" },
+                { label: "Total views", value: "128K" },
+              ].map((t) => (
+                <div
+                  key={t.label}
+                  className="rounded-lg bg-gray-50 px-2.5 py-2"
+                >
+                  <p className="text-[9px] font-semibold uppercase tracking-wider text-gray-500">
+                    {t.label}
+                  </p>
+                  <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                    {t.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Recommended fixes */}
+            <div className="mt-1 flex flex-1 flex-col rounded-lg border border-gray-100 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                Recommended fixes
+              </p>
+              <ul className="mt-2 space-y-2 text-[11px] text-gray-700">
+                {[
+                  {
+                    label: "Add chapters to 26 uploads",
+                    tone: "high" as const,
+                  },
+                  {
+                    label: "Front-load keywords in 12 titles",
+                    tone: "medium" as const,
+                  },
+                  {
+                    label: "Strong hashtag discipline — keep it up",
+                    tone: "good" as const,
+                  },
+                ].map((r) => {
+                  const pillClass =
+                    r.tone === "high"
+                      ? "bg-red-50 text-red-700 ring-red-100"
+                      : r.tone === "medium"
+                      ? "bg-amber-50 text-amber-700 ring-amber-100"
+                      : "bg-brand-50 text-brand-700 ring-brand-100";
+                  const pillLabel =
+                    r.tone === "high"
+                      ? "High"
+                      : r.tone === "medium"
+                      ? "Medium"
+                      : "Keep it up";
+                  return (
+                    <li key={r.label} className="flex items-center gap-2">
+                      <span className="flex-1 truncate">{r.label}</span>
+                      <span
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-semibold ring-1 ring-inset ${pillClass}`}
+                      >
+                        {pillLabel}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

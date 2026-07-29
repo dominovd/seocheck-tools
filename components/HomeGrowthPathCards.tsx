@@ -70,14 +70,15 @@ function ExistingChannelsCard() {
         Find what&apos;s holding your channel back
       </h3>
       <p className="mt-3 text-base text-gray-600 leading-relaxed">
-        Paste your channel handle and get a clear score, weak uploads, and
-        the fastest fixes.
+        Paste your channel handle to see raw metrics, weak uploads, and the
+        fastest editorial fixes across title, description, hashtags, and
+        chapters.
       </p>
 
       {/* Feature chips */}
       <div className="mt-5 flex flex-wrap gap-2.5">
         <FeatureChip Icon={Gauge} tone="brand">
-          Visibility score
+          Editorial audit
         </FeatureChip>
         <FeatureChip Icon={PlayCircle} tone="brand">
           Weak uploads
@@ -89,9 +90,9 @@ function ExistingChannelsCard() {
 
       {/* Mockup */}
       <div className="mt-6 grid gap-3 rounded-2xl bg-gray-50/60 p-3 ring-1 ring-inset ring-gray-100 sm:grid-cols-[1fr_1.3fr]">
-        <VisibilityScoreCircle />
+        <ChannelOverviewPanel />
         <div className="flex flex-col gap-3">
-          <VisibilityTrendChart />
+          <RecentUploadsChart />
           <WeakUploadsList />
         </div>
       </div>
@@ -211,66 +212,41 @@ function FeatureChip({
 
 // ─── MOCKUP WIDGETS (left card) ───────────────────────────────────────────
 
-function VisibilityScoreCircle() {
-  // Circle: r=44, circumference = 2*PI*44 ≈ 276
-  // 92% filled = 254 stroke, 22 gap
+function ChannelOverviewPanel() {
+  // Illustrative factual aggregations — raw counts / medians, no derived score.
+  const rows = [
+    { label: "Uploads", value: "30" },
+    { label: "Median views", value: "3.2K" },
+    { label: "Weekly cadence", value: "2x" },
+  ];
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl bg-white px-3 py-4 ring-1 ring-gray-100">
-      <p className="self-start text-[11px] font-semibold text-gray-900">
-        Visibility score
+    <div className="flex flex-col justify-center rounded-xl bg-white px-3 py-4 ring-1 ring-gray-100">
+      <p className="text-[11px] font-semibold text-gray-900">Channel overview</p>
+      <ul className="mt-2 space-y-1.5">
+        {rows.map((r) => (
+          <li key={r.label} className="flex items-center justify-between text-[11px]">
+            <span className="text-gray-600">{r.label}</span>
+            <span className="font-semibold text-gray-900">{r.value}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-[10px] leading-tight text-gray-500">
+        Factual aggregations from public YouTube data.
       </p>
-      <div className="relative mt-2 flex h-28 w-28 items-center justify-center">
-        <svg
-          viewBox="0 0 100 100"
-          className="absolute inset-0 -rotate-90"
-          aria-hidden="true"
-        >
-          <circle
-            cx="50"
-            cy="50"
-            r="44"
-            fill="none"
-            stroke="#e5e7eb"
-            strokeWidth="8"
-          />
-          <circle
-            cx="50"
-            cy="50"
-            r="44"
-            fill="none"
-            stroke="#10b981"
-            strokeWidth="8"
-            strokeLinecap="round"
-            strokeDasharray="276.46"
-            strokeDashoffset="22.12"
-          />
-        </svg>
-        <div className="relative flex items-baseline gap-0.5">
-          <span className="text-3xl font-bold tabular-nums text-gray-900">
-            92
-          </span>
-          <span className="text-sm font-semibold text-gray-400">/100</span>
-        </div>
-      </div>
-      <p className="mt-2 text-xs font-semibold text-brand-600">Great job!</p>
-      <p className="text-[10px] text-gray-500">Keep optimizing.</p>
     </div>
   );
 }
 
-function VisibilityTrendChart() {
+function RecentUploadsChart() {
   // Polyline points within a 100x40 viewBox, slight upward trend.
   const points = "2,32 12,28 22,30 32,24 42,26 52,18 62,22 72,14 82,10 92,8 98,4";
   return (
     <div className="rounded-xl bg-white px-3 py-3 ring-1 ring-gray-100">
       <div className="flex items-start justify-between">
         <p className="text-[11px] font-semibold text-gray-900">
-          Channel visibility trend
+          Median views by upload
         </p>
-        <div className="text-right">
-          <p className="text-xs font-bold text-brand-600">+24%</p>
-          <p className="text-[9px] text-gray-500">vs last 30 days</p>
-        </div>
+        <p className="text-[9px] text-gray-500">last 30 uploads</p>
       </div>
       <svg
         viewBox="0 0 100 40"
