@@ -6,7 +6,6 @@ import {
   fetchVideoIdsFromPlaylist,
   fetchVideoBatchPaginated,
 } from "@/lib/youtube/youtube-api";
-import { computeVisibilityScore } from "@/lib/youtube/visibility-score";
 
 export const runtime = "edge";
 // Vercel's max cron duration for hobby/pro accounts — keep ≤300s by
@@ -14,26 +13,29 @@ export const runtime = "edge";
 export const maxDuration = 300;
 
 /**
- * Weekly background cron — refreshes Visibility Scores for every
+ * Weekly background cron — refreshes raw YouTube metrics for every
  * currently-tracked channel and appends each to its history list.
  *
- * Schedule (vercel.json): every Monday 09:00 UTC. See:
- *   https://vercel.com/docs/cron-jobs
+ * IMPORTANT: We store ONLY raw YouTube-provided metrics and factual
+ * aggregations (subscriber count, video count, median/mean views over
+ * the window). We do NOT compute or store any composite score, grade,
+ * or derived metric — that would violate YouTube API Services policy
+ * III.E.4h.
+ *
+ * Schedule (vercel.json): every Monday 09:00 UTC.
  *
  * Quota math:
  *   - 3 YouTube units per channel (1 channels.list + 1 playlistItems.list
  *     + 1 videos.list batch)
  *   - Up to 200 tracked channels at MAX_TRACKED cap = 600 units/week
- *   - No LLM calls (history doesn't need summaries)
  *
- * Authentication: Vercel forwards the cron with a CRON_SECRET header
- * (set in the project env as CRON_SECRET) — we verify it so this
- * endpoint can't be invoked by random visitors.
+ * Authentication: Vercel forwards the cron with a CRON_SECRET header.
  */
 
+const WINDOW_SIZE = 30;
+const MIN_VIDEOS = 5;
+
 export async function GET(req: NextRequest) {
-  // Verify the request is from Vercel cron infrastructure.
-  // Vercel sets `Authorization: Bearer <CRON_SECRET>` on scheduled invocations.
   const auth = req.headers.get("authorization");
   const expected = process.env.CRON_SECRET;
   if (!expected) {
@@ -70,35 +72,42 @@ export async function GET(req: NextRequest) {
         continue;
       }
 
-      const ids = await fetchVideoIdsFromPlaylist(channel.uploadsPlaylistId, 30, apiKey);
-      if (ids.length < 5) {
+      const ids = await fetchVideoIdsFromPlaylist(
+        channel.uploadsPlaylistId,
+        WINDOW_SIZE,
+        apiKey
+      );
+      if (ids.length < MIN_VIDEOS) {
         failed++;
         errors.push({ channelId, error: "not-enough-videos" });
         continue;
       }
 
       const videoMap = await fetchVideoBatchPaginated(ids, apiKey);
-      const result = computeVisibilityScore(
-        {
-          id: channel.id,
-          title: channel.title,
-          handle: channel.handle,
-          thumbnailUrl: channel.thumbnailUrl,
-          subscriberCount: channel.subscriberCount,
-          videoCount: channel.videoCount,
-        },
-        ids,
-        videoMap,
-        null // no LLM summary in cron — history doesn't need it
-      );
+      const viewCounts = ids
+        .map((id) => videoMap.get(id)?.viewCount)
+        .filter((v): v is number => typeof v === "number" && v >= 0);
+
+      const totalViewsInWindow = viewCounts.reduce((s, v) => s + v, 0);
+      const meanViews =
+        viewCounts.length > 0 ? Math.round(totalViewsInWindow / viewCounts.length) : 0;
+      const sorted = [...viewCounts].sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      const medianViews =
+        sorted.length === 0
+          ? 0
+          : sorted.length % 2 === 0
+          ? Math.round((sorted[mid - 1] + sorted[mid]) / 2)
+          : sorted[mid];
 
       await appendHistory(channel.id, {
         ts,
-        visibility: result.overallScore,
-        ctr: result.subscores[0].score,
-        metadata: result.subscores[1].score,
-        headroom: result.subscores[2].score,
-        trajectory: result.subscores[3].score,
+        subscriberCount: channel.subscriberCount,
+        videoCount: channel.videoCount,
+        windowSize: viewCounts.length,
+        medianViews,
+        meanViews,
+        totalViewsInWindow,
       });
 
       succeeded++;
@@ -117,7 +126,6 @@ export async function GET(req: NextRequest) {
     processed: channelIds.length,
     succeeded,
     failed,
-    // Only log first few errors to keep response size sane.
     errors: errors.slice(0, 10),
   });
 }

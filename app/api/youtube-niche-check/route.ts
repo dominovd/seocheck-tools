@@ -12,7 +12,8 @@ import { fetchBaseSuggestions, DEFAULT_REGION } from "@/lib/youtube/keyword-sugg
 import {
   enrichNicheVideos,
   computeVerdict,
-  type NicheCheckResult,
+  toPublicNicheCheck,
+  type PublicNicheCheckResult,
 } from "@/lib/youtube/niche-check";
 
 export const runtime = "edge";
@@ -71,8 +72,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Cache
-  const cached = await getCachedOutput<NicheCheckResult>(RATE_LIMIT_KEY, query);
+  // Cache — stores public (sanitized) shape only
+  const cached = await getCachedOutput<PublicNicheCheckResult>(RATE_LIMIT_KEY, query);
   if (cached) {
     return NextResponse.json({ result: cached, cached: true, remaining: rl.remaining });
   }
@@ -116,9 +117,10 @@ export async function POST(req: NextRequest) {
     videos,
     new Map(Array.from(channelMap, ([k, v]) => [k, { title: v.title, subscriberCount: v.subscriberCount }]))
   );
-  const result = computeVerdict(enriched, searchResult.totalResults, query, relatedKeywords);
+  const internalResult = computeVerdict(enriched, searchResult.totalResults, query, relatedKeywords);
+  const result = toPublicNicheCheck(internalResult);
 
-  // Cache the verdict for 24h
+  // Cache the public verdict for 24h
   await setCachedOutput(RATE_LIMIT_KEY, query, result).catch(() => {});
 
   return NextResponse.json({ result, cached: false, remaining: rl.remaining });

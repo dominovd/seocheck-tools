@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata = buildMetadata({
   title: "YouTube analytics & channel audit tools",
   description:
-    "Free YouTube Analyze tools — Visibility Score, Channel Audit, Video Audit with AI Fix-with-AI, Money Calculator. Composite scoring and weekly trend tracking.",
+    "Free YouTube Analyze tools — Channel Audit, Video Audit with AI Fix-with-AI, Outlier Finder, Money Calculator. Raw YouTube metrics plus editorial recommendations, with weekly trend tracking.",
   path: "tools/analyze",
 });
 

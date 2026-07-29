@@ -17,9 +17,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type {
-  VideoAuditResult,
-  AuditDimension,
-  AuditBand,
+  PublicVideoAuditResult,
+  PublicAuditDimension,
 } from "@/lib/youtube/video-audit";
 import type { Signal, SignalKind } from "@/lib/youtube/title-score";
 import { track } from "@/lib/analytics/track";
@@ -40,24 +39,31 @@ const SIGNAL_STYLES: Record<SignalKind, string> = {
   info: "text-gray-600 bg-gray-50 ring-gray-100",
 };
 
-const BAND_STYLES: Record<AuditBand, { ring: string; text: string; bg: string; label: string }> = {
-  strong: { ring: "ring-brand-300", text: "text-brand-700", bg: "bg-brand-50", label: "Strong" },
-  good:   { ring: "ring-brand-200", text: "text-brand-600", bg: "bg-brand-50/60", label: "Good" },
-  fair:   { ring: "ring-amber-300", text: "text-amber-700", bg: "bg-amber-50", label: "Fair" },
-  weak:   { ring: "ring-red-300",   text: "text-red-700",   bg: "bg-red-50",   label: "Weak" },
-};
-
 type AuditMode = "full" | "noTags" | "partial";
 
 type ApiResponse =
-  | { result: VideoAuditResult; cached?: boolean; mode?: AuditMode; remaining?: number }
+  | { result: PublicVideoAuditResult; cached?: boolean; mode?: AuditMode; remaining?: number }
   | { error: string; code?: string };
+
+/** A dimension has "issues" if it contains any bad or warn signals. */
+function hasIssues(d: PublicAuditDimension): boolean {
+  return d.signals.some((s) => s.kind === "bad" || s.kind === "warn");
+}
+
+/** Count of bad + warn signals across all dimensions. Used for header summary. */
+function countIssues(result: PublicVideoAuditResult): number {
+  let n = 0;
+  for (const d of result.dimensions) {
+    for (const s of d.signals) if (s.kind === "bad" || s.kind === "warn") n += 1;
+  }
+  return n;
+}
 
 export function VideoAuditTool() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<VideoAuditResult | null>(null);
+  const [result, setResult] = useState<PublicVideoAuditResult | null>(null);
   const [mode, setMode] = useState<AuditMode>("full");
 
   const runAudit = useCallback(async (targetUrl: string) => {
@@ -82,7 +88,7 @@ export function VideoAuditTool() {
       track("tool_used", {
         slug: "youtube-video-audit",
         mode: data.mode ?? "full",
-        overall_score: data.result.overallScore,
+        issue_count: countIssues(data.result),
       });
     } catch {
       setError("Network error — try again in a moment.");
@@ -162,8 +168,9 @@ type FixApiResponse =
   | { output: FixPackage; cached?: boolean; remaining?: number }
   | { error: string; code?: string };
 
-function AuditResults({ result, mode }: { result: VideoAuditResult; mode: AuditMode }) {
-  const bs = BAND_STYLES[result.overallBand];
+function AuditResults({ result, mode }: { result: PublicVideoAuditResult; mode: AuditMode }) {
+  const dimensionsWithIssues = result.dimensions.filter(hasIssues);
+  const totalIssues = countIssues(result);
 
   return (
     <div className="mt-8">
@@ -203,7 +210,7 @@ function AuditResults({ result, mode }: { result: VideoAuditResult; mode: AuditM
           <a
             href={result.videoUrl}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="nofollow noopener"
             onClick={() =>
               track("external_link_clicked", {
                 destination: "youtube",
@@ -219,27 +226,54 @@ function AuditResults({ result, mode }: { result: VideoAuditResult; mode: AuditM
         </div>
       </div>
 
-      {/* Overall score */}
-      <div className={`mt-6 rounded-2xl border ${bs.ring.replace("ring-", "border-")} ${bs.bg} p-5 sm:p-6`}>
-        <div className="flex items-center gap-5">
-          <div className={`flex h-20 w-20 shrink-0 items-center justify-center rounded-full ring-4 bg-white ${bs.ring}`}>
-            <span className={`font-mono text-2xl font-semibold tabular-nums ${bs.text}`}>
-              {result.overallScore}
-            </span>
-          </div>
+      {/* Issues summary — replaces the removed composite score card */}
+      <div
+        className={`mt-6 rounded-2xl border p-5 sm:p-6 ${
+          totalIssues === 0
+            ? "border-brand-200 bg-brand-50/60"
+            : "border-amber-200 bg-amber-50/60"
+        }`}
+      >
+        <div className="flex items-start gap-4">
+          <span
+            className={`inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${
+              totalIssues === 0 ? "bg-brand-500 text-white" : "bg-amber-500 text-white"
+            }`}
+          >
+            {totalIssues === 0 ? (
+              <Check className="h-5 w-5" strokeWidth={2.5} />
+            ) : (
+              <AlertTriangle className="h-5 w-5" strokeWidth={2.5} />
+            )}
+          </span>
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Overall audit score
+              Audit summary
             </p>
-            <p className={`mt-1 text-xl font-semibold ${bs.text}`}>{bs.label}</p>
-            <p className="mt-1 text-sm text-gray-600">
-              Weighted across {result.dimensions.length} dimensions. Click any card below to see what to fix.
+            <p
+              className={`mt-1 text-lg font-semibold ${
+                totalIssues === 0 ? "text-brand-700" : "text-amber-800"
+              }`}
+            >
+              {totalIssues === 0
+                ? "No issues flagged"
+                : `${totalIssues} ${
+                    totalIssues === 1 ? "issue" : "issues"
+                  } flagged across ${dimensionsWithIssues.length} ${
+                    dimensionsWithIssues.length === 1 ? "dimension" : "dimensions"
+                  }`}
+            </p>
+            <p className="mt-1 text-sm text-gray-700">
+              Editorial checks across {result.dimensions.length} packaging areas: title,
+              description, hashtags, chapters
+              {result.dimensions.some((d) => d.key === "tags") ? ", tags" : ""}.
+              Categorical suggestions, not YouTube metrics.
             </p>
           </div>
         </div>
       </div>
 
-      {/* noTags banner — API rescue path, everything except tags scored */}
+      {/* noTags banner — API rescue path */}
       {mode === "noTags" && (
         <div className="mt-6 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-4">
           <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" strokeWidth={2} />
@@ -248,14 +282,14 @@ function AuditResults({ result, mode }: { result: VideoAuditResult; mode: AuditM
             <p className="mt-1 text-amber-800/80">
               YouTube hides tags from public lookups for non-owners, and the
               public watch page couldn&apos;t be reached for this video right now —
-              everything else was scored as normal. Try again in a minute if you
+              everything else was audited as normal. Try again in a minute if you
               need the tags dimension.
             </p>
           </div>
         </div>
       )}
 
-      {/* Partial-audit banner — only oEmbed worked, only title scored */}
+      {/* Partial-audit banner */}
       {mode === "partial" && (
         <div className="mt-6 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-4">
           <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" strokeWidth={2} />
@@ -263,7 +297,7 @@ function AuditResults({ result, mode }: { result: VideoAuditResult; mode: AuditM
             <p className="font-medium">Partial audit — try again in a minute</p>
             <p className="mt-1 text-amber-800/80">
               YouTube is temporarily rate-limiting our servers for this video, so
-              only the title could be scored from public oEmbed data. Tags,
+              only the title could be audited from public oEmbed data. Tags,
               description, hashtags, and chapters need direct access to the watch
               page — try the audit again shortly.
             </p>
@@ -272,7 +306,7 @@ function AuditResults({ result, mode }: { result: VideoAuditResult; mode: AuditM
       )}
 
       {/* Fix-with-AI block — only when weaknesses exist */}
-      <FixWithAIBlock audit={result} />
+      <FixWithAIBlock audit={result} dimensionsWithIssues={dimensionsWithIssues} />
 
       {/* Dimension cards */}
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -284,18 +318,20 @@ function AuditResults({ result, mode }: { result: VideoAuditResult; mode: AuditM
   );
 }
 
-function FixWithAIBlock({ audit }: { audit: VideoAuditResult }) {
+function FixWithAIBlock({
+  audit,
+  dimensionsWithIssues,
+}: {
+  audit: PublicVideoAuditResult;
+  dimensionsWithIssues: PublicAuditDimension[];
+}) {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fix, setFix] = useState<FixPackage | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
-  const fixableDimensions = audit.dimensions.filter(
-    (d) => d.band === "weak" || d.band === "fair"
-  );
-  const hasWeaknesses = fixableDimensions.length > 0;
-  if (!hasWeaknesses) return null;
+  if (dimensionsWithIssues.length === 0) return null;
 
   async function runFix() {
     if (loading) return;
@@ -358,12 +394,12 @@ function FixWithAIBlock({ audit }: { audit: VideoAuditResult }) {
             AI YouTube Coach
           </p>
           <h3 className="mt-0.5 text-base font-semibold text-gray-900 sm:text-lg">
-            Fix all {fixableDimensions.length}{" "}
-            {fixableDimensions.length === 1 ? "weakness" : "weaknesses"} with AI
+            Fix all {dimensionsWithIssues.length}{" "}
+            {dimensionsWithIssues.length === 1 ? "flagged area" : "flagged areas"} with AI
           </h3>
           <p className="mt-0.5 text-sm text-gray-600">
             Claude reads the audit and writes targeted replacements for{" "}
-            {fixableDimensions.map((d) => d.label.toLowerCase()).join(", ")} in
+            {dimensionsWithIssues.map((d) => d.label.toLowerCase()).join(", ")} in
             one click — aligned to your title.
           </p>
         </div>
@@ -504,21 +540,35 @@ function FixField({
   );
 }
 
-function DimensionCard({ dimension }: { dimension: AuditDimension }) {
-  const bs = BAND_STYLES[dimension.band];
-  const showCta = dimension.band === "weak" || dimension.band === "fair";
+function DimensionCard({ dimension }: { dimension: PublicAuditDimension }) {
+  const showCta = hasIssues(dimension);
+  const badCount = dimension.signals.filter((s) => s.kind === "bad").length;
+  const warnCount = dimension.signals.filter((s) => s.kind === "warn").length;
+  const goodCount = dimension.signals.filter((s) => s.kind === "good").length;
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5">
-      <div className="flex items-center gap-3">
-        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ring-2 bg-white ${bs.ring}`}>
-          <span className={`font-mono text-base font-semibold tabular-nums ${bs.text}`}>
-            {dimension.score}
-          </span>
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-gray-900">{dimension.label}</p>
-          <p className={`text-xs font-medium ${bs.text}`}>{bs.label}</p>
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-sm font-semibold text-gray-900">{dimension.label}</h3>
+        <div className="flex items-center gap-2 text-[11px] text-gray-500">
+          {badCount > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-red-700 ring-1 ring-inset ring-red-100">
+              <X className="h-3 w-3" strokeWidth={2.5} />
+              {badCount}
+            </span>
+          )}
+          {warnCount > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-amber-700 ring-1 ring-inset ring-amber-100">
+              <AlertTriangle className="h-3 w-3" strokeWidth={2.5} />
+              {warnCount}
+            </span>
+          )}
+          {goodCount > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-brand-700 ring-1 ring-inset ring-brand-100">
+              <Check className="h-3 w-3" strokeWidth={2.5} />
+              {goodCount}
+            </span>
+          )}
         </div>
       </div>
 

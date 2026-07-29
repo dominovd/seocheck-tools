@@ -14,10 +14,14 @@ import {
   Calendar,
 } from "lucide-react";
 import { track } from "@/lib/analytics/track";
-import type { NicheCheckResult, Verdict, EnrichedNicheVideo } from "@/lib/youtube/niche-check";
+import type {
+  PublicNicheCheckResult,
+  Verdict,
+  EnrichedNicheVideo,
+} from "@/lib/youtube/niche-check";
 
 type ApiResponse =
-  | { result: NicheCheckResult; cached?: boolean; remaining?: number }
+  | { result: PublicNicheCheckResult; cached?: boolean; remaining?: number }
   | { error: string; code?: string };
 
 const VERDICT_STYLES: Record<
@@ -42,7 +46,7 @@ export function NicheCheckTool() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<NicheCheckResult | null>(null);
+  const [result, setResult] = useState<PublicNicheCheckResult | null>(null);
   const [remaining, setRemaining] = useState<number | null>(null);
 
   async function run(target: string) {
@@ -67,7 +71,6 @@ export function NicheCheckTool() {
         slug: "youtube-niche-check",
         cached: !!data.cached,
         verdict: data.result.verdict,
-        score: data.result.score,
       });
     } catch {
       setError("Network error — try again in a moment.");
@@ -157,34 +160,26 @@ export function NicheCheckTool() {
   );
 }
 
-function Results({ result }: { result: NicheCheckResult }) {
+function Results({ result }: { result: PublicNicheCheckResult }) {
   const vs = VERDICT_STYLES[result.verdict];
 
   return (
     <div className="mt-8 space-y-8">
-      {/* Verdict hero */}
+      {/* Verdict hero — categorical label + editorial headline, no numeric score */}
       <div className={`rounded-2xl border ${vs.ring.replace("ring-", "border-")} ${vs.bg} p-6 sm:p-8`}>
-        <div className="flex flex-col items-center text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
-          <div className="flex flex-col items-center gap-1">
-            <div className={`flex h-24 w-24 items-center justify-center rounded-full ring-4 bg-white ${vs.ring}`}>
-              <span className={`font-mono text-4xl font-semibold ${vs.text}`}>{result.score}</span>
-            </div>
-            <p className="mt-1 text-xs font-mono tabular-nums text-gray-500">/ 10</p>
-          </div>
-          <div className="mt-4 flex-1 sm:mt-0">
-            <p className={`text-xs font-semibold uppercase tracking-wider ${vs.text}`}>
-              Verdict
-            </p>
-            <h2 className={`mt-1 text-2xl font-bold tracking-tight ${vs.text}`}>
-              {vs.label}
-            </h2>
-            <p className="mt-2 text-base font-semibold text-gray-900">
-              {result.headline}
-            </p>
-            <p className="mt-2 text-sm text-gray-700 leading-relaxed">
-              {result.explanation}
-            </p>
-          </div>
+        <div className="flex flex-col items-start gap-2">
+          <p className={`text-xs font-semibold uppercase tracking-wider ${vs.text}`}>
+            Verdict
+          </p>
+          <h2 className={`text-2xl font-bold tracking-tight ${vs.text} sm:text-3xl`}>
+            {vs.label}
+          </h2>
+          <p className="mt-1 text-base font-semibold text-gray-900">
+            {result.headline}
+          </p>
+          <p className="mt-1 text-sm text-gray-700 leading-relaxed">
+            {result.explanation}
+          </p>
         </div>
       </div>
 

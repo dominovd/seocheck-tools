@@ -118,7 +118,7 @@ const RELATED_TOOLS = [
   {
     href: "/tools/youtube-channel-audit",
     name: "Channel Audit",
-    body: "Score the channel 0-100 across CTR, metadata, headroom, and growth, with severity-ranked recurring fixes.",
+    body: "Audit the channel across title, description, hashtags, and chapters with severity-ranked recurring fixes.",
   },
   {
     href: "/tools/youtube-video-audit",

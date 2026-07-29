@@ -5,7 +5,7 @@
  * by last-access timestamp. A weekly cron picks the most-recently-
  * accessed N channels and re-scores them, writing each result to a
  * per-channel history list. Over weeks the history accumulates into
- * a timeline visible on the Visibility Score page.
+ * a timeline of raw metrics (subscribers, view counts) per channel.
  *
  * Bounded by design — cap on total tracked channels keeps storage and
  * weekly cron cost predictable, even with viral traffic.
@@ -27,13 +27,18 @@ const MAX_HISTORY = 26;
 export type HistoryEntry = {
   /** ISO date string YYYY-MM-DD when the snapshot was taken. */
   ts: string;
-  /** Composite Visibility Score 0-100. */
-  visibility: number;
-  /** Sub-score snapshot for the same date. */
-  ctr: number;
-  metadata: number;
-  headroom: number;
-  trajectory: number;
+  /** Raw subscriber count from YouTube API at snapshot time. */
+  subscriberCount: number | null;
+  /** Raw total video count at snapshot time. */
+  videoCount: number | null;
+  /** Number of uploads in the analysis window (typically 30). */
+  windowSize: number;
+  /** Median view count across the analyzed uploads. Factual aggregation. */
+  medianViews: number;
+  /** Mean view count across the analyzed uploads. Factual aggregation. */
+  meanViews: number;
+  /** Sum of view counts across the analyzed uploads. Raw. */
+  totalViewsInWindow: number;
 };
 
 /**

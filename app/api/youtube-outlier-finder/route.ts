@@ -14,8 +14,10 @@ import {
   mean,
   OUTLIER_SYSTEM_PROMPT,
   buildOutlierUserMessage,
+  toPublicOutlierAnalysis,
   type OutlierAnalysis,
   type OutlierVideo,
+  type PublicOutlierAnalysis,
 } from "@/lib/youtube/outlier-analysis";
 import { logAudit } from "@/lib/analytics/audit-log";
 
@@ -49,7 +51,7 @@ const MEGA_OUTLIER_MULTIPLIER = 10;
 const MIN_VIDEOS_FOR_ANALYSIS = 10;
 
 export async function POST(req: NextRequest) {
-  return protectAI<Input, OutlierAnalysis>(req, {
+  return protectAI<Input, PublicOutlierAnalysis>(req, {
     tool: TOOL_SLUG,
     dailyLimit: DAILY_LIMIT,
     parseInput: (body) => {
@@ -228,7 +230,9 @@ export async function POST(req: NextRequest) {
         megaOutlierCount: megaOutliers.length,
       }).catch(() => {});
 
-      return { output: analysis, costUsd: llmCostUsd };
+      // Sanitize for public API — strips multiplier + title score/band
+      const publicAnalysis = toPublicOutlierAnalysis(analysis);
+      return { output: publicAnalysis, costUsd: llmCostUsd };
     },
   });
 }

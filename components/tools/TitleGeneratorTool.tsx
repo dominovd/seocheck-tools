@@ -256,10 +256,10 @@ export function TitleGeneratorTool() {
                   <Link
                     href={`/tools/youtube-title-score-checker?title=${encodeURIComponent(title)}`}
                     className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-gray-500 hover:bg-gray-50 hover:text-brand-700 transition"
-                    title="Score this title against best-practice heuristics"
+                    title="Get editorial signals for this title against best-practice heuristics"
                   >
                     <Gauge className="h-3 w-3" strokeWidth={2} />
-                    Score
+                    Analyze
                   </Link>
                   <button
                     type="button"

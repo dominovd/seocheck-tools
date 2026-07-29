@@ -86,7 +86,7 @@ const INPUT_TIPS = [
 const PUBLISH_STEPS: { step: string; tool?: { name: string; href: string } }[] = [
   {
     step: "Finalize the video title and thumbnail.",
-    tool: { name: "Title Score Checker", href: "/tools/youtube-title-score-checker" },
+    tool: { name: "Title Analyzer", href: "/tools/youtube-title-score-checker" },
   },
   {
     step: "Write a short brief of what the final video actually contains.",
@@ -137,7 +137,7 @@ const RELATED_TOOLS = [
   },
   {
     href: "/tools/youtube-title-score-checker",
-    name: "Title Score Checker",
+    name: "Title Analyzer",
     body: "Check the title before publishing.",
   },
   {

@@ -57,7 +57,7 @@ const benefits = [
     Icon: CircleDollarSign,
     title: "Free, no trial games",
     description:
-      "Use every tool without a subscription, credit card, or per-tool credits. Channel audits, Visibility Score, generators, and AI fixes are all included.",
+      "Use every tool without a subscription, credit card, or per-tool credits. Channel audits, video audits, generators, and AI fixes are all included.",
   },
   {
     Icon: Wand2,
@@ -73,9 +73,9 @@ const benefits = [
   },
   {
     Icon: Target,
-    title: "Scores before suggestions",
+    title: "Editorial audit before rewrite",
     description:
-      "See what is actually weak first: title, metadata, chapters, channel visibility, or growth trajectory. Then use generators to fix the right thing.",
+      "See what is actually weak first: title, metadata, hashtags, chapters. Then use generators to fix the right thing.",
   },
   {
     Icon: ScanSearch,
@@ -87,7 +87,7 @@ const benefits = [
     Icon: TrendingUp,
     title: "Track progress over time",
     description:
-      "Save a channel after scoring it and watch the Visibility Score change week by week, so growth becomes visible instead of guesswork.",
+      "Save a channel after an audit and watch its raw metrics (subscribers, median views, upload cadence) shift week by week, so growth becomes visible instead of guesswork.",
   },
 ];
 
@@ -156,12 +156,12 @@ const faqs = [
     a: "Yes. The free YouTube Description Generator helps turn your topic, title, or notes into a structured description with relevant keywords, useful context, links, and calls to action. You can copy the result into YouTube Studio and edit it before publishing.",
   },
   {
-    q: "What is the YouTube Visibility Score?",
-    a: "The YouTube Visibility Score is a 0-100 score that estimates how discoverable a channel is across click potential, metadata quality, niche headroom, and growth trajectory. It gives creators one simple number, plus the weak areas worth fixing first.",
+    q: "What does Channel Audit show me?",
+    a: "Channel Audit pulls the last 30 public uploads for any channel and surfaces raw YouTube metrics (median and mean views, publishing cadence, typical length), a per-dimension editorial breakdown (title, description, hashtags, chapters), and severity-ranked recommended fixes rewritten as creator-actionable sentences.",
   },
   {
     q: "What is the difference between Video Audit and Channel Audit?",
-    a: "Video Audit checks one video and scores its title, description, tags, hashtags, and chapters. Channel Audit looks across recent uploads to find recurring problems, weak metadata patterns, and the uploads that may be dragging the channel down.",
+    a: "Video Audit checks one video and surfaces editorial signals for its title, description, tags, hashtags, and chapters. Channel Audit looks across recent uploads to find recurring patterns, weak metadata habits, and the uploads that may be dragging the channel down.",
   },
   {
     q: "How does the Fix-with-AI button work?",
@@ -169,7 +169,7 @@ const faqs = [
   },
   {
     q: "Can I track a channel's growth over time?",
-    a: "Yes. After running a Visibility Score, you can track a channel and see how the score changes over time. This helps you understand whether your optimization work is improving channel visibility week by week.",
+    a: "Yes. After running a Channel Audit you can add the channel to weekly tracking. Each week we re-pull raw YouTube metrics (subscribers, view counts, upload counts) and add them to that channel's history, so you can watch the numbers move.",
   },
   {
     q: "Is SEO Check Tools really free?",
@@ -194,7 +194,7 @@ const faqs = [
  *
  * Each stage also pins an exact tool list and footer CTA, so the
  * homepage isn't at the mercy of the global priority sort (e.g. we
- * surface Title Score Checker on the homepage even though it has a
+ * surface Title Analyzer on the homepage even though it has a
  * lower priority than Hashtag Generator). The footer CTA still links
  * to the stage hub page where the full tool list lives.
  */
@@ -481,9 +481,9 @@ export default function HomePage() {
                   />
                   <span>
                     <strong className="font-semibold text-gray-900">
-                      Visibility Score
+                      Editorial audit
                     </strong>{" "}
-                    summarizes how discoverable the video is in one number
+                    flags what to fix across title, description, hashtags, chapters
                   </span>
                 </li>
                 <li className="flex items-start gap-2">

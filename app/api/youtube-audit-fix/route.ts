@@ -2,7 +2,10 @@ import type { NextRequest } from "next/server";
 import { protectAI } from "@/lib/ai/protect";
 import { callClaude } from "@/lib/anthropic-client";
 import { parseJsonOutput } from "@/lib/ai/parse-json";
-import type { VideoAuditResult, AuditDimension } from "@/lib/youtube/video-audit";
+import type {
+  PublicAuditDimension,
+  PublicVideoAuditResult,
+} from "@/lib/youtube/video-audit";
 
 export const runtime = "edge";
 
@@ -30,8 +33,8 @@ export const runtime = "edge";
  */
 
 type FixInput = {
-  /** Whole audit result from /api/youtube-video-audit */
-  audit: VideoAuditResult;
+  /** Whole audit result from /api/youtube-video-audit (public, sanitized shape) */
+  audit: PublicVideoAuditResult;
   /** Current description from the user's YouTube video, for context */
   currentDescription?: string;
 };
@@ -76,17 +79,19 @@ export async function POST(req: NextRequest) {
         throw new Error("Provide an `audit` object from a completed Video Audit.");
       }
       // Minimal shape check
-      const a = b.audit as VideoAuditResult;
+      const a = b.audit as PublicVideoAuditResult;
       if (!a.meta || !Array.isArray(a.dimensions)) {
         throw new Error("Audit shape is invalid — re-run the Video Audit first.");
       }
       if (!a.meta.title) {
         throw new Error("Audit has no video title — can't generate a coherent fix package.");
       }
-      // Need at least one weak/fair dimension to fix
-      const hasWeakness = a.dimensions.some((d) => d.band === "weak" || d.band === "fair");
+      // Need at least one dimension with bad/warn signals to fix
+      const hasWeakness = a.dimensions.some((d) =>
+        d.signals.some((s) => s.kind === "bad" || s.kind === "warn")
+      );
       if (!hasWeakness) {
-        throw new Error("Nothing to fix — every dimension is already Good or Strong.");
+        throw new Error("Nothing to fix — no bad or warning signals in any dimension.");
       }
       return {
         audit: a,
@@ -128,29 +133,33 @@ export async function POST(req: NextRequest) {
   });
 }
 
-function buildUserMessage(audit: VideoAuditResult, currentDescription?: string): string {
+function buildUserMessage(audit: PublicVideoAuditResult, currentDescription?: string): string {
   const lines: string[] = [];
   lines.push(`Current title: "${audit.meta.title}"`);
   if (currentDescription) {
     const truncated = currentDescription.length > 800 ? currentDescription.slice(0, 800) + "…" : currentDescription;
     lines.push(`\nCurrent description (truncated):\n${truncated}`);
   }
-  lines.push(`\nOverall audit score: ${audit.overallScore} (${audit.overallBand})`);
-  lines.push(`\nDimension scorecard:`);
+  lines.push(`\nPer-dimension signals:`);
   for (const d of audit.dimensions) {
     lines.push(formatDimension(d));
   }
   lines.push(
-    `\nReturn the JSON now. Remember: set a field to null if its dimension is Strong or Good — only fix Weak and Fair.`
+    `\nReturn the JSON now. Only rewrite dimensions with BAD or WARN signals — leave dimensions with only GOOD/INFO signals as null.`
   );
   return lines.join("\n");
 }
 
-function formatDimension(d: AuditDimension): string {
-  const bandLabel = d.band.charAt(0).toUpperCase() + d.band.slice(1);
+function formatDimension(d: PublicAuditDimension): string {
+  const badCount = d.signals.filter((s) => s.kind === "bad").length;
+  const warnCount = d.signals.filter((s) => s.kind === "warn").length;
+  const goodCount = d.signals.filter((s) => s.kind === "good").length;
+  const needsFix = badCount > 0 || warnCount > 0;
   const signalLine = d.signals
     .slice(0, 3)
     .map((s) => `  - ${s.kind.toUpperCase()}: ${s.message}`)
     .join("\n");
-  return `${d.label} — score ${d.score} (${bandLabel})\n${signalLine}`;
+  return `${d.label} (${badCount} bad, ${warnCount} warn, ${goodCount} good — ${
+    needsFix ? "FIX THIS" : "OK, skip"
+  })\n${signalLine}`;
 }

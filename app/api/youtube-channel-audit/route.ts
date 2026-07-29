@@ -179,12 +179,17 @@ export async function POST(req: NextRequest) {
         analysisFailed,
       });
 
-      // Step 4b — one-sentence positioning summary (best-effort, separate call)
+      // Step 4b — one-sentence editorial summary (best-effort, textual only)
       let summary: string | null = null;
       try {
         const result = await callClaude<{ summary: string }>({
           system: CHANNEL_AUDIT_SUMMARY_SYSTEM_PROMPT,
-          user: buildChannelAuditSummaryMessage(channel.title, partialResult.subscores),
+          user: buildChannelAuditSummaryMessage(
+            channel.title,
+            partialResult.dimensions,
+            partialResult.windowSize,
+            partialResult.aggregations.publishingCadence
+          ),
           maxTokens: 120,
           temperature: 0.5,
           parse: (raw) => {
@@ -203,14 +208,11 @@ export async function POST(req: NextRequest) {
 
       const finalResult: ChannelAuditResult = { ...partialResult, summary };
 
-      // Anonymous audit logging — foundation for YouTube Studies cohort analysis.
-      // Uses the unified subscore keys so historical data can be queried consistently.
+      // Anonymous logging — only raw counts and factual aggregations, no derived scores.
       await logAudit("channel-audit", channel.id, {
-        overall: finalResult.overallScore,
-        ctr: finalResult.subscores[0]?.score ?? null,
-        metadata: finalResult.subscores[1]?.score ?? null,
-        headroom: finalResult.subscores[2]?.score ?? null,
-        trajectory: finalResult.subscores[3]?.score ?? null,
+        windowSize: finalResult.windowSize,
+        medianViews: finalResult.aggregations.medianViews,
+        totalViews: finalResult.aggregations.totalViews,
       }).catch(() => {});
 
       return { output: finalResult, costUsd: llmCostUsd };

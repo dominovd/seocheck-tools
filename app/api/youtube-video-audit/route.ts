@@ -5,7 +5,12 @@ import { checkRateLimit } from "@/lib/ai/rate-limit";
 import { getCachedOutput, setCachedOutput } from "@/lib/ai/cache";
 import { extractVideoId, isValidVideoId } from "@/lib/youtube/extract-video-id";
 import { extractVideoInfo, videoInfoFromApi } from "@/lib/youtube/extract-video-info";
-import { auditVideo, type VideoAuditResult } from "@/lib/youtube/video-audit";
+import {
+  auditVideo,
+  toPublicAudit,
+  type PublicVideoAuditResult,
+  type VideoAuditResult,
+} from "@/lib/youtube/video-audit";
 import { fetchOembed, type OembedInfo } from "@/lib/youtube/oembed";
 import { fetchVideoFromApi } from "@/lib/youtube/youtube-api";
 import { scoreTitle } from "@/lib/youtube/title-score";
@@ -77,8 +82,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Cache check
-  const cached = await getCachedOutput<VideoAuditResult>(RATE_LIMIT_KEY, videoId);
+  // Cache check — cache stores PUBLIC (sanitized) shape only
+  const cached = await getCachedOutput<PublicVideoAuditResult>(RATE_LIMIT_KEY, videoId);
   if (cached) {
     return NextResponse.json({ result: cached, cached: true });
   }
@@ -129,22 +134,28 @@ export async function POST(req: NextRequest) {
     audit = buildPartialAudit(videoId, oembed!);
   }
 
-  // Only cache full audits. noTags and partial are degraded states that
-  // should re-attempt fresh on the next request once YouTube recovers.
+  // Sanitize for public API — strips overall score, per-dimension scores,
+  // and band labels. Keeps textual signals + fix-it CTA.
+  const publicAudit = toPublicAudit(audit);
+
+  // Only cache full audits. noTags and partial are degraded states.
   if (mode === "full") {
-    await setCachedOutput(RATE_LIMIT_KEY, videoId, audit).catch(() => {});
+    await setCachedOutput(RATE_LIMIT_KEY, videoId, publicAudit).catch(() => {});
   }
 
-  // Anonymous audit logging — foundation for future YouTube Studies pages.
-  // Only logs full audits (degraded modes have incomplete data).
+  // Anonymous logging — only counts of dimensions with issues, no derived scores.
   if (mode === "full") {
-    const dimScores: Record<string, number | null> = { overall: audit.overallScore };
-    for (const d of audit.dimensions) dimScores[d.key] = d.score;
-    await logAudit("video-audit", videoId, dimScores).catch(() => {});
+    const issueCounts: Record<string, number> = {};
+    for (const d of publicAudit.dimensions) {
+      issueCounts[d.key] = d.signals.filter(
+        (s) => s.kind === "bad" || s.kind === "warn"
+      ).length;
+    }
+    await logAudit("video-audit", videoId, issueCounts).catch(() => {});
   }
 
   return NextResponse.json({
-    result: audit,
+    result: publicAudit,
     cached: false,
     mode,
     remaining: rl.remaining,

@@ -92,7 +92,7 @@ export const TOOLS: Tool[] = [
     description:
       "Validate a topic before recording with demand, competition, freshness, and small-channel breakthrough signals.",
     metaDescription:
-      "Free YouTube niche check. Paste a topic, get a one-word verdict with score, signals, and top-20 evidence. Find under-saturated niches before recording.",
+      "Free YouTube niche check. Paste a topic, get a one-word verdict with editorial signals and top-20 evidence. Find under-saturated niches before recording.",
     category: "ai",
     stage: "research",
     Icon: Compass,
@@ -126,7 +126,7 @@ export const TOOLS: Tool[] = [
     description:
       "Study a competitor channel and uncover the videos, title structures, and repeatable content patterns behind their biggest wins.",
     metaDescription:
-      "Free YouTube competitor analyzer. Paste a channel — see their top 10 videos by views with title scores, engagement metrics, and 3 concrete patterns their videos share.",
+      "Free YouTube competitor analyzer. Paste a channel — see their top 10 videos by views with engagement metrics, title angles, and 3 concrete patterns their videos share.",
     category: "ai",
     stage: "research",
     Icon: Users,
@@ -141,9 +141,9 @@ export const TOOLS: Tool[] = [
     shortTitle: "Channel Audit",
     taskLabel: "Audit a whole YouTube channel",
     description:
-      "Paste a channel and get a 0-100 Visibility Score across CTR potential, metadata quality, niche headroom, and growth trajectory, plus AI-flagged recurring fixes across the last 30 uploads.",
+      "Paste a channel to see raw YouTube metrics for the last 30 uploads plus editorial recommendations across title, description, hashtags, and chapters.",
     metaDescription:
-      "Free YouTube channel audit. Paste any channel — get a Visibility Score (CTR, metadata, headroom, growth), severity-ranked recommended fixes, and per-dimension breakdown across the last 30 uploads.",
+      "Free YouTube channel audit. Paste any channel — see raw metrics for the last 30 uploads, severity-ranked recommended fixes, and a per-dimension band breakdown for title, description, hashtags, and chapters.",
     category: "ai",
     stage: "analyze",
     Icon: Gauge,
@@ -160,7 +160,7 @@ export const TOOLS: Tool[] = [
     description:
       "Paste any YouTube URL — get a free instant audit of title, description, tags, hashtags, and chapters with fix-it tools for every weakness.",
     metaDescription:
-      "Free YouTube video audit. Paste a URL and get a 0-100 score for title, description, tags, hashtags, and chapters with one-click fixes for every weakness.",
+      "Free YouTube video audit. Paste a URL and get editorial signals for title, description, tags, hashtags, and chapters with one-click AI fixes for every flagged weakness.",
     category: "utility",
     stage: "analyze",
     Icon: ClipboardCheck,
@@ -400,13 +400,13 @@ export const TOOLS: Tool[] = [
   },
   {
     slug: "youtube-title-score-checker",
-    title: "YouTube Title Score Checker",
-    shortTitle: "Title Score Checker",
-    taskLabel: "Score a title",
+    title: "YouTube Title Analyzer",
+    shortTitle: "Title Analyzer",
+    taskLabel: "Analyze a title",
     description:
-      "Score any YouTube title 0-100 and compare up to 5 variants before you publish.",
+      "Analyze any YouTube title for length, angle, keyword placement, truncation risk, and clickbait signals. Compare up to 5 variants side by side.",
     metaDescription:
-      "Free YouTube title score checker. Test title length, clarity, angle, keyword placement, truncation risk, and clickbait signals. Compare up to 5 variants.",
+      "Free YouTube title analyzer. Get editorial signals on title length, clarity, angle, keyword placement, truncation risk, and clickbait cues. Compare up to 5 variants.",
     category: "utility",
     stage: "optimize",
     Icon: Gauge,
@@ -495,7 +495,7 @@ export const stageDescription = (s: ToolStage): string => {
     case "publish":
       return "The final mile before you hit publish. Tools that format the description, chapters, and embeds the way YouTube expects — pair them with the AI Description Generator after the Video Audit to ship a complete package.";
     case "analyze":
-      return "After your video is live, or before you make the next bet. The Channel Audit gives you a 0-100 Visibility Score across CTR, metadata, headroom, and growth trajectory, plus severity-ranked recurring fixes from the last 30 uploads. Video Audit drills into a single video with one-click AI fixes. Money Calculator projects earnings. Plus weekly historical tracking on any channel you mark to follow.";
+      return "After your video is live, or before you make the next bet. Channel Audit pulls raw metrics for the last 30 uploads and surfaces severity-ranked recurring fixes across title, description, hashtags, and chapters. Video Audit drills into a single video with one-click AI fixes. Money Calculator projects earnings. Plus weekly historical tracking on any channel you mark to follow.";
   }
 };
 

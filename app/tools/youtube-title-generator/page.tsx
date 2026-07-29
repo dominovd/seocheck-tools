@@ -83,7 +83,7 @@ const HOW_TO_STEPS = [
   },
   {
     title: "Check the title before publishing",
-    body: "After choosing a title, run it through the YouTube Title Score Checker to test clarity, specificity, length, and click potential.",
+    body: "After choosing a title, run it through the YouTube Title Analyzer to test clarity, specificity, length, and click potential.",
   },
 ];
 
@@ -123,7 +123,7 @@ const TOPIC_TIPS = [
 const RELATED_TOOLS = [
   {
     href: "/tools/youtube-title-score-checker",
-    name: "YouTube Title Score Checker",
+    name: "YouTube Title Analyzer",
     body: "Check whether your title is clear, specific, and click-worthy.",
   },
   {
@@ -191,8 +191,8 @@ const FAQS = [
     a: "Yes. You can use generated title ideas for your own videos, client videos, commercial channels, and content planning. You should still edit the final title so it matches the video accurately.",
   },
   {
-    q: "What is the difference between this and the YouTube Title Score Checker?",
-    a: "The YouTube Title Generator creates title ideas from a topic. The YouTube Title Score Checker evaluates a title you already have. Use the generator to brainstorm, then use the checker to choose or refine the strongest option.",
+    q: "What is the difference between this and the YouTube Title Analyzer?",
+    a: "The YouTube Title Generator creates title ideas from a topic. The YouTube Title Analyzer evaluates a title you already have. Use the generator to brainstorm, then use the checker to choose or refine the strongest option.",
   },
   {
     q: "Which AI model powers this?",

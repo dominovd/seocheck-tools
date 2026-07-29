@@ -14,7 +14,7 @@ export const siteConfig = {
   domain: "seocheck.tools",
   tagline: "Free YouTube analytics, audits, and AI fixes",
   description:
-    "Free YouTube SEO platform with composite Visibility Score, whole-channel Audit, single-click AI fix for weak metadata, Outlier Finder for breakthrough videos, Competitor Channel Analyzer, and weekly historical tracking. 20 tools across the creator workflow (Research, Optimize, Publish, Analyze) — no signup, no credit card, free forever.",
+    "Free YouTube SEO platform with whole-channel and per-video Audit, single-click AI fix for weak metadata, Outlier Finder for breakthrough videos, Competitor Channel Analyzer, and weekly historical tracking. 20 tools across the creator workflow (Research, Optimize, Publish, Analyze) — no signup, no credit card, free forever.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://seocheck.tools",
   ogImage: "/og-default.png",
   locale: "en_US",

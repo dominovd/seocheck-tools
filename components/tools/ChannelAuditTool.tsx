@@ -16,59 +16,27 @@ import {
   Users,
   Film,
   Compass,
+  TrendingUp,
+  Clock,
+  BarChart3,
+  ThumbsUp,
+  MessageCircle,
 } from "lucide-react";
 import { TurnstileWidget } from "@/components/TurnstileWidget";
 import { track } from "@/lib/analytics/track";
 import type {
+  ChannelAggregations,
   ChannelAuditResult,
   ChannelAuditVideo,
-  ChannelGrade,
   DimensionStats,
   IssueSeverity,
   RecurringIssue,
-  ScoreBand,
-  Subscore,
 } from "@/lib/youtube/channel-audit";
-import { GRADE_DESCRIPTION } from "@/lib/youtube/channel-audit";
 import type { AuditBand } from "@/lib/youtube/video-audit";
 
 type ApiResponse =
   | { output: ChannelAuditResult; cached?: boolean; remaining?: number }
   | { error: string; code?: string };
-
-const BAND_STYLE: Record<
-  ScoreBand,
-  { ring: string; text: string; bg: string; bar: string; pill: string }
-> = {
-  excellent: {
-    ring: "ring-brand-400",
-    text: "text-brand-700",
-    bg: "bg-brand-50",
-    bar: "bg-brand-500",
-    pill: "bg-brand-50 text-brand-700 ring-brand-200",
-  },
-  "very-good": {
-    ring: "ring-brand-300",
-    text: "text-brand-700",
-    bg: "bg-brand-50/70",
-    bar: "bg-brand-400",
-    pill: "bg-brand-50 text-brand-700 ring-brand-100",
-  },
-  medium: {
-    ring: "ring-amber-300",
-    text: "text-amber-700",
-    bg: "bg-amber-50",
-    bar: "bg-amber-400",
-    pill: "bg-amber-50 text-amber-700 ring-amber-200",
-  },
-  weak: {
-    ring: "ring-red-300",
-    text: "text-red-600",
-    bg: "bg-red-50",
-    bar: "bg-red-400",
-    pill: "bg-red-50 text-red-700 ring-red-200",
-  },
-};
 
 const SEVERITY_STYLE: Record<
   IssueSeverity,
@@ -118,14 +86,6 @@ const BAND_LABEL_DIM: Record<AuditBand, string> = {
   weak: "Weak",
 };
 
-const GRADE_TEXT: Record<ChannelGrade, string> = {
-  A: "text-brand-700",
-  B: "text-brand-700",
-  C: "text-amber-700",
-  D: "text-orange-700",
-  F: "text-red-700",
-};
-
 const SAMPLES = [
   { label: "Veritasium", value: "@veritasium" },
   { label: "Linus Tech", value: "@LinusTechTips" },
@@ -154,15 +114,13 @@ export function ChannelAuditTool() {
           input: { channel: target.trim() },
         }),
       });
-      // Read body as text first so we can surface meaningful info even when
-      // the route returned non-JSON (HTML error page from Vercel, etc).
       const bodyText = await res.text();
       let data: ApiResponse | null = null;
       try {
         data = JSON.parse(bodyText) as ApiResponse;
       } catch {
         setError(
-          `Server returned a non-JSON response (HTTP ${res.status}). Check the dev terminal for the stack trace. First 200 chars: ${bodyText.slice(0, 200)}`
+          `Server returned a non-JSON response (HTTP ${res.status}). First 200 chars: ${bodyText.slice(0, 200)}`
         );
         return;
       }
@@ -175,8 +133,6 @@ export function ChannelAuditTool() {
       track("tool_used", {
         slug: "youtube-channel-audit",
         cached: !!data.cached,
-        grade: data.output.grade,
-        overall: data.output.overallScore,
         videos: data.output.windowSize,
       });
     } catch (err) {
@@ -237,8 +193,9 @@ export function ChannelAuditTool() {
           </button>
         </div>
         <p className="mt-2 text-xs text-gray-500">
-          Pulls the channel&apos;s last 30 public uploads and scores CTR potential,
-          metadata quality, niche headroom, and growth trajectory.
+          Pulls the channel&apos;s last 30 public uploads and surfaces the raw
+          YouTube metrics plus editorial recommendations for descriptions,
+          hashtags, chapters, and titles.
         </p>
 
         <div className="mt-4">
@@ -280,11 +237,7 @@ function AuditResults({ result }: { result: ChannelAuditResult }) {
   const {
     channel,
     windowSize,
-    overallScore,
-    grade,
-    overallBand,
-    overallBandLabel,
-    subscores,
+    aggregations,
     dimensions,
     recurringIssues,
     videos,
@@ -323,22 +276,16 @@ function AuditResults({ result }: { result: ChannelAuditResult }) {
         </a>
       </div>
 
-      {/* Top row — Visibility Score + 4 subscore cards */}
-      <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
-        <VisibilityScoreCard
-          score={overallScore}
-          grade={grade}
-          band={overallBand}
-          bandLabel={overallBandLabel}
-          windowSize={windowSize}
-          summary={summary}
-        />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {subscores.map((s) => (
-            <SubscoreCard key={s.key} subscore={s} />
-          ))}
+      {/* Optional AI editorial summary (textual only) */}
+      {summary && (
+        <div className="flex items-start gap-3 rounded-2xl bg-brand-50/50 px-4 py-3 ring-1 ring-inset ring-brand-100">
+          <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" strokeWidth={2.25} />
+          <p className="text-sm leading-relaxed text-gray-800">{summary}</p>
         </div>
-      </div>
+      )}
+
+      {/* Channel overview (factual aggregations from raw YouTube data) */}
+      <ChannelOverview aggregations={aggregations} windowSize={windowSize} />
 
       {/* Bottom row — Recommended fixes + Channel snapshot */}
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
@@ -346,21 +293,17 @@ function AuditResults({ result }: { result: ChannelAuditResult }) {
           issues={recurringIssues}
           analysisFailed={!!analysisFailed}
         />
-        <ChannelSnapshot
-          channel={channel}
-          windowSize={windowSize}
-          grade={grade}
-        />
+        <ChannelSnapshot channel={channel} windowSize={windowSize} />
       </div>
 
-      {/* Per-dimension breakdown — kept as a power-user drill-down */}
+      {/* Per-dimension breakdown — band counts only */}
       <div>
         <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
           Per-dimension breakdown across {windowSize} videos
         </p>
         <p className="mt-1 text-xs text-gray-500">
-          How each piece of video packaging (title, description, hashtags, chapters) holds up
-          across the channel.
+          How many videos fall into each editorial band for title, description,
+          hashtags, and chapters. Categorical labels — not a YouTube metric.
         </p>
         <div className="mt-3 space-y-3">
           {dimensions.map((d) => (
@@ -385,114 +328,79 @@ function AuditResults({ result }: { result: ChannelAuditResult }) {
 }
 
 // ───────────────────────────────────────────────────────────────
-// Visibility Score card (left of the top row)
+// Channel overview — factual aggregations, no scores
 // ───────────────────────────────────────────────────────────────
-function VisibilityScoreCard({
-  score,
-  grade,
-  band,
-  bandLabel,
+function ChannelOverview({
+  aggregations,
   windowSize,
-  summary,
 }: {
-  score: number;
-  grade: ChannelGrade;
-  band: ScoreBand;
-  bandLabel: string;
+  aggregations: ChannelAggregations;
   windowSize: number;
-  summary: string | null;
 }) {
-  const style = BAND_STYLE[band];
-  const pct = Math.max(0, Math.min(100, score));
-  // SVG ring geometry
-  const radius = 56;
-  const circumference = 2 * Math.PI * radius;
-  const dashOffset = circumference * (1 - pct / 100);
+  const items: { Icon: typeof Users; label: string; value: string; hint?: string }[] = [
+    {
+      Icon: Film,
+      label: "Uploads analyzed",
+      value: String(windowSize),
+      hint: "Last public uploads",
+    },
+    {
+      Icon: Eye,
+      label: "Median views",
+      value: formatNumber(aggregations.medianViews),
+      hint: "Across analyzed uploads",
+    },
+    {
+      Icon: TrendingUp,
+      label: "Mean views",
+      value: formatNumber(aggregations.meanViews),
+      hint: "Pulled up by big hits",
+    },
+    {
+      Icon: Clock,
+      label: "Median length",
+      value:
+        aggregations.medianDurationSec !== null
+          ? formatDuration(aggregations.medianDurationSec)
+          : "—",
+      hint: "Typical video length",
+    },
+    {
+      Icon: Calendar,
+      label: "Publishing cadence",
+      value: aggregations.publishingCadence,
+    },
+    {
+      Icon: BarChart3,
+      label: "Total views in window",
+      value: formatNumber(aggregations.totalViews),
+      hint:
+        aggregations.dateRange.earliest && aggregations.dateRange.latest
+          ? `${aggregations.dateRange.earliest} → ${aggregations.dateRange.latest}`
+          : undefined,
+    },
+  ];
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5">
+    <div className="rounded-2xl border border-gray-200 bg-white p-5">
       <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-        Visibility Score
+        Channel overview
       </p>
-      <div className="flex items-center gap-4">
-        <div className="relative h-32 w-32 shrink-0">
-          <svg className="h-32 w-32 -rotate-90" viewBox="0 0 128 128">
-            <circle
-              cx="64"
-              cy="64"
-              r={radius}
-              fill="none"
-              stroke="currentColor"
-              className="text-gray-100"
-              strokeWidth="8"
-            />
-            <circle
-              cx="64"
-              cy="64"
-              r={radius}
-              fill="none"
-              stroke="currentColor"
-              className={style.text.replace("text-", "text-")}
-              strokeWidth="8"
-              strokeDasharray={circumference}
-              strokeDashoffset={dashOffset}
-              strokeLinecap="round"
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="font-mono text-4xl font-bold text-gray-900 leading-none">
-              {score}
-            </span>
-            <span className="mt-1 text-xs text-gray-500">/100</span>
-          </div>
-        </div>
-        <div className="flex flex-col gap-1">
-          <span
-            className={`inline-flex items-center self-start rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${style.pill}`}
-          >
-            {bandLabel}
-          </span>
-          <span className={`font-mono text-xs font-semibold ${GRADE_TEXT[grade]}`}>
-            Grade {grade}
-          </span>
-        </div>
-      </div>
-      <p className="text-xs leading-relaxed text-gray-600">
-        Averaged across {windowSize} most recent uploads. {GRADE_DESCRIPTION[grade]}
+      <p className="mt-1 text-xs text-gray-500">
+        Factual aggregations over the raw YouTube metrics for the analyzed window.
       </p>
-      {summary && (
-        <div className="rounded-lg bg-brand-50/50 px-3 py-2 ring-1 ring-inset ring-brand-100">
-          <div className="flex items-start gap-1.5">
-            <Sparkles className="mt-0.5 h-3 w-3 shrink-0 text-brand-600" strokeWidth={2.5} />
-            <p className="text-xs leading-snug text-gray-700">{summary}</p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map(({ Icon, label, value, hint }) => (
+          <div key={label} className="rounded-xl bg-gray-50 px-4 py-3">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+              <Icon className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
+              {label}
+            </div>
+            <p className="mt-1 text-lg font-semibold text-gray-900">{value}</p>
+            {hint && <p className="mt-0.5 text-[11px] text-gray-500">{hint}</p>}
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ───────────────────────────────────────────────────────────────
-// Subscore card (one of 4 in the top row)
-// ───────────────────────────────────────────────────────────────
-function SubscoreCard({ subscore }: { subscore: Subscore }) {
-  const style = BAND_STYLE[subscore.band];
-  return (
-    <div className="flex flex-col rounded-2xl border border-gray-200 bg-white p-4">
-      <p className="text-xs font-semibold text-gray-700">{subscore.label}</p>
-      <div className="mt-1.5 flex items-baseline justify-between">
-        <span className={`font-mono text-3xl font-bold ${style.text}`}>
-          {subscore.score}
-        </span>
+        ))}
       </div>
-      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100">
-        <div
-          className={`h-full rounded-full ${style.bar}`}
-          style={{ width: `${Math.max(0, Math.min(100, subscore.score))}%` }}
-        />
-      </div>
-      <p className={`mt-2 text-xs font-semibold ${style.text}`}>{subscore.bandLabel}</p>
-      <p className="mt-0.5 text-[11px] leading-tight text-gray-500">{subscore.evidence}</p>
     </div>
   );
 }
@@ -518,13 +426,13 @@ function RecommendedFixes({
         )}
       </div>
       <p className="mt-1 text-xs text-gray-500">
-        Patterns identified across multiple videos. Severity reflects how many uploads are affected.
+        Editorial patterns identified across multiple videos. Priority reflects how many uploads are affected.
       </p>
       {issues.length === 0 ? (
         <div className="mt-4 flex items-start gap-2 rounded-lg bg-brand-50/40 p-3 ring-1 ring-inset ring-brand-100">
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" strokeWidth={2.25} />
           <p className="text-sm text-gray-700">
-            No recurring weaknesses detected. Channel packaging is solid across the analyzed window.
+            No recurring weaknesses detected. Channel packaging looks solid across the analyzed window.
           </p>
         </div>
       ) : (
@@ -588,11 +496,9 @@ function labelForDimension(key: string): string {
 function ChannelSnapshot({
   channel,
   windowSize,
-  grade,
 }: {
   channel: ChannelAuditResult["channel"];
   windowSize: number;
-  grade: ChannelGrade;
 }) {
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-5">
@@ -621,7 +527,7 @@ function ChannelSnapshot({
         <SnapshotRow
           Icon={Gauge}
           label="Audit window"
-          value={`Last ${windowSize} uploads · Grade ${grade}`}
+          value={`Last ${windowSize} uploads`}
         />
       </div>
     </div>
@@ -649,7 +555,7 @@ function SnapshotRow({
 }
 
 // ───────────────────────────────────────────────────────────────
-// Per-dimension band breakdown (legacy, kept as a drill-down)
+// Per-dimension band breakdown (count-only, no averageScore)
 // ───────────────────────────────────────────────────────────────
 function DimensionRow({
   dimension,
@@ -658,7 +564,7 @@ function DimensionRow({
   dimension: DimensionStats;
   totalVideos: number;
 }) {
-  const { label, averageScore, bandCounts, isWorst } = dimension;
+  const { label, bandCounts, isWorst } = dimension;
   const total = totalVideos > 0 ? totalVideos : 1;
   const segments: { band: AuditBand; pct: number }[] = (
     ["strong", "good", "fair", "weak"] as AuditBand[]
@@ -677,14 +583,10 @@ function DimensionRow({
           <h3 className="text-sm font-semibold text-gray-900">{label}</h3>
           {isWorst && (
             <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700">
-              Worst dimension
+              Focus area
             </span>
           )}
         </div>
-        <p className="font-mono text-sm font-semibold tabular-nums text-gray-800">
-          {averageScore}
-          <span className="ml-1 text-xs font-normal text-gray-400">avg</span>
-        </p>
       </div>
 
       <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-gray-100">
@@ -711,10 +613,9 @@ function DimensionRow({
 }
 
 // ───────────────────────────────────────────────────────────────
-// Audited videos list
+// Audited videos list — raw metadata + textual issues, no scores
 // ───────────────────────────────────────────────────────────────
 function AuditedVideoRow({ video, rank }: { video: ChannelAuditVideo; rank: number }) {
-  const grade = computeQuickGrade(video.audit.overallScore);
   return (
     <a
       href={video.videoUrl}
@@ -747,6 +648,24 @@ function AuditedVideoRow({ video, rank }: { video: ChannelAuditVideo; rank: numb
               <span className="font-mono tabular-nums">{formatNumber(video.viewCount)}</span>
             </span>
           )}
+          {video.likeCount !== null && (
+            <span className="inline-flex items-center gap-1">
+              <ThumbsUp className="h-3 w-3 text-gray-400" strokeWidth={2} />
+              <span className="font-mono tabular-nums">{formatNumber(video.likeCount)}</span>
+            </span>
+          )}
+          {video.commentCount !== null && (
+            <span className="inline-flex items-center gap-1">
+              <MessageCircle className="h-3 w-3 text-gray-400" strokeWidth={2} />
+              <span className="font-mono tabular-nums">{formatNumber(video.commentCount)}</span>
+            </span>
+          )}
+          {video.durationSec !== null && (
+            <span className="inline-flex items-center gap-1">
+              <Clock className="h-3 w-3 text-gray-400" strokeWidth={2} />
+              {formatDuration(video.durationSec)}
+            </span>
+          )}
           {video.publishDate && (
             <span className="inline-flex items-center gap-1">
               <Calendar className="h-3 w-3 text-gray-400" strokeWidth={2} />
@@ -755,61 +674,28 @@ function AuditedVideoRow({ video, rank }: { video: ChannelAuditVideo; rank: numb
           )}
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {video.audit.dimensions.map((d) => {
-            const tone =
-              d.band === "strong" || d.band === "good"
-                ? "bg-brand-50 text-brand-700 ring-brand-200"
-                : d.band === "fair"
-                ? "bg-amber-50 text-amber-700 ring-amber-200"
-                : "bg-red-50 text-red-700 ring-red-200";
-            return (
-              <span
-                key={d.key}
-                className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-mono font-semibold ring-1 ${tone}`}
-                title={`${d.label}: ${d.score} (${d.band})`}
+        {/* Textual editorial issues per video, no scores */}
+        {video.issues.length > 0 && (
+          <ul className="mt-3 flex flex-wrap gap-1.5">
+            {video.issues.map((issue, i) => (
+              <li
+                key={i}
+                className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-800 ring-1 ring-inset ring-amber-100"
               >
-                {d.label.slice(0, 4).toUpperCase()} {d.score}
-              </span>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="flex shrink-0 items-center justify-center sm:flex-col sm:gap-1">
-        <div
-          className={`flex h-12 w-12 items-center justify-center rounded-full ring-2 bg-white ${gradeRing(
-            grade
-          )}`}
-        >
-          <span className={`font-mono text-lg font-semibold ${gradeText(grade)}`}>
-            {video.audit.overallScore}
-          </span>
-        </div>
+                <AlertCircle className="h-3 w-3" strokeWidth={2} />
+                {issue}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </a>
   );
 }
 
-function computeQuickGrade(score: number): ChannelGrade {
-  if (score >= 85) return "A";
-  if (score >= 70) return "B";
-  if (score >= 55) return "C";
-  if (score >= 40) return "D";
-  return "F";
-}
-
-function gradeRing(g: ChannelGrade): string {
-  if (g === "A" || g === "B") return "ring-brand-300";
-  if (g === "C") return "ring-amber-300";
-  if (g === "D") return "ring-orange-300";
-  return "ring-red-300";
-}
-
-function gradeText(g: ChannelGrade): string {
-  return GRADE_TEXT[g];
-}
-
+// ───────────────────────────────────────────────────────────────
+// Formatters
+// ───────────────────────────────────────────────────────────────
 function formatNumber(n: number): string {
   if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1)}B`;
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -818,10 +704,19 @@ function formatNumber(n: number): string {
 }
 
 function formatDate(iso: string): string {
-  // iso = "YYYY-MM-DD"
   const [y, m, d] = iso.split("-");
   if (!y || !m || !d) return iso;
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const mi = parseInt(m, 10) - 1;
   return `${months[mi] ?? m} ${parseInt(d, 10)}, ${y}`;
+}
+
+function formatDuration(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  const min = Math.floor(seconds / 60);
+  const sec = seconds % 60;
+  if (min < 60) return `${min}:${String(sec).padStart(2, "0")}`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }

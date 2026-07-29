@@ -1,62 +1,45 @@
 /**
- * Channel Audit — unified channel dashboard.
+ * Channel Audit — unified channel dashboard (2026-08 revision).
  *
- * Single source of truth for everything we know about a channel:
- *   - Headline composite score 0-100 (the quotable number)
- *   - 4 subscores: CTR Potential / Metadata Quality / Niche Headroom / Growth Trajectory
- *   - 4 metadata dimensions (title/description/hashtags/chapters) with band breakdown
- *   - Recommended fixes (recurring issues) with deterministic severity + affectedCount
- *   - Channel snapshot (subs, total videos, created date, primary niche)
+ * This module returns:
+ *   - Raw YouTube-provided fields (channel snapshot, per-video metadata)
+ *   - Factual aggregations over the last N uploads (counts, medians,
+ *     publishing cadence pattern)
+ *   - Textual editorial suggestions (recurring issue callouts, per-video
+ *     issue lists)
  *
- * This used to be two tools — Channel Audit and Visibility Score. Merged
- * in 2026-06 because (a) they showed overlapping signals on the same
- * channel, (b) creators wanted one dashboard not two, (c) the headline
- * number is more quotable with 4 subscores than a single "average score".
+ * It intentionally does NOT return any derived composite score, grade,
+ * or 0-100 dimension score to comply with YouTube API Services policy
+ * III.E.4h (no independently calculated metrics that replace or
+ * augment YouTube API data). The previous "Visibility Score" surface
+ * was removed 2026-07 as part of the compliance remediation.
  *
  * Pipeline (called from the API route):
  *  1. Resolve channel + uploadsPlaylistId + topicCategories (1 unit)
  *  2. Latest 30 video IDs via playlistItems.list (1 unit)
  *  3. Batched videos.list for stats + snippet (1 unit)
  *  4. Audit each video (omitTags — API doesn't return tags for non-owners)
- *  5. Aggregate per-dimension band stats across all videos
- *  6. Compute 4 visibility subscores via computeVisibilityScore()
- *  7. Compute deterministic recurring-issue candidates from dimension data
- *  8. LLM (Haiku) rewrites issue text + optional one-sentence summary
- *
- * Cost: 3 YouTube units + 1 Haiku call. Cache 24h by channel ID.
+ *  5. Aggregate per-dimension band counts
+ *  6. Compute deterministic recurring-issue candidates
+ *  7. LLM (Haiku) rewrites issue text + optional one-sentence summary
  */
 
 import type { ApiVideoData, VideoEngagement } from "./youtube-api";
 import { videoInfoFromApi } from "./extract-video-info";
 import { auditVideo, type AuditBand } from "./video-audit";
-import { computeVisibilityScore, type SubScore } from "./visibility-score";
 
-export type ChannelGrade = "A" | "B" | "C" | "D" | "F";
-
-/** Headline / subscore band used for UI color coding. */
-export type ScoreBand = "excellent" | "very-good" | "medium" | "weak";
-
-/** Severity attached to a recurring issue. */
 export type IssueSeverity = "high" | "medium" | "low" | "good";
-
-export type Subscore = SubScore & {
-  /** Color band for UI. Derived from `score`. */
-  band: ScoreBand;
-  /** Human label for the band ("Excellent" / "Very Good" / "Medium" / "Weak"). */
-  bandLabel: string;
-};
 
 export type DimensionStats = {
   key: string;
   label: string;
-  /** Average score across all audited videos (0-100). */
-  averageScore: number;
-  /** Count of videos in each band. */
+  /** Count of videos in each band. Factual — no derived numeric average. */
   bandCounts: Record<AuditBand, number>;
-  /** Worst dimension iff true — feeds the recurring-issue callout. */
+  /** Marked when this dimension has the most videos in weak/fair. Editorial callout, not a metric. */
   isWorst: boolean;
 };
 
+/** Per-video row surfaced in the "Audited videos" list. Only raw metadata + textual issues. */
 export type ChannelAuditVideo = {
   videoId: string;
   videoUrl: string;
@@ -64,19 +47,36 @@ export type ChannelAuditVideo = {
   thumbnailUrl: string | null;
   publishDate: string | null;
   viewCount: number | null;
-  /** Full Video Audit result for this video (tags dimension excluded). */
-  audit: ReturnType<typeof auditVideo>;
+  likeCount: number | null;
+  commentCount: number | null;
+  durationSec: number | null;
+  /** Textual editorial issues found by the per-video auditor. No numeric score. */
+  issues: string[];
 };
 
 export type RecurringIssue = {
-  /** Creator-friendly action sentence. Written by Haiku in the happy path. */
+  /** Creator-friendly action sentence. Written by Haiku in the happy path, deterministic fallback otherwise. */
   text: string;
-  /** Deterministic severity computed from band counts. */
+  /** Editorial priority label. Not a numeric metric. */
   severity: IssueSeverity;
-  /** How many of the analyzed videos are affected. */
+  /** Raw count of videos this issue applies to. Factual aggregation over YouTube API data. */
   affectedCount: number;
   /** Dimension this issue is tied to ("title" | "description" | ...). */
   dimensionKey: string | null;
+};
+
+/** Factual aggregations over raw YouTube API data. No composites. */
+export type ChannelAggregations = {
+  /** Total views summed across the analyzed window. Raw sum, not derived. */
+  totalViews: number;
+  medianViews: number;
+  meanViews: number;
+  /** Median video length in seconds. */
+  medianDurationSec: number | null;
+  /** Descriptive publishing cadence label ("2 uploads per week", "monthly"). */
+  publishingCadence: string;
+  /** Earliest and latest publish dates in the window. */
+  dateRange: { earliest: string | null; latest: string | null };
 };
 
 export type ChannelAuditResult = {
@@ -89,26 +89,20 @@ export type ChannelAuditResult = {
     videoCount: number | null;
     /** ISO YYYY-MM-DD of channel creation. */
     publishedAt: string | null;
-    /** Friendly niche label derived from YouTube topicCategories ("Education", "Gaming", etc.). Null if not classifiable. */
+    /** Friendly niche label derived from YouTube topicCategories. Null if not classifiable. */
     primaryNiche: string | null;
   };
   /** How many videos we actually analyzed (≤30, may be smaller for tiny channels). */
   windowSize: number;
-  /** Composite weighted score 0-100. The quotable number. */
-  overallScore: number;
-  grade: ChannelGrade;
-  /** Band for the headline score (drives ring color in the UI). */
-  overallBand: ScoreBand;
-  overallBandLabel: string;
-  /** 4 subscores: CTR / Metadata / Headroom / Trajectory. */
-  subscores: Subscore[];
-  /** Per-dimension aggregation: title / description / hashtags / chapters. */
+  /** Factual aggregations over raw YouTube data. Replaces the removed composite score surface. */
+  aggregations: ChannelAggregations;
+  /** Per-dimension band counts (Strong / Good / Fair / Weak). Factual counts. */
   dimensions: DimensionStats[];
-  /** Recommended fixes with deterministic severity. */
+  /** Recommended fixes with deterministic severity + affected count. Textual. */
   recurringIssues: RecurringIssue[];
-  /** Each video's individual audit result (for the "Audited videos" list). */
+  /** Each video's raw metadata + textual issue list. */
   videos: ChannelAuditVideo[];
-  /** Optional one-sentence positioning summary from Haiku. */
+  /** Optional one-sentence editorial summary from Haiku (textual, no numbers). */
   summary: string | null;
   /** True iff the LLM step failed — UI degrades gracefully. */
   analysisFailed?: boolean;
@@ -119,36 +113,6 @@ const DIM_LABELS: Record<string, string> = {
   description: "Description",
   hashtags: "Hashtags",
   chapters: "Chapters",
-};
-
-export function computeGrade(score: number): ChannelGrade {
-  if (score >= 85) return "A";
-  if (score >= 70) return "B";
-  if (score >= 55) return "C";
-  if (score >= 40) return "D";
-  return "F";
-}
-
-/**
- * Score → band mapping for UI coloring. Tuned to the mockup:
- *   80+: Excellent (green)
- *   65-79: Very Good (green)
- *   50-64: Medium (amber)
- *   <50: Weak (red)
- */
-export function scoreToBand(score: number): { band: ScoreBand; label: string } {
-  if (score >= 80) return { band: "excellent", label: "Excellent" };
-  if (score >= 65) return { band: "very-good", label: "Very Good" };
-  if (score >= 50) return { band: "medium", label: "Medium" };
-  return { band: "weak", label: "Weak" };
-}
-
-export const GRADE_DESCRIPTION: Record<ChannelGrade, string> = {
-  A: "Channel-wide packaging discipline. Most videos optimized across most dimensions.",
-  B: "Strong overall, with one or two dimensions consistently letting videos down.",
-  C: "Mixed. Some videos packaged well, others not. Look at the subscore breakdown for the pattern.",
-  D: "Recurring packaging gaps. Most videos have multiple weak dimensions.",
-  F: "Systematic packaging issues across the channel. Highest-leverage area: pick the worst dimension and fix it everywhere.",
 };
 
 /**
@@ -173,15 +137,15 @@ export function topicCategoriesToNiche(topicCategories: string[]): string | null
 }
 
 /**
- * Aggregate per-dimension band stats across an array of audited videos.
+ * Aggregate per-dimension band stats across audited videos. Returns
+ * band counts only — no averageScore is computed for public display.
  */
 export function aggregateDimensions(
-  audited: ChannelAuditVideo[]
+  audited: Array<{ audit: ReturnType<typeof auditVideo> }>
 ): DimensionStats[] {
   if (audited.length === 0) return [];
   const dimKeys = audited[0].audit.dimensions.map((d) => d.key);
   const dimensions: DimensionStats[] = dimKeys.map((key) => {
-    const scores: number[] = [];
     const bandCounts: Record<AuditBand, number> = {
       strong: 0,
       good: 0,
@@ -191,29 +155,98 @@ export function aggregateDimensions(
     for (const v of audited) {
       const d = v.audit.dimensions.find((dd) => dd.key === key);
       if (!d) continue;
-      scores.push(d.score);
       bandCounts[d.band] += 1;
     }
-    const averageScore =
-      scores.length > 0
-        ? Math.round(scores.reduce((s, x) => s + x, 0) / scores.length)
-        : 0;
     return {
       key,
       label: DIM_LABELS[key] ?? key,
-      averageScore,
       bandCounts,
       isWorst: false,
     };
   });
 
+  // Mark the dimension with the largest weak+fair share as "worst" for editorial callout.
   if (dimensions.length > 0) {
-    const minAvg = Math.min(...dimensions.map((d) => d.averageScore));
-    for (const d of dimensions) {
-      if (d.averageScore === minAvg) d.isWorst = true;
+    const withWeakSum = dimensions.map((d) => ({
+      d,
+      badCount: d.bandCounts.weak + d.bandCounts.fair,
+    }));
+    const maxBad = Math.max(...withWeakSum.map((w) => w.badCount));
+    if (maxBad > 0) {
+      for (const w of withWeakSum) {
+        if (w.badCount === maxBad) w.d.isWorst = true;
+      }
     }
   }
   return dimensions;
+}
+
+/**
+ * Compute publishing cadence description from a list of publish dates.
+ * Returns a human phrase like "2 uploads per week" or "roughly monthly".
+ */
+export function describeCadence(publishDates: string[]): string {
+  const dates = publishDates
+    .filter((d): d is string => typeof d === "string" && d.length >= 10)
+    .map((d) => new Date(d).getTime())
+    .filter((t) => Number.isFinite(t))
+    .sort((a, b) => b - a);
+  if (dates.length < 2) return "not enough data to estimate cadence";
+
+  const spanMs = dates[0] - dates[dates.length - 1];
+  if (spanMs <= 0) return "not enough data to estimate cadence";
+
+  const spanDays = spanMs / (1000 * 60 * 60 * 24);
+  const uploadsPerWeek = ((dates.length - 1) / spanDays) * 7;
+
+  if (uploadsPerWeek >= 10) return `${Math.round(uploadsPerWeek)} uploads per week (very high volume)`;
+  if (uploadsPerWeek >= 3) return `${Math.round(uploadsPerWeek)} uploads per week`;
+  if (uploadsPerWeek >= 1.2) return "about twice per week";
+  if (uploadsPerWeek >= 0.85) return "roughly weekly";
+  if (uploadsPerWeek >= 0.4) return "roughly bi-weekly";
+  if (uploadsPerWeek >= 0.18) return "roughly monthly";
+  return "less than monthly";
+}
+
+/**
+ * Median of a numeric list. Returns 0 for empty input.
+ */
+export function median(nums: number[]): number {
+  if (nums.length === 0) return 0;
+  const sorted = [...nums].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0 ? Math.round((sorted[mid - 1] + sorted[mid]) / 2) : sorted[mid];
+}
+
+/**
+ * Compute channel-level aggregations from the audited videos. All fields
+ * are factual — sums, medians, means, cadence patterns, date ranges.
+ */
+export function computeAggregations(videos: ChannelAuditVideo[]): ChannelAggregations {
+  const views = videos.map((v) => v.viewCount).filter((v): v is number => typeof v === "number" && v >= 0);
+  const durations = videos
+    .map((v) => v.durationSec)
+    .filter((v): v is number => typeof v === "number" && v > 0);
+  const dates = videos.map((v) => v.publishDate).filter((v): v is string => typeof v === "string");
+  const sortedDates = [...dates].sort();
+
+  const totalViews = views.reduce((s, v) => s + v, 0);
+  const meanViews = views.length > 0 ? Math.round(totalViews / views.length) : 0;
+  const medianViews = median(views);
+  const medianDurationSec = durations.length > 0 ? median(durations) : null;
+  const publishingCadence = describeCadence(dates);
+
+  return {
+    totalViews,
+    medianViews,
+    meanViews,
+    medianDurationSec,
+    publishingCadence,
+    dateRange: {
+      earliest: sortedDates[0] ?? null,
+      latest: sortedDates[sortedDates.length - 1] ?? null,
+    },
+  };
 }
 
 /**
@@ -221,10 +254,8 @@ export function aggregateDimensions(
  * a candidate set of issues with severity + affectedCount. The LLM then
  * rewrites each candidate's text into a creator-actionable sentence.
  *
- * We pre-compute severity because:
- *   - Severity must match the actual band counts (LLMs invent numbers)
- *   - High/medium/low maps cleanly to UI pills
- *   - If the LLM call fails we still surface usable fallback text
+ * Severity comes from the raw band counts — never invented. Severity is
+ * an editorial priority label, not a metric.
  */
 export type IssueCandidate = {
   dimensionKey: string;
@@ -265,7 +296,6 @@ export function rankIssueCandidates(
     }
   }
 
-  // Pick top 3 by severity (high > medium > low), then by affectedCount desc
   const sevOrder: Record<IssueSeverity, number> = { high: 3, medium: 2, low: 1, good: 0 };
   candidates.sort((a, b) => {
     if (sevOrder[b.severity] !== sevOrder[a.severity]) {
@@ -278,9 +308,8 @@ export function rankIssueCandidates(
 }
 
 /**
- * Identify any dimension that is uniformly strong (>=80% videos in strong/good).
- * Used to add a positive "Keep it up" item to the recommended-fixes list when
- * the rest of the recommendations are negative.
+ * Identify any dimension that is uniformly strong (≥80% videos in strong/good).
+ * Used to append a "Keep it up" item to the recommended-fixes list.
  */
 export function findGoodDimension(
   dimensions: DimensionStats[],
@@ -292,6 +321,28 @@ export function findGoodDimension(
     if (strong / windowSize >= 0.8) return d;
   }
   return null;
+}
+
+/**
+ * Extract textual issues from a per-video audit result. We surface up to
+ * 4 short signals per video ("no chapters", "description too short", etc)
+ * without exposing any numeric score.
+ */
+function extractVideoIssues(audit: ReturnType<typeof auditVideo>): string[] {
+  const issues: string[] = [];
+  for (const dim of audit.dimensions) {
+    if (dim.band === "weak" || dim.band === "fair") {
+      // Prefer the first signal string from the dimension, fallback to a
+      // generic "weak/fair {dimension}" line.
+      const firstSignal = dim.signals?.[0]?.message?.trim();
+      if (firstSignal) {
+        issues.push(firstSignal);
+      } else {
+        issues.push(`${dim.label} is ${dim.band}`);
+      }
+    }
+  }
+  return issues.slice(0, 4);
 }
 
 /** Pure-function orchestrator. The API route calls this after fetching API data. */
@@ -308,57 +359,51 @@ export function computeChannelAudit(args: {
   };
   videoIds: string[];
   videoMap: Map<string, ApiVideoData & VideoEngagement>;
-  /** LLM-supplied recurring issues (text only — severity and counts come from us). */
+  /** LLM-supplied recurring issue text (severity + counts come from us). */
   llmIssues?: Array<{ dimensionKey: string; text: string }>;
-  /** LLM-supplied positioning summary. */
+  /** LLM-supplied textual summary. */
   summary?: string | null;
   analysisFailed?: boolean;
 }): ChannelAuditResult {
   const { channel, videoIds, videoMap } = args;
 
-  // Per-video audits
-  const audited: ChannelAuditVideo[] = videoIds
+  // Per-video audits (no score exposure — only pull the band + signals)
+  type AuditedRow = {
+    id: string;
+    audit: ReturnType<typeof auditVideo>;
+  };
+  const auditedInternal: AuditedRow[] = videoIds
     .map((id) => {
       const data = videoMap.get(id);
       if (!data) return null;
       const info = videoInfoFromApi(id, data);
       const audit = auditVideo(info, { omitTags: true });
-      return {
-        videoId: id,
-        videoUrl: `https://www.youtube.com/watch?v=${id}`,
-        title: data.title,
-        thumbnailUrl: data.thumbnailUrl,
-        publishDate: data.publishDate,
-        viewCount: data.viewCount,
-        audit,
-      } satisfies ChannelAuditVideo;
+      return { id, audit };
     })
-    .filter((v): v is ChannelAuditVideo => v !== null);
+    .filter((v): v is AuditedRow => v !== null);
 
-  const dimensions = aggregateDimensions(audited);
-
-  // Visibility-Score-style composite
-  const visibilityChannelData = {
-    id: channel.id,
-    title: channel.title,
-    handle: channel.handle,
-    thumbnailUrl: channel.thumbnailUrl,
-    subscriberCount: channel.subscriberCount,
-    videoCount: channel.videoCount,
-  };
-  const visibility = computeVisibilityScore(visibilityChannelData, videoIds, videoMap);
-
-  const subscores: Subscore[] = visibility.subscores.map((s) => {
-    const { band, label } = scoreToBand(s.score);
-    return { ...s, band, bandLabel: label };
+  // Public video rows: raw metadata + textual issues only.
+  const videos: ChannelAuditVideo[] = auditedInternal.map((row) => {
+    const data = videoMap.get(row.id);
+    return {
+      videoId: row.id,
+      videoUrl: `https://www.youtube.com/watch?v=${row.id}`,
+      title: data?.title ?? "",
+      thumbnailUrl: data?.thumbnailUrl ?? null,
+      publishDate: data?.publishDate ?? null,
+      viewCount: data?.viewCount ?? null,
+      likeCount: data?.likeCount ?? null,
+      commentCount: data?.commentCount ?? null,
+      durationSec: data?.lengthSeconds ?? null,
+      issues: extractVideoIssues(row.audit),
+    };
   });
 
-  const overallScore = visibility.overallScore;
-  const grade = computeGrade(overallScore);
-  const { band: overallBand, label: overallBandLabel } = scoreToBand(overallScore);
+  const dimensions = aggregateDimensions(auditedInternal);
+  const aggregations = computeAggregations(videos);
 
   // Recurring issues
-  const candidates = rankIssueCandidates(dimensions, audited.length);
+  const candidates = rankIssueCandidates(dimensions, auditedInternal.length);
   const llmIssuesByDim = new Map<string, string>();
   for (const li of args.llmIssues ?? []) {
     if (li && typeof li.text === "string" && typeof li.dimensionKey === "string") {
@@ -372,8 +417,8 @@ export function computeChannelAudit(args: {
     dimensionKey: c.dimensionKey,
   }));
 
-  // Optional "Keep it up" item when at least one dimension is uniformly strong.
-  const goodDim = findGoodDimension(dimensions, audited.length);
+  // Optional "Keep it up" item.
+  const goodDim = findGoodDimension(dimensions, auditedInternal.length);
   if (goodDim) {
     recurringIssues.push({
       text: `Strong ${goodDim.label.toLowerCase()} discipline across the channel — keep it up.`,
@@ -396,15 +441,11 @@ export function computeChannelAudit(args: {
       publishedAt: channel.publishedAt,
       primaryNiche,
     },
-    windowSize: audited.length,
-    overallScore,
-    grade,
-    overallBand,
-    overallBandLabel,
-    subscores,
+    windowSize: auditedInternal.length,
+    aggregations,
     dimensions,
     recurringIssues,
-    videos: audited,
+    videos,
     summary: args.summary ?? null,
     analysisFailed: args.analysisFailed,
   };
@@ -416,8 +457,7 @@ export function computeChannelAudit(args: {
  * The LLM does NOT decide severity or affectedCount — those are computed
  * deterministically from the dimension band counts in rankIssueCandidates().
  * The LLM's job is purely to turn a bland fact ("12 of 30 videos have weak
- * descriptions") into a creator-actionable sentence ("Most uploads skip the
- * first-line hook — open every description with a one-sentence value prop").
+ * descriptions") into a creator-actionable sentence.
  */
 export const CHANNEL_AUDIT_SYSTEM_PROMPT = `You write creator-actionable recurring-issue sentences for a YouTube channel audit.
 
@@ -431,6 +471,7 @@ For each candidate, return ONE sentence that:
 - Is action-oriented ("Add a CTA line…", "Front-load the keyword…", "Drop generic tags…")
 - Is 1-2 sentences, under 25 words
 - Avoids em-dashes (use commas, periods, or colons instead)
+- Uses no numeric scores — only counts of affected videos
 
 Return JSON only — no markdown fences, no preamble:
 {"issues": [{"dimensionKey": "title", "text": "your sentence here"}, ...]}
@@ -454,31 +495,39 @@ export function buildChannelAuditUserMessage(
 }
 
 /**
- * One-sentence positioning summary (Haiku). Optional — UI hides cleanly
- * when null.
+ * One-sentence editorial summary (Haiku). Purely textual — describes the
+ * strongest and weakest patterns without any numbers.
  */
-export const CHANNEL_AUDIT_SUMMARY_SYSTEM_PROMPT = `You write one-sentence positioning summaries of a YouTube channel based on a 4-dimension Visibility Score.
+export const CHANNEL_AUDIT_SUMMARY_SYSTEM_PROMPT = `You write one-sentence editorial summaries of a YouTube channel based on band counts across four packaging dimensions (title, description, hashtags, chapters).
 
-You receive 4 subscores (0-100 each, higher is better):
-  - CTR Potential (title discipline)
-  - Metadata Quality (description / hashtags / chapters)
-  - Niche Headroom (reach beyond subscriber base)
-  - Growth Trajectory (outlier rate)
+You receive band counts (how many of N recent videos fall in strong/good/fair/weak for each dimension) and a publishing cadence label.
 
 Return JSON only — no markdown, no preamble:
 {"summary": "one quotable sentence"}
 
 The sentence must:
 - Be a single sentence, max 25 words
-- Name the channel's biggest strength AND biggest gap explicitly ("Strong title discipline but leaves CTR on the table with weak descriptions")
+- Name the channel's biggest editorial strength AND biggest gap, referencing the packaging dimensions
+- Be quotable — written as if for a Twitter share or a creator dashboard caption
 - Avoid em-dashes (use commas, periods, or colons instead)
-- Avoid generic phrasing ("doing great with content"). Reference specific dimensions.
-- Be quotable — written as if for a Twitter share or a creator dashboard caption.`;
+- Avoid numeric scores or grades — describe patterns qualitatively (e.g. "strong hashtag discipline", "most descriptions are weak or missing")
+- Avoid generic phrasing like "doing great with content" — reference the specific dimensions`;
 
 export function buildChannelAuditSummaryMessage(
   channelTitle: string,
-  subscores: Subscore[]
+  dimensions: DimensionStats[],
+  windowSize: number,
+  cadence: string
 ): string {
-  const lines = subscores.map((s) => `${s.label}: ${s.score}`).join("\n");
-  return `Channel: ${channelTitle}\n\n${lines}\n\nReturn the one-sentence summary as JSON now.`;
+  const lines = dimensions.map((d) => {
+    const { strong, good, fair, weak } = d.bandCounts;
+    return `${d.label}: strong=${strong}, good=${good}, fair=${fair}, weak=${weak}`;
+  });
+  return (
+    `Channel: ${channelTitle}\n` +
+    `Window: ${windowSize} recent uploads\n` +
+    `Publishing cadence: ${cadence}\n\n` +
+    `Band counts per dimension:\n${lines.join("\n")}\n\n` +
+    `Return the one-sentence editorial summary as JSON now.`
+  );
 }

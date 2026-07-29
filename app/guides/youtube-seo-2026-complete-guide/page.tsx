@@ -413,7 +413,7 @@ export default function YouTubeSeoCompleteGuidePage() {
         <Link href="/tools/youtube-title-generator">Title Generator</Link>{" "}
         for angles, then run finalists through the{" "}
         <Link href="/tools/youtube-title-score-checker">
-          Title Score Checker
+          Title Analyzer
         </Link>
         .
       </p>
@@ -676,7 +676,8 @@ export default function YouTubeSeoCompleteGuidePage() {
         Use <Link href="/tools/youtube-video-audit">Video Audit</Link> for
         a metadata and packaging check. Use{" "}
         <Link href="/tools/youtube-channel-audit">Channel Audit</Link> when
-        you want to review channel-level patterns and pull a 0-100 Visibility Score.
+        you want to review channel-level patterns and raw metrics for the
+        last 30 uploads.
       </p>
 
       {/* Video Audit screenshots */}
@@ -765,7 +766,7 @@ export default function YouTubeSeoCompleteGuidePage() {
           <Link href="/tools/youtube-title-generator">Title Generator</Link>{" "}
           and{" "}
           <Link href="/tools/youtube-title-score-checker">
-            Title Score Checker
+            Title Analyzer
           </Link>{" "}
           to refine titles.
         </li>

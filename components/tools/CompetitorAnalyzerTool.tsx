@@ -16,28 +16,20 @@ import {
 import { TurnstileWidget } from "@/components/TurnstileWidget";
 import { track } from "@/lib/analytics/track";
 import type {
-  CompetitorAnalysis,
-  CompetitorVideo,
+  PublicCompetitorAnalysis,
+  PublicCompetitorVideo,
 } from "@/lib/youtube/competitor-analysis";
-import type { TitleScoreBand } from "@/lib/youtube/title-score";
 
 type ApiResponse =
-  | { output: CompetitorAnalysis; cached?: boolean; remaining?: number }
+  | { output: PublicCompetitorAnalysis; cached?: boolean; remaining?: number }
   | { error: string; code?: string };
-
-const BAND_STYLES: Record<TitleScoreBand, { ring: string; text: string; label: string }> = {
-  strong: { ring: "ring-brand-300", text: "text-brand-700", label: "Strong" },
-  good:   { ring: "ring-brand-200", text: "text-brand-600", label: "Good" },
-  fair:   { ring: "ring-amber-300", text: "text-amber-700", label: "Fair" },
-  weak:   { ring: "ring-red-300",   text: "text-red-700",   label: "Weak" },
-};
 
 export function CompetitorAnalyzerTool() {
   const [channel, setChannel] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<CompetitorAnalysis | null>(null);
+  const [result, setResult] = useState<PublicCompetitorAnalysis | null>(null);
   const [remaining, setRemaining] = useState<number | null>(null);
 
   async function runAnalysis(targetChannel: string) {
@@ -157,7 +149,7 @@ export function CompetitorAnalyzerTool() {
 
 type VideoTab = "top" | "latest";
 
-function AnalysisResults({ result }: { result: CompetitorAnalysis }) {
+function AnalysisResults({ result }: { result: PublicCompetitorAnalysis }) {
   const { channel, topVideos, latestVideos, patterns, direction, analysisFailed } = result;
   const [tab, setTab] = useState<VideoTab>("top");
 
@@ -328,8 +320,12 @@ function TabButton({
   );
 }
 
-function VideoRow({ video, rank }: { video: CompetitorVideo; rank: number }) {
-  const bs = BAND_STYLES[video.titleScore.band];
+function VideoRow({ video, rank }: { video: PublicCompetitorVideo; rank: number }) {
+  const angle = video.titleAnalysis.detectedAngle;
+  const angleLabel =
+    angle === "unclear"
+      ? "Angle unclear"
+      : angle.charAt(0).toUpperCase() + angle.slice(1);
 
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-3 sm:flex-row sm:p-4">
@@ -377,18 +373,14 @@ function VideoRow({ video, rank }: { video: CompetitorVideo; rank: number }) {
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <div className="inline-flex items-center gap-2">
-            <span
-              className={`flex h-7 w-9 items-center justify-center rounded-md ring-1 bg-white font-mono text-xs font-semibold ${bs.text} ${bs.ring}`}
-            >
-              {video.titleScore.score}
-            </span>
-            <span className={`text-xs font-medium ${bs.text}`}>{bs.label} title</span>
-          </div>
+          <span className="inline-flex items-center gap-2 text-xs text-gray-600">
+            Title angle:{" "}
+            <span className="font-medium text-gray-800">{angleLabel}</span>
+          </span>
           <a
             href={video.videoUrl}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="nofollow noopener"
             className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-brand-700"
           >
             <ExternalLink className="h-3 w-3" strokeWidth={2} />

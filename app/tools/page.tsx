@@ -102,11 +102,11 @@ const FAQS = [
   },
   {
     q: "What tools help with YouTube titles and tags?",
-    a: "Use Title Score Checker, Title Generator, Tag Generator, Tag Extractor, and Hashtag Generator.",
+    a: "Use Title Analyzer, Title Generator, Tag Generator, Tag Extractor, and Hashtag Generator.",
   },
   {
     q: "What tools help analyze a YouTube channel?",
-    a: "Use Visibility Score, Channel Audit, Competitor Analyzer, Outlier Finder, and Money Calculator.",
+    a: "Use Channel Audit, Competitor Analyzer, Outlier Finder, and Money Calculator.",
   },
 ];
 
@@ -167,9 +167,9 @@ export default function ToolsIndexPage() {
               Not sure what to fix first? Start with a free video audit.
             </h2>
             <p className="mt-1 text-sm text-gray-600 leading-relaxed">
-              Paste any YouTube video URL and get a 0-100 audit across title,
-              description, tags, hashtags, chapters, and packaging signals,
-              with direct links to the right fix-it tool.
+              Paste any YouTube video URL to get an editorial audit across
+              title, description, tags, hashtags, chapters, and packaging
+              signals, with direct links to the right fix-it tool.
             </p>
           </div>
           <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-xs font-medium text-brand-700 ring-1 ring-brand-200 transition group-hover:bg-brand-500 group-hover:text-white group-hover:ring-brand-500">

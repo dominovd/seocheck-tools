@@ -69,12 +69,13 @@ export type NicheCheckResult = {
   totalResults: number;
   /** Window we actually analyzed — typically up to 20 top videos. */
   windowSize: number;
-  /** Verdict label + score 0-10 + explanation. */
+  /** Verdict category. */
   verdict: Verdict;
+  /** Internal opportunity score 0-10 — never expose to public UI. */
   score: number;
   headline: string;
   explanation: string;
-  /** Per-component signals shown in the UI. */
+  /** Per-component signals shown in the UI. Factual aggregations over raw search data. */
   signals: {
     medianViews: number;
     bigChannelShare: number; // 0..1
@@ -87,6 +88,21 @@ export type NicheCheckResult = {
   /** YouTube autocomplete suggestions for the seed term — quick-win extras. */
   relatedKeywords: string[];
 };
+
+/**
+ * Public-facing result. Strips the composite 0-10 opportunity score
+ * to comply with YouTube API Services policy III.E.4h. The categorical
+ * verdict (ENTER_NOW / OVERSATURATED / etc.) is kept as an editorial
+ * classification, and the raw factual signals are all safe.
+ */
+export type PublicNicheCheckResult = Omit<NicheCheckResult, "score">;
+
+export function toPublicNicheCheck(r: NicheCheckResult): PublicNicheCheckResult {
+  // Strip score from the wire response.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { score: _score, ...rest } = r;
+  return rest;
+}
 
 // ─── Pipeline-level enrichment helpers ─────────────────────────────────
 

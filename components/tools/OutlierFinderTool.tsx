@@ -16,19 +16,14 @@ import {
 } from "lucide-react";
 import { TurnstileWidget } from "@/components/TurnstileWidget";
 import { track } from "@/lib/analytics/track";
-import type { OutlierAnalysis, OutlierVideo } from "@/lib/youtube/outlier-analysis";
-import type { TitleScoreBand } from "@/lib/youtube/title-score";
+import type {
+  PublicOutlierAnalysis,
+  PublicOutlierVideo,
+} from "@/lib/youtube/outlier-analysis";
 
 type ApiResponse =
-  | { output: OutlierAnalysis; cached?: boolean; remaining?: number }
+  | { output: PublicOutlierAnalysis; cached?: boolean; remaining?: number }
   | { error: string; code?: string };
-
-const BAND_STYLES: Record<TitleScoreBand, { ring: string; text: string; label: string }> = {
-  strong: { ring: "ring-brand-300", text: "text-brand-700", label: "Strong" },
-  good:   { ring: "ring-brand-200", text: "text-brand-600", label: "Good" },
-  fair:   { ring: "ring-amber-300", text: "text-amber-700", label: "Fair" },
-  weak:   { ring: "ring-red-300",   text: "text-red-700",   label: "Weak" },
-};
 
 const SAMPLES = [
   { label: "Veritasium", value: "@veritasium" },
@@ -41,7 +36,7 @@ export function OutlierFinderTool() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<OutlierAnalysis | null>(null);
+  const [result, setResult] = useState<PublicOutlierAnalysis | null>(null);
   const [remaining, setRemaining] = useState<number | null>(null);
 
   async function runAnalysis(targetChannel: string) {
@@ -125,7 +120,8 @@ export function OutlierFinderTool() {
           </button>
         </div>
         <p className="mt-2 text-xs text-gray-500">
-          Analyzes the channel&apos;s last 100 uploads. An outlier = video with ≥3× the channel&apos;s median view count.
+          Analyzes the channel&apos;s last 100 uploads and surfaces the videos with
+          view counts far above the channel&apos;s median.
         </p>
 
         <div className="mt-4">
@@ -163,7 +159,7 @@ export function OutlierFinderTool() {
   );
 }
 
-function OutlierResults({ result }: { result: OutlierAnalysis }) {
+function OutlierResults({ result }: { result: PublicOutlierAnalysis }) {
   const { channel, outliers, megaOutliers, patterns, analysisFailed, windowSize, medianViews, meanViews } = result;
 
   return (
@@ -187,7 +183,7 @@ function OutlierResults({ result }: { result: OutlierAnalysis }) {
         <a
           href={`https://www.youtube.com/channel/${channel.id}`}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="nofollow noopener"
           className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-brand-700 hover:text-brand-800"
         >
           <ExternalLink className="h-3 w-3" strokeWidth={2} />
@@ -195,15 +191,28 @@ function OutlierResults({ result }: { result: OutlierAnalysis }) {
         </a>
       </div>
 
-      {/* Stat row */}
+      {/* Stat row — factual aggregations over raw view counts */}
       <div className="grid gap-3 sm:grid-cols-4">
         <Stat label="Window analyzed" value={`${windowSize} videos`} hint="Most recent uploads" />
-        <Stat label="Median views" value={formatNumber(medianViews)} hint="Robust to viral spikes" emphasis />
-        <Stat label="Mean views" value={formatNumber(meanViews)} hint="Pulled up by big hits" />
         <Stat
-          label="Outliers (≥3×)"
+          label="Channel median views"
+          value={formatNumber(medianViews)}
+          hint="Reference baseline (robust to viral spikes)"
+          emphasis
+        />
+        <Stat
+          label="Channel mean views"
+          value={formatNumber(meanViews)}
+          hint="Pulled up by big hits"
+        />
+        <Stat
+          label="Outliers surfaced"
           value={`${outliers.length}`}
-          hint={megaOutliers.length > 0 ? `incl. ${megaOutliers.length} mega (≥10×)` : "none ≥10×"}
+          hint={
+            megaOutliers.length > 0
+              ? `incl. ${megaOutliers.length} well past the median`
+              : "vs the channel baseline"
+          }
           emphasis
         />
       </div>
@@ -215,10 +224,11 @@ function OutlierResults({ result }: { result: OutlierAnalysis }) {
           <div className="text-sm text-gray-700">
             <p className="font-medium">No significant outliers in the last {windowSize} uploads</p>
             <p className="mt-1 text-gray-600">
-              This channel has consistent performance — every video performs within 3× of the median.
-              That&apos;s often a sign of a tight, focused audience who watches everything (good!) but also
-              means there&apos;s no clear &quot;winning formula&quot; from the data alone. Try a channel with more
-              variance.
+              This channel has consistent performance — every video sits close to
+              the median. That&apos;s often a sign of a tight, focused audience
+              who watches everything (good!) but also means there&apos;s no clear
+              &quot;winning formula&quot; from the data alone. Try a channel with
+              more variance.
             </p>
           </div>
         </div>
@@ -230,11 +240,12 @@ function OutlierResults({ result }: { result: OutlierAnalysis }) {
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-amber-600" strokeWidth={2.5} />
             <p className="text-xs font-semibold uppercase tracking-wider text-amber-700">
-              What makes them outliers
+              What sets them apart
             </p>
           </div>
           <p className="mt-1 text-[11px] text-gray-500">
-            Patterns present in outliers AND absent from average-performing videos on the same channel.
+            Editorial patterns visible in the outlier titles that don&apos;t appear in the
+            channel&apos;s average uploads.
           </p>
           <ol className="mt-3 space-y-3">
             {patterns.map((p, i) => (
@@ -263,11 +274,20 @@ function OutlierResults({ result }: { result: OutlierAnalysis }) {
       {outliers.length > 0 && (
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-            Top {outliers.length} outlier{outliers.length === 1 ? "" : "s"} by multiplier
+            {outliers.length} video{outliers.length === 1 ? "" : "s"} outperforming the channel baseline
+          </p>
+          <p className="mt-1 text-xs text-gray-500">
+            Ordered by raw view count. Compare each video&apos;s view count to
+            the channel median above.
           </p>
           <div className="mt-3 space-y-3">
             {outliers.map((v, i) => (
-              <OutlierRow key={v.videoId} video={v} rank={i + 1} />
+              <OutlierRow
+                key={v.videoId}
+                video={v}
+                rank={i + 1}
+                isMega={megaOutliers.some((mv) => mv.videoId === v.videoId)}
+              />
             ))}
           </div>
         </div>
@@ -304,9 +324,20 @@ function Stat({
   );
 }
 
-function OutlierRow({ video, rank }: { video: OutlierVideo; rank: number }) {
-  const bs = BAND_STYLES[video.titleScore.band];
-  const isMega = video.multiplier >= 10;
+function OutlierRow({
+  video,
+  rank,
+  isMega,
+}: {
+  video: PublicOutlierVideo;
+  rank: number;
+  isMega: boolean;
+}) {
+  const angle = video.titleAnalysis.detectedAngle;
+  const angleLabel =
+    angle === "unclear"
+      ? "Angle unclear"
+      : angle.charAt(0).toUpperCase() + angle.slice(1);
 
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-3 sm:flex-row sm:p-4">
@@ -326,16 +357,12 @@ function OutlierRow({ video, rank }: { video: OutlierVideo; rank: number }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-start gap-2">
           <h3 className="flex-1 text-sm font-semibold text-gray-900 leading-snug">{video.title}</h3>
-          <span
-            className={`inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold ${
-              isMega
-                ? "bg-red-50 text-red-700 ring-1 ring-red-200"
-                : "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
-            }`}
-          >
-            {isMega && <Flame className="h-3 w-3" strokeWidth={2.5} />}
-            {video.multiplier.toFixed(1)}× median
-          </span>
+          {isMega && (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-red-200">
+              <Flame className="h-3 w-3" strokeWidth={2.5} />
+              Well above baseline
+            </span>
+          )}
         </div>
 
         <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-600">
@@ -364,18 +391,14 @@ function OutlierRow({ video, rank }: { video: OutlierVideo; rank: number }) {
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <div className="inline-flex items-center gap-2">
-            <span
-              className={`flex h-7 w-9 items-center justify-center rounded-md ring-1 bg-white font-mono text-xs font-semibold ${bs.text} ${bs.ring}`}
-            >
-              {video.titleScore.score}
-            </span>
-            <span className={`text-xs font-medium ${bs.text}`}>{bs.label} title</span>
-          </div>
+          <span className="inline-flex items-center gap-2 text-xs text-gray-600">
+            Title angle:{" "}
+            <span className="font-medium text-gray-800">{angleLabel}</span>
+          </span>
           <a
             href={video.videoUrl}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="nofollow noopener"
             className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-brand-700"
           >
             <ExternalLink className="h-3 w-3" strokeWidth={2} />

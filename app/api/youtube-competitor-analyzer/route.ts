@@ -13,7 +13,9 @@ import { scoreTitle } from "@/lib/youtube/title-score";
 import {
   PATTERN_SYSTEM_PROMPT,
   buildPatternUserMessage,
+  toPublicCompetitorAnalysis,
   type CompetitorAnalysis,
+  type PublicCompetitorAnalysis,
   type CompetitorVideo,
 } from "@/lib/youtube/competitor-analysis";
 
@@ -47,7 +49,7 @@ const TOP_N = 10;
 const LATEST_N = 10;
 
 export async function POST(req: NextRequest) {
-  return protectAI<Input, CompetitorAnalysis>(req, {
+  return protectAI<Input, PublicCompetitorAnalysis>(req, {
     tool: TOOL_SLUG,
     dailyLimit: DAILY_LIMIT,
     parseInput: (body) => {
@@ -209,7 +211,7 @@ export async function POST(req: NextRequest) {
         analysisFailed,
       };
 
-      return { output: analysis, costUsd: llmCostUsd };
+      return { output: toPublicCompetitorAnalysis(analysis), costUsd: llmCostUsd };
     },
   });
 }

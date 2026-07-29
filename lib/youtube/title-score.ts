@@ -28,22 +28,51 @@ export type Signal = {
 
 export type TitleScoreBand = "strong" | "good" | "fair" | "weak";
 
+export type TitleAngle =
+  | "curiosity"
+  | "listicle"
+  | "howto"
+  | "comparison"
+  | "story"
+  | "review"
+  | "contrarian"
+  | "unclear";
+
 export type TitleScoreResult = {
-  score: number; // 0-100
-  band: TitleScoreBand;
+  score: number; // 0-100 — INTERNAL ONLY. Do not expose to public UI.
+  band: TitleScoreBand; // INTERNAL ONLY. Used by Channel Audit for band-count aggregation.
   length: number;
   signals: Signal[];
-  /** Detected primary angle, if any. */
-  detectedAngle:
-    | "curiosity"
-    | "listicle"
-    | "howto"
-    | "comparison"
-    | "story"
-    | "review"
-    | "contrarian"
-    | "unclear";
+  /** Detected primary angle, if any. Categorical, safe to expose. */
+  detectedAngle: TitleAngle;
 };
+
+/**
+ * Public analysis shape returned to the browser. Strips the composite
+ * score and band label to comply with YouTube API Services policy
+ * III.E.4h (no independently calculated metrics).
+ *
+ * Keeps: length (raw factual property of the input), signals (textual
+ * observations), detectedAngle (categorical, editorial classification).
+ */
+export type PublicTitleAnalysis = {
+  length: number;
+  signals: Signal[];
+  detectedAngle: TitleAngle;
+};
+
+/**
+ * Public-facing analyzer. Wraps scoreTitle() and returns the sanitized
+ * shape. Use this for anything that reaches a browser or the wire.
+ */
+export function analyzeTitle(rawTitle: string): PublicTitleAnalysis {
+  const inner = scoreTitle(rawTitle);
+  return {
+    length: inner.length,
+    signals: inner.signals,
+    detectedAngle: inner.detectedAngle,
+  };
+}
 
 // Power words that signal clickbait risk when stacked
 const POWER_WORDS = [

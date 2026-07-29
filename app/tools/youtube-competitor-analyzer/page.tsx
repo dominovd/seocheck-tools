@@ -23,7 +23,7 @@ const tool = getToolBySlug("youtube-competitor-analyzer")!;
 
 const PAGE_TITLE = "Free YouTube Competitor Analysis Tool";
 const META_DESCRIPTION =
-  "Free YouTube competitor analysis tool. Paste any channel to see top videos, latest uploads, title scores, views, engagement, and AI patterns for your YouTube SEO strategy.";
+  "Free YouTube competitor analysis tool. Paste any channel to see top videos, latest uploads, title angles, views, engagement, and AI patterns for your YouTube SEO strategy.";
 const OG_DESCRIPTION =
   "Analyze a YouTube competitor channel for free and find the videos, title patterns, and content angles already working in your niche.";
 
@@ -47,7 +47,7 @@ export const metadata = {
 };
 
 const HERO_SUBTITLE =
-  "Paste any competitor channel for free and see what is already working: their top videos by views, latest uploads, title scores, engagement signals, and 3 AI-backed patterns you can use for your next content bet.";
+  "Paste any competitor channel for free and see what is already working: their top videos by views, latest uploads, title angles, engagement signals, and 3 AI-backed patterns you can use for your next content bet.";
 
 const ABOVE_FOLD_BULLETS = [
   "See the competitor's best-performing videos, not just their newest uploads.",
@@ -70,8 +70,8 @@ const WHAT_YOU_GET: Card[] = [
   },
   {
     Icon: Heading,
-    title: "Title scores",
-    body: "Each title is checked with SEO Check Tools title heuristics so you can spot stronger hooks, clearer promises, and weak title patterns.",
+    title: "Title angles",
+    body: "Each title is classified by angle (how-to, listicle, curiosity, comparison, story, contrarian) so you can spot which formats the channel keeps winning with.",
   },
   {
     Icon: BarChart3,
@@ -141,7 +141,7 @@ const RELATED_TOOLS = [
   },
   {
     href: "/tools/youtube-title-score-checker",
-    name: "YouTube Title Score Checker",
+    name: "YouTube Title Analyzer",
     body: "Check whether your own next title hits the patterns competitors use.",
   },
   {
@@ -157,7 +157,7 @@ const RELATED_TOOLS = [
   {
     href: "/tools/youtube-channel-audit",
     name: "YouTube Channel Audit",
-    body: "Score your own channel and any competitor 0-100 across CTR, metadata, headroom, and growth.",
+    body: "Audit your own channel and any competitor across title, description, hashtags, and chapters.",
   },
 ];
 
@@ -413,7 +413,7 @@ export default function YouTubeCompetitorAnalyzerPage() {
                   href="/tools/youtube-title-score-checker"
                   className="link"
                 >
-                  YouTube Title Score Checker
+                  YouTube Title Analyzer
                 </Link>
                 .
               </p>

@@ -14,7 +14,12 @@ import {
   WandSparkles,
   type LucideIcon,
 } from "lucide-react";
-import { scoreTitle, type SignalKind, type Signal } from "@/lib/youtube/title-score";
+import {
+  analyzeTitle,
+  type PublicTitleAnalysis,
+  type Signal,
+  type SignalKind,
+} from "@/lib/youtube/title-score";
 import { track } from "@/lib/analytics/track";
 
 const SAMPLE_TITLES = [
@@ -37,17 +42,35 @@ const SIGNAL_STYLES: Record<SignalKind, string> = {
   info: "text-gray-600 bg-gray-50 ring-gray-100",
 };
 
-const BAND_STYLES = {
-  strong: { ring: "ring-brand-300", text: "text-brand-700", label: "Strong" },
-  good: { ring: "ring-brand-200", text: "text-brand-600", label: "Good" },
-  fair: { ring: "ring-amber-300", text: "text-amber-700", label: "Fair" },
-  weak: { ring: "ring-red-300", text: "text-red-700", label: "Weak" },
-} as const;
+const ANGLE_LABEL: Record<PublicTitleAnalysis["detectedAngle"], string> = {
+  howto: "How-to / tutorial",
+  listicle: "Listicle / numbered",
+  curiosity: "Curiosity / question",
+  comparison: "Comparison / vs",
+  story: "First-person story",
+  review: "Review",
+  contrarian: "Contrarian / hot-take",
+  unclear: "Unclear",
+};
 
 type Variant = { id: string; text: string };
 
+type AnalyzedVariant = Variant & {
+  analysis: PublicTitleAnalysis;
+  issueCount: number;
+  goodCount: number;
+};
+
 function genId(): string {
   return Math.random().toString(36).slice(2, 9);
+}
+
+function countIssues(a: PublicTitleAnalysis): number {
+  return a.signals.filter((s) => s.kind === "bad" || s.kind === "warn").length;
+}
+
+function countGood(a: PublicTitleAnalysis): number {
+  return a.signals.filter((s) => s.kind === "good").length;
 }
 
 export function TitleScoreTool() {
@@ -55,10 +78,8 @@ export function TitleScoreTool() {
     { id: genId(), text: "" },
   ]);
   const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
-  // Fire tool_used at most once per page session
   const toolUsedFiredRef = useRef(false);
 
-  // Hydrate from ?title= query param (sent from Title Generator's "Score →" link)
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -68,20 +89,33 @@ export function TitleScoreTool() {
     }
   }, []);
 
-  const results = useMemo(
-    () => variants.map((v) => ({ ...v, result: scoreTitle(v.text) })),
+  const results: AnalyzedVariant[] = useMemo(
+    () =>
+      variants.map((v) => {
+        const analysis = analyzeTitle(v.text);
+        return {
+          ...v,
+          analysis,
+          issueCount: countIssues(analysis),
+          goodCount: countGood(analysis),
+        };
+      }),
     [variants]
   );
 
-  // Sorted by score descending for the comparison ranking (when there are 2+)
+  // Rank by ascending issue count, break ties by descending good count.
   const sortedResults = useMemo(() => {
     if (variants.length < 2) return null;
-    return [...results].sort((a, b) => b.result.score - a.result.score);
+    return [...results]
+      .filter((r) => r.text.trim().length > 0)
+      .sort((a, b) => {
+        if (a.issueCount !== b.issueCount) return a.issueCount - b.issueCount;
+        return b.goodCount - a.goodCount;
+      });
   }, [results, variants.length]);
 
   function updateText(id: string, text: string) {
     setVariants((prev) => prev.map((v) => (v.id === id ? { ...v, text } : v)));
-    // Fire tool_used once per mount when meaningful content first appears
     if (!toolUsedFiredRef.current && text.trim().length > 3) {
       toolUsedFiredRef.current = true;
       track("tool_used", { slug: "youtube-title-score-checker" });
@@ -114,39 +148,47 @@ export function TitleScoreTool() {
     setExpandedIds((prev) => ({ ...prev, [id]: !prev[id] }));
   }
 
-  const showCompareRanking = sortedResults !== null;
+  const showCompareRanking = sortedResults !== null && sortedResults.length >= 2;
   const allEmpty = variants.every((v) => !v.text.trim());
 
   return (
     <div>
-      {/* Compare-mode ranking at top (when 2+ variants) */}
+      {/* Compare-mode ranking at top — by ascending issue count (fewer issues = better) */}
       {showCompareRanking && (
         <div className="mb-8 rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50/70 to-white p-5">
           <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">
-            Ranked
+            Ranked by fewest flagged issues
           </p>
           <ol className="mt-3 space-y-1.5">
-            {sortedResults!.map((r, i) => {
-              if (!r.text.trim()) return null;
-              const bs = BAND_STYLES[r.result.band];
-              return (
-                <li
-                  key={r.id}
-                  className="flex items-center gap-3 text-sm text-gray-800"
-                >
-                  <span className="w-4 font-mono text-xs text-gray-400">
-                    {i + 1}
-                  </span>
-                  <span
-                    className={`flex h-7 w-9 items-center justify-center rounded-md ring-1 ${bs.ring} ${bs.text} font-mono text-xs font-semibold bg-white`}
-                  >
-                    {r.result.score}
-                  </span>
-                  <span className="flex-1 truncate">{r.text}</span>
-                </li>
-              );
-            })}
+            {sortedResults!.map((r, i) => (
+              <li
+                key={r.id}
+                className="flex items-center gap-3 text-sm text-gray-800"
+              >
+                <span className="w-4 font-mono text-xs text-gray-400">
+                  {i + 1}
+                </span>
+                <span className="inline-flex items-center gap-1 text-[11px] text-gray-500">
+                  {r.issueCount > 0 ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-amber-700 ring-1 ring-inset ring-amber-100">
+                      <AlertTriangle className="h-3 w-3" strokeWidth={2.5} />
+                      {r.issueCount}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-brand-700 ring-1 ring-inset ring-brand-100">
+                      <Check className="h-3 w-3" strokeWidth={2.5} />
+                      Clean
+                    </span>
+                  )}
+                </span>
+                <span className="flex-1 truncate">{r.text}</span>
+              </li>
+            ))}
           </ol>
+          <p className="mt-3 text-[11px] text-gray-500">
+            Editorial ordering by the count of bad and warning signals. Not a
+            YouTube metric.
+          </p>
         </div>
       )}
 
@@ -196,7 +238,6 @@ export function TitleScoreTool() {
         ))}
       </div>
 
-      {/* Empty-state CTA — only when no variant has text */}
       {allEmpty && (
         <div className="mt-6 rounded-xl border border-dashed border-brand-200 bg-brand-50/40 p-4 sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -205,7 +246,8 @@ export function TitleScoreTool() {
                 No title yet?
               </p>
               <p className="mt-0.5 text-xs text-gray-600">
-                Generate 10 click-worthy titles with AI, then paste your favourite here to score it.
+                Generate 10 click-worthy titles with AI, then paste your
+                favourite here for editorial signals.
               </p>
             </div>
             <Link
@@ -224,9 +266,7 @@ export function TitleScoreTool() {
 
 type VariantCardProps = {
   number: number;
-  variant: ReturnType<typeof scoreTitle> extends infer R
-    ? { id: string; text: string; result: R }
-    : never;
+  variant: AnalyzedVariant;
   expanded: boolean;
   onChange: (text: string) => void;
   onRemove?: () => void;
@@ -241,11 +281,15 @@ function VariantCard({
   onRemove,
   onToggle,
 }: VariantCardProps) {
-  const { text, result } = variant;
-  const bs = BAND_STYLES[result.band];
+  const { text, analysis, issueCount, goodCount } = variant;
   const hasContent = text.trim().length > 0;
-  const visibleSignals = expanded || !hasContent ? result.signals : result.signals.slice(0, 2);
-  const hiddenCount = hasContent ? result.signals.length - visibleSignals.length : 0;
+  const visibleSignals =
+    expanded || !hasContent ? analysis.signals : analysis.signals.slice(0, 2);
+  const hiddenCount = hasContent
+    ? analysis.signals.length - visibleSignals.length
+    : 0;
+  const badCount = analysis.signals.filter((s) => s.kind === "bad").length;
+  const warnCount = analysis.signals.filter((s) => s.kind === "warn").length;
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5">
@@ -258,14 +302,14 @@ function VariantCard({
           <textarea
             value={text}
             onChange={(e) => onChange(e.target.value)}
-            placeholder="Paste a YouTube title to score it..."
+            placeholder="Paste a YouTube title to analyze..."
             rows={2}
             maxLength={150}
             className="w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100 resize-none"
           />
           {hasContent && (
             <span className="absolute right-2 bottom-2 font-mono text-[10px] tabular-nums text-gray-400">
-              {result.length}c
+              {analysis.length}c
             </span>
           )}
         </div>
@@ -281,33 +325,39 @@ function VariantCard({
         )}
       </div>
 
-      {/* Score row */}
+      {/* Signal summary + angle */}
       {hasContent && (
         <>
-          <div className="mt-4 flex items-center gap-4">
-            <div
-              className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full ring-2 bg-white ${bs.ring}`}
-            >
-              <span
-                className={`font-mono text-xl font-semibold tabular-nums ${bs.text}`}
-              >
-                {result.score}
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 text-[11px]">
+              {badCount > 0 && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-red-700 ring-1 ring-inset ring-red-100">
+                  <X className="h-3 w-3" strokeWidth={2.5} />
+                  {badCount}
+                </span>
+              )}
+              {warnCount > 0 && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-amber-700 ring-1 ring-inset ring-amber-100">
+                  <AlertTriangle className="h-3 w-3" strokeWidth={2.5} />
+                  {warnCount}
+                </span>
+              )}
+              {goodCount > 0 && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-brand-700 ring-1 ring-inset ring-brand-100">
+                  <Check className="h-3 w-3" strokeWidth={2.5} />
+                  {goodCount}
+                </span>
+              )}
+              {issueCount === 0 && badCount === 0 && (
+                <span className="text-brand-700">No issues flagged</span>
+              )}
+            </div>
+            <span className="text-xs text-gray-500">
+              Angle:{" "}
+              <span className="font-medium text-gray-700">
+                {ANGLE_LABEL[analysis.detectedAngle]}
               </span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className={`text-sm font-semibold ${bs.text}`}>{bs.label}</p>
-              <p className="text-xs text-gray-500">
-                {result.detectedAngle !== "unclear" ? (
-                  <>
-                    Angle: <span className="font-medium text-gray-700">
-                      {result.detectedAngle.charAt(0).toUpperCase() + result.detectedAngle.slice(1)}
-                    </span>
-                  </>
-                ) : (
-                  "Angle unclear — consider picking one"
-                )}
-              </p>
-            </div>
+            </span>
           </div>
 
           {/* Signals */}
@@ -319,7 +369,7 @@ function VariantCard({
 
           {/* Expand + Improve actions */}
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-            {result.signals.length > 2 ? (
+            {analysis.signals.length > 2 ? (
               <button
                 type="button"
                 onClick={onToggle}

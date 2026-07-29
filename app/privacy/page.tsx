@@ -95,8 +95,8 @@ export default function PrivacyPage() {
         </h3>
         <p className="mt-2 text-base text-gray-700 leading-relaxed">
           For tools that look up information from YouTube — like the Channel
-          Audit, Visibility Score, Outlier Finder, Niche Check, Channel ID
-          Finder, Tag Extractor, and Keyword Tool — we query the YouTube Data
+          Audit, Video Audit, Outlier Finder, Niche Check, Channel ID Finder,
+          Tag Extractor, and Keyword Tool — we query the YouTube Data
           API v3 server-side to fetch publicly available metadata (channel
           stats, video lists, video stats, search results) and return the
           result. We cache the response per query for 6&ndash;24 hours so

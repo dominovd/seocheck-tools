@@ -237,7 +237,7 @@ export default function HowToWriteYouTubeTitlesPage() {
         <Link href="/tools/youtube-title-generator">YouTube Title Generator</Link>{" "}
         when you need ideas, then check finalists with the{" "}
         <Link href="/tools/youtube-title-score-checker">
-          YouTube Title Score Checker
+          YouTube Title Analyzer
         </Link>
         .
       </p>

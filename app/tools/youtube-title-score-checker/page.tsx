@@ -9,14 +9,15 @@ import { getToolBySlug } from "@/lib/tools-catalog";
 
 const tool = getToolBySlug("youtube-title-score-checker")!;
 
-const PAGE_TITLE = "YouTube Title Score Checker";
+const PAGE_TITLE = "YouTube Title Analyzer";
 const META_DESCRIPTION =
   "Free YouTube title score checker. Test title length, clarity, angle, keyword placement, truncation risk, and clickbait signals. Compare up to 5 variants.";
 const OG_DESCRIPTION =
   "Score and compare YouTube title ideas before publishing. Catch length, clarity, truncation, and clickbait-risk issues while they are easy to fix.";
 
 const base = buildMetadata({
-  title: "YouTube Title Score Checker | Free SEO Title Tool",
+  title: "YouTube Title Analyzer | Free SEO Title Tool",
+  // Slug remains /tools/youtube-title-score-checker for SEO continuity; display renamed.
   description: META_DESCRIPTION,
   path: `tools/${tool.slug}`,
   noBrand: true,
@@ -38,10 +39,10 @@ export const metadata = {
 };
 
 const HERO_SUBTITLE =
-  "Paste a YouTube title and get a 0-100 quality score for length, clarity, angle, keyword placement, truncation risk, and clickbait signals. Compare up to 5 title variants before you publish.";
+  "Paste a YouTube title to get editorial signals on length, clarity, angle, keyword placement, truncation risk, and clickbait cues. Compare up to 5 title variants before you publish.";
 
 const ABOVE_FOLD_BULLETS = [
-  "0-100 quality score for any YouTube title.",
+  "Editorial signals for any YouTube title.",
   "Compare up to 5 variants side by side before publishing.",
   "Catches truncation, clickbait risk, vague angle, and weak keyword placement.",
 ];
@@ -170,7 +171,7 @@ const RELATED_TOOLS = [
 
 const FAQS = [
   {
-    q: "Is this YouTube Title Score Checker free?",
+    q: "Is this YouTube Title Analyzer free?",
     a: "Yes. The tool is free to use and does not require signup.",
   },
   {
@@ -262,7 +263,7 @@ export default function YouTubeTitleScoreCheckerPage() {
             repeating it.
           </p>
           <p className="mt-4 text-base text-gray-700 leading-relaxed">
-            The YouTube Title Score Checker helps you catch title problems
+            The YouTube Title Analyzer helps you catch title problems
             before the video goes live. Paste one title or compare several
             variants, then review the score and the signals behind it.
           </p>
@@ -423,11 +424,11 @@ export default function YouTubeTitleScoreCheckerPage() {
         </div>
       </section>
 
-      {/* Title Generator vs Title Score Checker */}
+      {/* Title Generator vs Title Analyzer */}
       <section className="border-t border-gray-100 bg-white py-16 sm:py-20">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            Title Generator vs Title Score Checker
+            Title Generator vs Title Analyzer
           </h2>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -458,7 +459,7 @@ export default function YouTubeTitleScoreCheckerPage() {
                 When you have candidates to compare
               </p>
               <p className="mt-3 text-sm text-gray-700 leading-relaxed">
-                Use Title Score Checker when you already have title
+                Use Title Analyzer when you already have title
                 candidates and want to choose or improve one.
               </p>
             </div>

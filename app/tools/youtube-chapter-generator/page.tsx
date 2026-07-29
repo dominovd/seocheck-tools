@@ -131,7 +131,7 @@ const RELATED_TOOLS = [
   },
   {
     href: "/tools/youtube-title-score-checker",
-    name: "Title Score Checker",
+    name: "Title Analyzer",
     body: "Score the title and compare variants before publishing.",
   },
   {

@@ -40,11 +40,46 @@ export type VideoAuditResult = {
     publishDate: string | null;
     lengthSeconds: number | null;
   };
-  /** Weighted average across dimensions. */
+  /** Weighted average across dimensions. Internal use only — never expose to public API. */
   overallScore: number;
   overallBand: AuditBand;
   dimensions: AuditDimension[];
 };
+
+/**
+ * Public-facing shape returned by the Video Audit API. Strips composite
+ * scores and per-dimension numeric scores/bands to comply with YouTube
+ * API Services policy III.E.4h (no independently calculated metrics).
+ *
+ * Keeps textual signals and the fix-it CTA, which are the actionable parts.
+ */
+export type PublicAuditDimension = {
+  key: AuditDimension["key"];
+  label: string;
+  signals: Signal[];
+  ctaTool: { slug: string; label: string };
+};
+
+export type PublicVideoAuditResult = {
+  videoId: string;
+  videoUrl: string;
+  meta: VideoAuditResult["meta"];
+  dimensions: PublicAuditDimension[];
+};
+
+export function toPublicAudit(audit: VideoAuditResult): PublicVideoAuditResult {
+  return {
+    videoId: audit.videoId,
+    videoUrl: audit.videoUrl,
+    meta: audit.meta,
+    dimensions: audit.dimensions.map((d) => ({
+      key: d.key,
+      label: d.label,
+      signals: d.signals,
+      ctaTool: d.ctaTool,
+    })),
+  };
+}
 
 // Dimension weights — title and description carry the most weight because
 // they have the highest measurable CTR impact.

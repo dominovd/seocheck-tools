@@ -132,7 +132,7 @@ const RELATED_TOOLS = [
   },
   {
     href: "/tools/youtube-title-score-checker",
-    name: "Title Score Checker",
+    name: "Title Analyzer",
     body: "Check whether your final title is clear, specific, and clickable.",
   },
   {

@@ -19,7 +19,8 @@
  * Total YouTube quota: ~5 units. LLM: ~$0.001. Cache 24h by channel ID.
  */
 
-import type { TitleScoreResult } from "./title-score";
+import type { PublicTitleAnalysis, TitleScoreResult } from "./title-score";
+import { analyzeTitle } from "./title-score";
 
 export type OutlierVideo = {
   videoId: string;
@@ -62,6 +63,65 @@ export type OutlierAnalysis = {
   /** Set when LLM analysis failed but stat data is fine. */
   analysisFailed?: boolean;
 };
+
+/**
+ * Public-facing shape returned by the API. Strips the derived
+ * multiplier and title composite score/band to comply with YouTube
+ * API Services policy III.E.4h. The user still sees raw view counts
+ * alongside the channel's median so they can visually compare, and
+ * per-video textual title signals for editorial guidance.
+ */
+export type PublicOutlierVideo = {
+  videoId: string;
+  videoUrl: string;
+  title: string;
+  thumbnailUrl: string | null;
+  publishDate: string | null;
+  lengthSeconds: number | null;
+  viewCount: number;
+  likeCount: number | null;
+  commentCount: number | null;
+  titleAnalysis: PublicTitleAnalysis;
+};
+
+export type PublicOutlierAnalysis = {
+  channel: OutlierChannel;
+  windowSize: number;
+  medianViews: number;
+  meanViews: number;
+  outliers: PublicOutlierVideo[];
+  megaOutliers: PublicOutlierVideo[];
+  patterns: string[];
+  analysisFailed?: boolean;
+};
+
+function toPublicOutlierVideo(v: OutlierVideo): PublicOutlierVideo {
+  return {
+    videoId: v.videoId,
+    videoUrl: v.videoUrl,
+    title: v.title,
+    thumbnailUrl: v.thumbnailUrl,
+    publishDate: v.publishDate,
+    lengthSeconds: v.lengthSeconds,
+    viewCount: v.viewCount,
+    likeCount: v.likeCount,
+    commentCount: v.commentCount,
+    titleAnalysis: analyzeTitle(v.title),
+  };
+}
+
+export function toPublicOutlierAnalysis(a: OutlierAnalysis): PublicOutlierAnalysis {
+  return {
+    channel: a.channel,
+    windowSize: a.windowSize,
+    medianViews: a.medianViews,
+    meanViews: a.meanViews,
+    outliers: a.outliers.map(toPublicOutlierVideo),
+    megaOutliers: a.megaOutliers.map(toPublicOutlierVideo),
+    patterns: a.patterns,
+    analysisFailed: a.analysisFailed,
+  };
+}
 
 /**
  * Compute the median of a list of numbers. Returns 0 for empty list.

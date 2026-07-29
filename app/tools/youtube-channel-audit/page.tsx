@@ -19,29 +19,29 @@ import { getToolBySlug } from "@/lib/tools-catalog";
 const tool = getToolBySlug("youtube-channel-audit")!;
 
 export const metadata = buildMetadata({
-  title: "YouTube Channel Audit | Free Visibility Score & SEO Checker",
+  title: "YouTube Channel Audit | Free SEO Checker",
   description:
-    "Run a free YouTube channel audit. Get a 0-100 Visibility Score across CTR potential, metadata quality, niche headroom, and growth trajectory, with severity-ranked recurring fixes across the last 30 uploads.",
+    "Run a free YouTube channel audit. See raw YouTube metrics for the last 30 uploads plus severity-ranked recurring recommendations for title, description, hashtags, and chapters.",
   path: `tools/${tool.slug}`,
   noBrand: true,
   ogVariant: tool.isAI ? { ai: true } : undefined,
 });
 
 const HERO_SUBTITLE =
-  "Paste any YouTube channel and get a free 0-100 channel SEO score across title strength, metadata quality, niche reach, and recent growth momentum, plus severity-ranked recurring fixes across the last 30 uploads.";
+  "Paste any YouTube channel to see raw metrics for the last 30 uploads (views, cadence, median stats) plus editorial recommendations for title, description, hashtags, and chapters, with severity-ranked recurring fixes.";
 
 type Card = { Icon: typeof Award; title: string; body: string };
 
 const WHAT_YOU_GET: Card[] = [
   {
     Icon: Award,
-    title: "0-100 Visibility Score",
-    body: "A quotable headline number for the channel composed of 4 weighted subscores. Shareable in your bio or pinned comment.",
+    title: "Channel overview",
+    body: "Raw factual aggregations over the last 30 uploads: median and mean views, publishing cadence, typical video length, and date range.",
   },
   {
     Icon: BarChart3,
-    title: "4 dashboard subscores",
-    body: "CTR Potential, Metadata Quality, Niche Headroom, and Growth Trajectory — each scored 0-100 with one-line evidence.",
+    title: "Per-dimension band counts",
+    body: "How many of the analyzed videos fall into Strong / Good / Fair / Weak for title, description, hashtags, and chapters — categorical editorial breakdown.",
   },
   {
     Icon: AlertTriangle,
@@ -131,7 +131,7 @@ const RELATED_TOOLS = [
   },
   {
     href: "/tools/youtube-title-score-checker",
-    name: "Title Score Checker",
+    name: "Title Analyzer",
     body: "Check whether weak titles are clear, specific, and clickable.",
   },
   {
@@ -202,7 +202,7 @@ const FAQS = [
   },
   {
     q: "How is the audit calculated?",
-    a: "The tool resolves your channel handle to a channel ID, pulls the last 30 public uploads, and runs each video through the same scoring engine used by Video Audit (title, description, hashtags, chapters). Those feed the Metadata Quality subscore. CTR Potential uses average title scores, Niche Headroom uses median views vs subscribers, and Growth Trajectory uses the outlier rate (videos that beat 1.5× the channel median). The overall 0-100 Visibility Score is a weighted blend of all four. Recurring fixes are ranked by severity from the actual band counts, then AI rewrites each into a creator-actionable sentence.",
+    a: "The tool resolves your channel handle to a channel ID, pulls raw metrics for the last 30 public uploads via the YouTube Data API v3 (view counts, publish dates, titles, descriptions, hashtags, chapters), and runs an editorial pass over each video's metadata. The Recommended fixes are ranked by severity from the actual counts of videos with each pattern, then AI rewrites each into a creator-actionable sentence. We surface raw YouTube data and editorial suggestions only — no composite scores or derived metrics.",
   },
 ];
 

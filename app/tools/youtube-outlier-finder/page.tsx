@@ -135,7 +135,7 @@ const HOW_TO_STEPS = [
     text: "Reuse the lesson, not the title. Adjacent ideas keep the audience expectation while giving you original room.",
   },
   {
-    name: "Run the strongest idea through the Keyword Tool, Title Score Checker, and Thumbnail Preview before publishing",
+    name: "Run the strongest idea through the Keyword Tool, Title Analyzer, and Thumbnail Preview before publishing",
     text: "Validate demand and packaging before production time. The point is to ship with proof, not just enthusiasm.",
   },
 ];
@@ -148,7 +148,7 @@ const RELATED_TOOLS = [
   },
   {
     href: "/tools/youtube-title-score-checker",
-    name: "Title Score Checker",
+    name: "Title Analyzer",
     body: "Test whether the title promise is clear and clickable.",
   },
   {

@@ -102,7 +102,7 @@ const SCORED: ScoredDimension[] = [
     weight: "30%",
     checks: "Length, clarity, specificity, click potential",
     toolHref: "/tools/youtube-title-score-checker",
-    toolLabel: "Title Score Checker",
+    toolLabel: "Title Analyzer",
   },
   {
     dim: "Description",
@@ -150,7 +150,7 @@ const CHECKLIST = [
 const RELATED_TOOLS = [
   {
     href: "/tools/youtube-title-score-checker",
-    name: "Title Score Checker",
+    name: "Title Analyzer",
     body: "Check and improve the title before publishing or updating metadata.",
   },
   {
@@ -211,7 +211,7 @@ const FAQS = [
   },
   {
     q: "Why doesn't it score views or engagement?",
-    a: "Views and engagement measure performance after publishing. Video Audit focuses on the upload package you can edit directly. For channel-level growth signals, use Visibility Score or Channel Audit.",
+    a: "Views and engagement measure performance after publishing. Video Audit focuses on the upload package you can edit directly. For channel-level patterns and growth signals, use Channel Audit.",
   },
   {
     q: "Can this improve my YouTube SEO score?",

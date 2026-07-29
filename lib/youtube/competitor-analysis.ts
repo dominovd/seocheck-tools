@@ -14,7 +14,8 @@
  * Cache by channel ID for 24h — same channel re-analysed = zero cost.
  */
 
-import type { TitleScoreResult } from "./title-score";
+import type { PublicTitleAnalysis, TitleScoreResult } from "./title-score";
+import { analyzeTitle } from "./title-score";
 
 export type CompetitorVideo = {
   videoId: string;
@@ -53,6 +54,48 @@ export type CompetitorAnalysis = {
   /** Set when LLM analysis failed but channel + video data is fine. */
   analysisFailed?: boolean;
 };
+
+/**
+ * Public-facing video shape returned by the API. Replaces the internal
+ * TitleScoreResult (which contains a 0-100 score and Strong/Weak band)
+ * with the sanitized PublicTitleAnalysis (textual signals + categorical
+ * angle only). Complies with YouTube API Services policy III.E.4h.
+ */
+export type PublicCompetitorVideo = Omit<CompetitorVideo, "titleScore"> & {
+  titleAnalysis: PublicTitleAnalysis;
+};
+
+export type PublicCompetitorAnalysis = Omit<CompetitorAnalysis, "topVideos" | "latestVideos"> & {
+  topVideos: PublicCompetitorVideo[];
+  latestVideos: PublicCompetitorVideo[];
+};
+
+function toPublicCompetitorVideo(v: CompetitorVideo): PublicCompetitorVideo {
+  // Recompute title analysis from raw title text so no internal score leaks.
+  return {
+    videoId: v.videoId,
+    videoUrl: v.videoUrl,
+    title: v.title,
+    thumbnailUrl: v.thumbnailUrl,
+    publishDate: v.publishDate,
+    lengthSeconds: v.lengthSeconds,
+    viewCount: v.viewCount,
+    likeCount: v.likeCount,
+    commentCount: v.commentCount,
+    titleAnalysis: analyzeTitle(v.title),
+  };
+}
+
+export function toPublicCompetitorAnalysis(a: CompetitorAnalysis): PublicCompetitorAnalysis {
+  return {
+    channel: a.channel,
+    topVideos: a.topVideos.map(toPublicCompetitorVideo),
+    latestVideos: a.latestVideos.map(toPublicCompetitorVideo),
+    patterns: a.patterns,
+    direction: a.direction,
+    analysisFailed: a.analysisFailed,
+  };
+}
 
 /**
  * System prompt for the combined pattern + direction summary.
