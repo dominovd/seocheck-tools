@@ -505,7 +505,7 @@ export default function YouTubeThumbnailPreviewPage() {
             </h2>
             <p className="mt-3 text-base text-gray-600 leading-relaxed">
               Preview is the final check. Use these tools to generate,
-              score, and audit the rest of the video package.
+              analyze, and audit the rest of the video package.
             </p>
           </div>
 

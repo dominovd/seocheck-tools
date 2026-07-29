@@ -1,19 +1,14 @@
 import { ScreenshotCarousel } from "./ScreenshotCarousel";
 
-export function TitleGeneratorScreenshot() {
-  return (
-    <ScreenshotCarousel
-      screenshots={[
-        {
-          src: "/screenshots/title-generator.webp",
-          alt: "AI YouTube Title Generator showing 10 generated titles for a React tutorial topic",
-          width: 1220,
-          height: 1506,
-        },
-      ]}
-    />
-  );
-}
+/**
+ * Screenshot carousels used on the homepage and guides.
+ *
+ * The Channel Audit, Video Audit, and Title Generator carousels were
+ * removed 2026-07 as part of the YouTube API compliance remediation —
+ * the archived shots displayed derived numeric scores (Grade, avg/dim
+ * scores, per-video score badges) that fall under policy III.E.4h.
+ * Replace them with post-refactor shots once the new UI is stable.
+ */
 
 export function ChannelNameGeneratorScreenshots() {
   return (
@@ -30,48 +25,6 @@ export function ChannelNameGeneratorScreenshots() {
           alt: "Continuation of channel name ideas with rationale and YouTube handle availability check",
           width: 1086,
           height: 1094,
-        },
-      ]}
-    />
-  );
-}
-
-export function ChannelAuditScreenshots() {
-  return (
-    <ScreenshotCarousel
-      screenshots={[
-        {
-          src: "/screenshots/channel-audit-1.webp",
-          alt: "YouTube Channel Audit showing average score 59 with top recurring issues across last 10 uploads",
-          width: 1212,
-          height: 1452,
-        },
-        {
-          src: "/screenshots/channel-audit-2.webp",
-          alt: "Per-dimension breakdown across 10 audited videos with worst dimension flagged and per-video scores",
-          width: 1142,
-          height: 1438,
-        },
-      ]}
-    />
-  );
-}
-
-export function VideoAuditScreenshots() {
-  return (
-    <ScreenshotCarousel
-      screenshots={[
-        {
-          src: "/screenshots/video-audit-1.webp",
-          alt: "YouTube Video Audit result showing overall score 65 with weaknesses summary and Fix with AI button",
-          width: 1386,
-          height: 1480,
-        },
-        {
-          src: "/screenshots/video-audit-2.webp",
-          alt: "Video audit per-dimension breakdown with Title, Description, Tags, Hashtags and Chapters scores",
-          width: 1294,
-          height: 1372,
         },
       ]}
     />

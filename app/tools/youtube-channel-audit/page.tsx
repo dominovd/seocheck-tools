@@ -71,8 +71,8 @@ const HOW_TO_STEPS = [
     body: "Use your own channel or a public competitor channel. The audit works with public uploads only.",
   },
   {
-    title: "Review the overall grade",
-    body: "Start with the channel-wide score to understand whether the recent upload package is strong, mixed, or weak.",
+    title: "Review the channel overview",
+    body: "Start with the channel overview panel to understand how the recent uploads look at a glance across cadence, median views, and typical length.",
   },
   {
     title: "Find the weakest dimension",
@@ -158,11 +158,11 @@ const FAQS = [
   },
   {
     q: "How do I audit my YouTube channel for free?",
-    a: "Paste your channel handle, URL, or ID into the tool and run the audit. The tool checks recent public uploads and returns a channel grade, per-dimension scores, weak spots, and recurring issues.",
+    a: "Paste your channel handle, URL, or ID into the tool and run the audit. The tool checks recent public uploads and returns raw YouTube metrics, per-dimension editorial band counts, focus areas, and recurring recommended fixes.",
   },
   {
-    q: "What does the channel grade mean?",
-    a: "The channel grade summarizes how well recent uploads are packaged for discovery. A strong grade means the channel is consistent across titles, descriptions, hashtags, and chapters. A weak grade means the same issues likely appear across multiple uploads.",
+    q: "What does the channel overview show?",
+    a: "The overview surfaces raw YouTube facts about recent uploads: median and mean views, publishing cadence, typical video length, and total window date range. It answers 'what does this channel look like right now' before you dive into per-dimension editorial recommendations.",
   },
   {
     q: "What is the difference between Channel Audit and Video Audit?",
@@ -174,7 +174,7 @@ const FAQS = [
   },
   {
     q: "What does “worst dimension” mean?",
-    a: "The worst dimension is the area with the lowest average score across recent uploads. It helps you choose the first improvement to make, such as better titles, stronger descriptions, cleaner hashtags, or more useful chapters.",
+    a: "The focus-area dimension is the one with the most recent uploads landing in the weak or fair editorial band. It helps you choose the first improvement to make, such as better titles, stronger descriptions, cleaner hashtags, or more useful chapters.",
   },
   {
     q: "Will this work on a channel that is not mine?",

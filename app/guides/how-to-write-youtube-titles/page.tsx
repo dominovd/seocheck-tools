@@ -276,22 +276,6 @@ export default function HowToWriteYouTubeTitlesPage() {
         </ol>
       </nav>
 
-      {/* Title Generator screenshot — the tool mentioned in the intro */}
-      <figure className="my-10 not-prose">
-        <div className="overflow-hidden rounded-2xl ring-1 ring-gray-200 bg-white shadow-sm">
-          <Image
-            src="/screenshots/title-generator.webp"
-            alt="AI YouTube Title Generator returning 10 click-worthy title ideas for a single topic"
-            width={1220}
-            height={1506}
-            className="w-full h-auto"
-          />
-        </div>
-        <figcaption className="mt-3 text-center text-xs text-gray-500">
-          The Title Generator returns 10 angles from one topic so you have
-          a real shortlist to compare.
-        </figcaption>
-      </figure>
 
       <h2 id="what-works">What makes a YouTube title work</h2>
       <p>A strong YouTube title usually does three things:</p>
@@ -613,23 +597,6 @@ export default function HowToWriteYouTubeTitlesPage() {
         Use <Link href="/tools/youtube-video-audit">Video Audit</Link> to
         check packaging and metadata after publishing.
       </p>
-
-      {/* Video Audit screenshot — visualises the testing workflow */}
-      <figure className="my-10 not-prose">
-        <div className="overflow-hidden rounded-2xl ring-1 ring-gray-200 bg-white shadow-sm">
-          <Image
-            src="/screenshots/video-audit-1.webp"
-            alt="YouTube Video Audit result showing overall SEO score and an inline Fix with AI button"
-            width={1386}
-            height={1480}
-            className="w-full h-auto"
-          />
-        </div>
-        <figcaption className="mt-3 text-center text-xs text-gray-500">
-          After publishing, Video Audit gives a single score and flags the
-          weakest field so the next iteration is targeted, not blind.
-        </figcaption>
-      </figure>
 
       <h2 id="checklist">YouTube title checklist</h2>
       <p>Before publishing, ask:</p>

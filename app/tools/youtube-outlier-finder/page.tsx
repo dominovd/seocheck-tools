@@ -47,19 +47,19 @@ export const metadata = {
 };
 
 const HERO_SUBTITLE =
-  "Analyze the last 100 uploads from any YouTube channel and find the videos that beat its normal view baseline. See which breakouts earned 3x, 10x, or more than usual, then use the pattern to plan smarter topics, titles, and formats.";
+  "Analyze the last 100 uploads from any YouTube channel and find the videos whose raw view count sits well above the channel's own median. Study the breakout patterns to plan smarter topics, titles, and formats.";
 
 const ABOVE_FOLD_BULLETS = [
   "Surface videos that escaped the channel's normal performance.",
-  "See breakout multipliers against the channel's own median, not a generic benchmark.",
+  "See breakout view counts alongside the channel's own median, not a generic benchmark.",
   "Find repeatable exceptions you can turn into the next series, follow-up, or angle.",
 ];
 
 const WHAT_IT_SHOWS = [
   "A median view baseline for the channel's recent performance.",
-  "Videos that exceeded that baseline by 3x or more.",
-  "Mega-outliers that cleared a much higher multiplier.",
-  "View counts, publish dates, and performance multipliers.",
+  "Videos whose view count sits well above that baseline.",
+  "Mega-outliers that cleared the median by a much wider gap.",
+  "Raw view counts, publish dates, and channel-level medians side by side.",
   "AI notes comparing breakout videos against average-performing uploads from the same channel.",
 ];
 
@@ -110,8 +110,8 @@ const HOW_IT_WORKS_STEPS = [
   "The channel input is resolved to a YouTube channel ID and uploads playlist.",
   "The latest 100 uploads are fetched from the channel's public upload history.",
   "The tool calculates the median view count across those uploads.",
-  "Each video gets a multiplier: video views divided by the channel median.",
-  "Videos at 3x or higher are marked as outliers. Stronger breakouts receive higher multipliers.",
+  "Each video's raw view count is compared against the channel median.",
+  "Videos whose views comfortably beat the median are surfaced as outliers, with the strongest breakouts flagged as well above baseline.",
   "The AI summary compares top outliers with normal-performing uploads from the same channel and looks for differences in topic, framing, title structure, and format.",
 ];
 
@@ -176,7 +176,7 @@ const RELATED_TOOLS = [
 const FAQS = [
   {
     q: "What is a YouTube outlier video?",
-    a: "A YouTube outlier is a video that performs far above a channel's usual view baseline. In this tool, a video is flagged when it gets at least 3x the channel's median view count across recent uploads.",
+    a: "A YouTube outlier is a video that performs far above a channel's usual view baseline. In this tool, we surface any video whose raw view count comfortably exceeds the channel's own median across the analyzed window of recent uploads.",
   },
   {
     q: "Is this YouTube Outlier Finder free?",
@@ -273,7 +273,7 @@ export default function YouTubeOutlierFinderPage() {
             channel&apos;s normal baseline. It does not ask &ldquo;what is
             the biggest video on this channel?&rdquo; It asks a more useful
             creator question: which recent videos beat this channel&apos;s
-            usual performance by 3x, 10x, or more, and what changed when
+            usual performance by a wide margin, and what changed when
             they did?
           </p>
           <p className="mt-4 text-base text-gray-700 leading-relaxed">

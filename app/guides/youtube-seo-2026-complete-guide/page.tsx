@@ -418,23 +418,6 @@ export default function YouTubeSeoCompleteGuidePage() {
         .
       </p>
 
-      {/* Title Generator screenshot */}
-      <figure className="my-10 not-prose">
-        <div className="overflow-hidden rounded-2xl ring-1 ring-gray-200 bg-white shadow-sm">
-          <Image
-            src="/screenshots/title-generator.webp"
-            alt="AI YouTube Title Generator showing 10 generated titles for a React tutorial topic"
-            width={1220}
-            height={1506}
-            className="w-full h-auto"
-          />
-        </div>
-        <figcaption className="mt-3 text-center text-xs text-gray-500">
-          Example output: the Title Generator returns 10 angles you can
-          shortlist, then score before publishing.
-        </figcaption>
-      </figure>
-
       <h2 id="step-4">Step 4: Build the thumbnail and title together</h2>
       <p>
         The title and thumbnail are one piece of packaging. They should
@@ -680,33 +663,6 @@ export default function YouTubeSeoCompleteGuidePage() {
         last 30 uploads.
       </p>
 
-      {/* Video Audit screenshots */}
-      <figure className="my-10 not-prose">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="overflow-hidden rounded-2xl ring-1 ring-gray-200 bg-white shadow-sm">
-            <Image
-              src="/screenshots/video-audit-1.webp"
-              alt="YouTube Video Audit result showing overall SEO score of 65 with weaknesses summary and a Fix with AI button"
-              width={1386}
-              height={1480}
-              className="w-full h-auto"
-            />
-          </div>
-          <div className="overflow-hidden rounded-2xl ring-1 ring-gray-200 bg-white shadow-sm">
-            <Image
-              src="/screenshots/video-audit-2.webp"
-              alt="Video audit per-dimension breakdown across title, description, tags, hashtags and chapters"
-              width={1294}
-              height={1372}
-              className="w-full h-auto"
-            />
-          </div>
-        </div>
-        <figcaption className="mt-3 text-center text-xs text-gray-500">
-          Video Audit returns an overall score and a per-dimension
-          breakdown so you know which field to fix first.
-        </figcaption>
-      </figure>
 
       <h2 id="checklist">YouTube SEO checklist</h2>
       <p>

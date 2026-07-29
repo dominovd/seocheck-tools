@@ -23,7 +23,7 @@ const tool = getToolBySlug("youtube-niche-check")!;
 
 const PAGE_TITLE = "Free YouTube Niche Checker";
 const META_DESCRIPTION =
-  "Free YouTube niche checker. Validate a video topic before recording with a 0-10 opportunity score, demand signals, competition risk, freshness, and top-result evidence.";
+  "Free YouTube niche checker. Validate a video topic before recording with a categorical verdict, demand signals, competition risk, freshness, and top-result evidence.";
 const OG_DESCRIPTION =
   "Check a YouTube topic for free before you make the video. See whether demand, timing, and competition make it worth entering.";
 
@@ -48,7 +48,7 @@ export const metadata = {
 };
 
 const HERO_SUBTITLE =
-  "Before you script, record, or brief an editor, check whether the topic has a real opening. Get a 0-10 opportunity score, a plain-English verdict, and evidence from the current YouTube results.";
+  "Before you script, record, or brief an editor, check whether the topic has a real opening. Get a plain-English verdict category, factual signals from the top-20 results, and evidence you can act on.";
 
 const ABOVE_FOLD_BULLETS = [
   "Know when a topic deserves production time.",
@@ -252,8 +252,8 @@ const FAQS = [
     a: "WEAK DEMAND means the top videos do not show enough view activity to justify the effort for most creators. It may still work for a very specific audience, but it is not a broad opportunity.",
   },
   {
-    q: "How is the score calculated?",
-    a: "The score is based on rule-based signals from the top 20 YouTube results: median views, small-channel outliers, big-channel share, freshness, and topic direction. It is designed to be consistent rather than subjective.",
+    q: "How is the verdict computed?",
+    a: "The verdict category is based on rule-based signals from the top 20 YouTube results: median views, small-channel outliers, big-channel share, freshness, and topic direction. It is designed to be consistent rather than subjective, and does not surface a numeric score.",
   },
   {
     q: "Is this the same as a YouTube keyword tool?",
@@ -366,7 +366,7 @@ export default function YouTubeNicheCheckPage() {
               <p className="text-base font-semibold text-gray-900">Verdict</p>
               <p className="mt-1.5 text-sm text-gray-700 leading-relaxed">
                 The tool turns those signals into one clear decision label
-                and a 0-10 opportunity score.
+                and a categorical verdict from the top-20 results.
               </p>
             </div>
           </div>

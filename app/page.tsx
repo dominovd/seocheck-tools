@@ -32,10 +32,7 @@ import { HomeCreatorPipeline } from "@/components/HomeCreatorPipeline";
 import { ToolSpotlight } from "@/components/spotlights/ToolSpotlight";
 import { MockKeywordTool } from "@/components/spotlights/MockKeywordTool";
 import {
-  TitleGeneratorScreenshot,
   ChannelNameGeneratorScreenshots,
-  ChannelAuditScreenshots,
-  VideoAuditScreenshots,
 } from "@/components/spotlights/ScreenshotSets";
 import { buildMetadata } from "@/lib/seo";
 import {
@@ -445,12 +442,11 @@ export default function HomePage() {
             eyebrow="Channel Audit"
             isAI
             reverse
-            title="Grade your whole YouTube channel in one click"
-            description="Paste a channel and get a channel-level packaging grade averaged across the last 10 uploads. The audit flags recurring weak spots, missing chapters, and weak descriptions across videos so you know what to fix next."
+            title="Audit your whole YouTube channel in one click"
+            description="Paste a channel and see raw YouTube metrics for the last 30 uploads (median and mean views, publishing cadence, typical length) plus severity-ranked editorial fixes across title, description, hashtags, and chapters."
             href="/tools/youtube-channel-audit"
             ctaLabel="Audit my channel"
-            proof="channel-level grade · per-dimension averages · top recurring issues · last 10 videos scored"
-            mock={<ChannelAuditScreenshots />}
+            proof="raw metrics · per-dimension band counts · severity-ranked recurring fixes · last 30 uploads"
           />
         </Container>
       </section>
@@ -521,10 +517,8 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Real product screenshot */}
-            <div>
-              <VideoAuditScreenshots />
-            </div>
+            {/* Screenshot placeholder — old scoring shots removed for compliance */}
+            <div className="hidden lg:block" />
           </div>
         </Container>
       </section>

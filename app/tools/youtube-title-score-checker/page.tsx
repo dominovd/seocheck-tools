@@ -11,7 +11,7 @@ const tool = getToolBySlug("youtube-title-score-checker")!;
 
 const PAGE_TITLE = "YouTube Title Analyzer";
 const META_DESCRIPTION =
-  "Free YouTube title score checker. Test title length, clarity, angle, keyword placement, truncation risk, and clickbait signals. Compare up to 5 variants.";
+  "Free YouTube title analyzer. Test title length, clarity, angle, keyword placement, truncation risk, and clickbait signals. Compare up to 5 variants.";
 const OG_DESCRIPTION =
   "Score and compare YouTube title ideas before publishing. Catch length, clarity, truncation, and clickbait-risk issues while they are easy to fix.";
 
@@ -109,7 +109,7 @@ const COMPARE_STEPS = [
   "Write or generate 5-10 title ideas.",
   "Pick the strongest 3-5.",
   "Paste them into the checker.",
-  "Compare score, length, clarity, and risk signals.",
+  "Compare length, clarity, angle, and risk signals.",
   "Choose the title that is clear, honest, and differentiated.",
   "Preview it with the thumbnail before publishing.",
 ];
@@ -175,12 +175,12 @@ const FAQS = [
     a: "Yes. The tool is free to use and does not require signup.",
   },
   {
-    q: "How is the YouTube title score calculated?",
-    a: "The score is based on title-quality signals such as length, truncation risk, angle, clarity, keyword placement, punctuation, all-caps usage, clickbait-risk language, and structural patterns like questions, numbers, comparisons, and how-to phrasing.",
+    q: "How does the YouTube Title Analyzer work?",
+    a: "The analyzer runs deterministic editorial checks against a title: length, truncation risk, angle detection, clarity, keyword placement, punctuation, all-caps usage, clickbait-risk language, and structural patterns like questions, numbers, comparisons, and how-to phrasing. Each check produces a good, warning, or bad signal you can act on. No composite numeric score is produced.",
   },
   {
-    q: "Does the score predict CTR?",
-    a: "No. The score does not predict your actual click-through rate. CTR depends on the topic, audience, thumbnail, traffic source, competition, timing, and viewer history. The score helps catch title issues that may hurt performance.",
+    q: "Does the analyzer predict CTR?",
+    a: "No. The analyzer does not predict your actual click-through rate. CTR depends on the topic, audience, thumbnail, traffic source, competition, timing, and viewer history. It helps you catch title issues that may hurt performance.",
   },
   {
     q: "What is the best YouTube title length?",
@@ -188,7 +188,7 @@ const FAQS = [
   },
   {
     q: "Should I always use the highest-scoring title?",
-    a: "Not always. Use the score as guidance, not as the final decision. Choose the title that is clear, accurate, differentiated, and aligned with the thumbnail.",
+    a: "Not always. Use the signals as guidance, not as the final decision. Choose the title that is clear, accurate, differentiated, and aligned with the thumbnail.",
   },
   {
     q: "Can I compare multiple YouTube titles?",
@@ -265,21 +265,21 @@ export default function YouTubeTitleScoreCheckerPage() {
           <p className="mt-4 text-base text-gray-700 leading-relaxed">
             The YouTube Title Analyzer helps you catch title problems
             before the video goes live. Paste one title or compare several
-            variants, then review the score and the signals behind it.
+            variants side-by-side and review the flagged signals.
           </p>
           <p className="mt-4 text-base text-gray-700 leading-relaxed">
-            The score is not a promise of views. It is a quality check for
+            The signals are not a promise of views. They are a quality check for
             common title issues that are easy to miss when you are too
             close to the video.
           </p>
         </div>
       </section>
 
-      {/* What the title score checks */}
+      {/* What the title analyzer checks */}
       <section className="border-t border-gray-100 bg-white py-16 sm:py-20">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            What the title score checks
+            What the analyzer checks
           </h2>
           <p className="mt-5 text-base text-gray-700 leading-relaxed">
             The checker evaluates signals that affect how a title reads on
@@ -352,20 +352,20 @@ export default function YouTubeTitleScoreCheckerPage() {
         </div>
       </section>
 
-      {/* A high score is useful, but not final */}
+      {/* A clean signal read is useful, but not final */}
       <section className="border-t border-gray-100 bg-white py-16 sm:py-20">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            A high score is useful, but not final
+            A clean signal read is useful, but not final
           </h2>
           <p className="mt-5 text-base text-gray-700 leading-relaxed">
             The tool rewards titles that follow strong YouTube packaging
-            habits. But a title can score well and still be wrong for the
-            video. It can also score lower and still work because the
+            habits. But a title can read cleanly through the analyzer and still be
+            wrong for the video. It can also flag several signals and still work because the
             idea is specific, honest, or intentionally unusual.
           </p>
           <p className="mt-4 text-base text-gray-700 leading-relaxed">
-            Use the score to catch:
+            Use the analyzer to catch:
           </p>
 
           <ul className="mt-6 space-y-2">
@@ -417,7 +417,7 @@ export default function YouTubeTitleScoreCheckerPage() {
           </ol>
 
           <p className="mt-8 text-base text-gray-700 leading-relaxed">
-            If two titles score similarly, choose the one that better
+            If two titles flag similar signals, choose the one that better
             matches the thumbnail and makes the payoff easier to
             understand.
           </p>
@@ -542,7 +542,7 @@ export default function YouTubeTitleScoreCheckerPage() {
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-              Generate, score, then preview
+              Generate, analyze, then preview
             </h2>
             <p className="mt-3 text-base text-gray-600 leading-relaxed">
               Use these tools to build a stronger title and test how it
@@ -586,7 +586,7 @@ export default function YouTubeTitleScoreCheckerPage() {
       <section className="border-t border-gray-100 bg-gray-50/40 py-20 sm:py-24">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
-            Ready to score your title?
+            Ready to analyze your title?
           </h2>
           <p className="mt-4 text-base text-gray-600 sm:text-lg leading-relaxed">
             Paste up to 5 title variants and pick the strongest one

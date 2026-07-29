@@ -21,22 +21,22 @@ const tool = getToolBySlug("youtube-video-audit")!;
 export const metadata = buildMetadata({
   title: "YouTube Video Audit | Free SEO Checker",
   description:
-    "Run a free YouTube video audit. Check any video URL for title, description, tags, hashtags, chapters, SEO score, and fix-it tools.",
+    "Run a free YouTube video audit. Check any video URL for title, description, tags, hashtags, chapters, SEO audit, and fix-it tools.",
   path: `tools/${tool.slug}`,
   noBrand: true,
   ogVariant: tool.isAI ? { ai: true } : undefined,
 });
 
 const HERO_SUBTITLE =
-  "Paste any YouTube video URL to check its SEO score, metadata, title, description, tags, hashtags, and chapters, then see what to fix first.";
+  "Paste any YouTube video URL to check its SEO audit, metadata, title, description, tags, hashtags, and chapters, then see what to fix first.";
 
 type Card = { Icon: typeof Gauge; title: string; body: string };
 
 const WHAT_YOU_GET: Card[] = [
   {
     Icon: Gauge,
-    title: "Overall video SEO score",
-    body: "See whether the video package is strong, mixed, or needs work.",
+    title: "Overall video audit summary",
+    body: "See at a glance how many editorial issues were flagged across the video package.",
   },
   {
     Icon: Heading,
@@ -71,16 +71,16 @@ const HOW_TO_STEPS = [
     body: "Use any public YouTube video, including regular videos, Shorts, youtu.be links, and copied mobile app links.",
   },
   {
-    title: "Review the overall SEO score",
-    body: "Start with the top-level score to see whether the video package is strong, mixed, or weak.",
+    title: "Review the audit summary",
+    body: "Start with the top-level summary to see how many editorial issues were flagged and where.",
   },
   {
     title: "Check each metadata field",
-    body: "Look at the title, description, tags, hashtags, and chapters to see where the video loses points.",
+    body: "Look at the title, description, tags, hashtags, and chapters to see where the video has editorial issues.",
   },
   {
     title: "Fix the weakest field first",
-    body: "Do not rewrite everything at once. Start with the field that has the lowest score or clearest issue.",
+    body: "Do not rewrite everything at once. Start with the field that has the most flagged signals or clearest issue.",
   },
   {
     title: "Re-run the audit after edits",
@@ -183,15 +183,15 @@ const RELATED_TOOLS = [
 const FAQS = [
   {
     q: "What is a YouTube Video Audit?",
-    a: "A YouTube Video Audit checks one public video and scores its upload package: title, description, tags, hashtags, and chapters. It helps you find weak metadata fields and decide what to fix first.",
+    a: "A YouTube Video Audit checks one public video and surfaces editorial signals across its upload package: title, description, tags, hashtags, and chapters. It helps you find weak metadata fields and decide what to fix first.",
   },
   {
     q: "Is this a YouTube video SEO checker?",
     a: "Yes. The tool works as a free YouTube video SEO checker. It reviews the metadata and packaging signals that help YouTube and viewers understand what the video is about.",
   },
   {
-    q: "How is the overall score calculated?",
-    a: "The overall score combines weighted checks for title, description, chapters, tags, and hashtags. Title and description carry the most weight because they strongly affect clicks, context, and search relevance.",
+    q: "How does the audit work?",
+    a: "The audit runs editorial checks across title, description, chapters, tags, and hashtags. Each check flags a specific signal (bad / warning / good) with an actionable note so you know exactly what to fix. No composite numeric score is produced.",
   },
   {
     q: "What does the audit actually check?",
@@ -206,15 +206,15 @@ const FAQS = [
     a: "Yes. You can paste any public YouTube video URL. This is useful for studying competitor metadata, title patterns, tags, and chapters.",
   },
   {
-    q: "Why doesn't it score the thumbnail?",
+    q: "Why doesn't it audit the thumbnail?",
     a: "The current audit focuses on metadata fields that can be checked consistently from video data: title, description, tags, hashtags, and chapters. Use Thumbnail Preview separately to evaluate title and thumbnail fit.",
   },
   {
-    q: "Why doesn't it score views or engagement?",
+    q: "Why doesn't it audit views or engagement?",
     a: "Views and engagement measure performance after publishing. Video Audit focuses on the upload package you can edit directly. For channel-level patterns and growth signals, use Channel Audit.",
   },
   {
-    q: "Can this improve my YouTube SEO score?",
+    q: "Can this improve my YouTube SEO?",
     a: "The audit can show what to improve, but it does not guarantee views. Fixing weak titles, thin descriptions, missing chapters, or poor tags can make the video easier to understand and more competitive.",
   },
   {
@@ -247,7 +247,7 @@ export default function YouTubeVideoAuditPage() {
               What you&apos;ll get
             </h2>
             <p className="mt-3 text-base text-gray-600 leading-relaxed">
-              Video Audit gives you one SEO score for a single video, plus a
+              Video Audit gives you an editorial audit for a single video, plus a
               breakdown of the metadata fields that help YouTube and viewers
               understand the upload.
             </p>
@@ -328,12 +328,12 @@ export default function YouTubeVideoAuditPage() {
         </div>
       </section>
 
-      {/* What gets scored */}
+      {/* What gets audited */}
       <section className="border-t border-gray-100 bg-gray-50/40 py-16 sm:py-20">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-              What gets scored
+              What gets audited
             </h2>
           </div>
 
@@ -344,9 +344,6 @@ export default function YouTubeVideoAuditPage() {
                 <tr>
                   <th className="px-5 py-3.5 text-left font-semibold text-gray-700">
                     Dimension
-                  </th>
-                  <th className="px-5 py-3.5 text-left font-semibold text-gray-700">
-                    Weight
                   </th>
                   <th className="px-5 py-3.5 text-left font-semibold text-gray-700">
                     What it checks
@@ -361,9 +358,6 @@ export default function YouTubeVideoAuditPage() {
                   <tr key={row.dim}>
                     <td className="px-5 py-3 font-medium text-gray-900">
                       {row.dim}
-                    </td>
-                    <td className="px-5 py-3 font-mono text-xs">
-                      {row.weight}
                     </td>
                     <td className="px-5 py-3">{row.checks}</td>
                     <td className="px-5 py-3">
@@ -384,14 +378,9 @@ export default function YouTubeVideoAuditPage() {
                 key={row.dim}
                 className="rounded-xl border border-gray-200 bg-white p-4"
               >
-                <div className="flex items-center justify-between">
-                  <p className="text-base font-semibold text-gray-900">
-                    {row.dim}
-                  </p>
-                  <span className="font-mono text-xs text-gray-500">
-                    {row.weight}
-                  </span>
-                </div>
+                <p className="text-base font-semibold text-gray-900">
+                  {row.dim}
+                </p>
                 <p className="mt-2 text-sm text-gray-600 leading-relaxed">
                   {row.checks}
                 </p>
