@@ -732,10 +732,10 @@ function HeroDashboardPreview() {
             {/* Aggregation tiles */}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {[
-                { label: "Uploads", value: "30" },
+                { label: "Uploads analyzed", value: "30" },
                 { label: "Median views", value: "3.2K" },
                 { label: "Cadence", value: "2x / wk" },
-                { label: "Total views", value: "128K" },
+                { label: "Typical length", value: "8:40" },
               ].map((t) => (
                 <div
                   key={t.label}
@@ -759,15 +759,15 @@ function HeroDashboardPreview() {
               <ul className="mt-2 space-y-2 text-[11px] text-gray-700">
                 {[
                   {
-                    label: "Add chapters to 26 uploads",
+                    label: "Most uploads are missing chapters",
                     tone: "high" as const,
                   },
                   {
-                    label: "Front-load keywords in 12 titles",
+                    label: "Several titles bury the keyword",
                     tone: "medium" as const,
                   },
                   {
-                    label: "Strong hashtag discipline — keep it up",
+                    label: "Strong hashtag discipline, keep it up",
                     tone: "good" as const,
                   },
                 ].map((r) => {

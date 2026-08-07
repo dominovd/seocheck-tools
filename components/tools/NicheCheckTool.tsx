@@ -14,6 +14,10 @@ import {
   Calendar,
 } from "lucide-react";
 import { track } from "@/lib/analytics/track";
+import {
+  BREAKTHROUGH_LABEL,
+  COMPETITION_LABEL,
+} from "@/lib/youtube/niche-check";
 import type {
   PublicNicheCheckResult,
   Verdict,
@@ -191,20 +195,20 @@ function Results({ result }: { result: PublicNicheCheckResult }) {
           hint="Across top 20 results"
         />
         <Signal
-          label="Big channel share"
-          value={`${Math.round(result.signals.bigChannelShare * 100)}% of top 20`}
-          hint="Results from channels above 50K subscribers"
+          label="Competition"
+          value={COMPETITION_LABEL[result.signals.competitionLevel]}
+          hint="How the top results split between large and small channels"
         />
         <Signal
           label="Fresh videos"
           value={`${result.signals.freshCount}`}
-          hint={`Of the last ${result.windowSize} results, published in the past 30 days`}
+          hint="Top results published in the past 30 days"
         />
         <Signal
-          label="Small-channel outliers"
-          value={`${result.signals.outlierCount}`}
-          hint="Channels under 50K subscribers whose views far exceed their subscriber count"
-          emphasis={result.signals.outlierCount >= 2}
+          label="Small-channel breakthroughs"
+          value={BREAKTHROUGH_LABEL[result.signals.breakthroughLevel]}
+          hint="Whether smaller channels are reaching the top results"
+          emphasis={result.signals.breakthroughLevel === "several"}
         />
       </div>
 

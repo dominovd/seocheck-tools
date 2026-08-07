@@ -9,7 +9,7 @@ import {
   fetchVideoBatchPaginated,
 } from "@/lib/youtube/youtube-api";
 import {
-  aggregateDimensions,
+  tallyBands,
   buildChannelAuditSummaryMessage,
   buildChannelAuditUserMessage,
   CHANNEL_AUDIT_SUMMARY_SYSTEM_PROMPT,
@@ -118,19 +118,10 @@ export async function POST(req: NextRequest) {
         })
         .filter((v): v is { id: string; audit: ReturnType<typeof auditVideo> } => v !== null);
 
-      const dimensions = aggregateDimensions(
-        audited.map((v) => ({
-          videoId: v.id,
-          videoUrl: `https://www.youtube.com/watch?v=${v.id}`,
-          title: videoMap.get(v.id)?.title ?? "",
-          thumbnailUrl: videoMap.get(v.id)?.thumbnailUrl ?? null,
-          publishDate: videoMap.get(v.id)?.publishDate ?? null,
-          viewCount: videoMap.get(v.id)?.viewCount ?? null,
-          audit: v.audit,
-        }))
-      );
-
-      const candidates = rankIssueCandidates(dimensions, audited.length);
+      // Band tallies stay server-side. Only the qualitative scale derived
+      // from them reaches the client (policy III.E.4h).
+      const tallies = tallyBands(audited);
+      const candidates = rankIssueCandidates(tallies, audited.length);
 
       // Step 4a — LLM rewrites issue text (best-effort)
       let llmIssues: Array<{ dimensionKey: string; text: string }> = [];

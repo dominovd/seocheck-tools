@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { TurnstileWidget } from "@/components/TurnstileWidget";
 import { track } from "@/lib/analytics/track";
+import { AFFECTED_SCALE_LABEL } from "@/lib/youtube/channel-audit";
 import type {
   ChannelAggregations,
   ChannelAuditResult,
@@ -299,15 +300,16 @@ function AuditResults({ result }: { result: ChannelAuditResult }) {
       {/* Per-dimension breakdown — band counts only */}
       <div>
         <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-          Per-dimension breakdown across {windowSize} videos
+          Per-dimension breakdown
         </p>
         <p className="mt-1 text-xs text-gray-500">
-          How many videos fall into each editorial band for title, description,
-          hashtags, and chapters. Categorical labels — not a YouTube metric.
+          How the analyzed uploads sit across our editorial bands for title,
+          description, hashtags, and chapters. Categorical assessment, not a
+          YouTube metric.
         </p>
         <div className="mt-3 space-y-3">
           {dimensions.map((d) => (
-            <DimensionRow key={d.key} dimension={d} totalVideos={windowSize} />
+            <DimensionRow key={d.key} dimension={d} />
           ))}
         </div>
       </div>
@@ -372,12 +374,12 @@ function ChannelOverview({
     },
     {
       Icon: BarChart3,
-      label: "Total views in window",
-      value: formatNumber(aggregations.totalViews),
-      hint:
+      label: "Window covered",
+      value:
         aggregations.dateRange.earliest && aggregations.dateRange.latest
-          ? `${aggregations.dateRange.earliest} → ${aggregations.dateRange.latest}`
-          : undefined,
+          ? `${aggregations.dateRange.earliest} to ${aggregations.dateRange.latest}`
+          : "—",
+      hint: "Publish dates of the analyzed uploads",
     },
   ];
 
@@ -458,9 +460,9 @@ function RecommendedFixRow({ issue }: { issue: RecurringIssue }) {
       </span>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-gray-900">{issue.text}</p>
-        {issue.affectedCount > 0 && issue.dimensionKey && (
+        {issue.severity !== "good" && issue.dimensionKey && (
           <p className="mt-0.5 text-xs text-gray-500">
-            {issue.affectedCount} {issue.affectedCount === 1 ? "video" : "videos"} affected ·{" "}
+            {AFFECTED_SCALE_LABEL[issue.affectedScale]} ·{" "}
             {labelForDimension(issue.dimensionKey)}
           </p>
         )}
@@ -555,21 +557,17 @@ function SnapshotRow({
 }
 
 // ───────────────────────────────────────────────────────────────
-// Per-dimension band breakdown (count-only, no averageScore)
+// Per-dimension editorial breakdown.
+//
+// Renders a proportional bar plus a qualitative summary. No count or
+// percentage is shown as text (policy III.E.4h).
 // ───────────────────────────────────────────────────────────────
-function DimensionRow({
-  dimension,
-  totalVideos,
-}: {
-  dimension: DimensionStats;
-  totalVideos: number;
-}) {
-  const { label, bandCounts, isWorst } = dimension;
-  const total = totalVideos > 0 ? totalVideos : 1;
+function DimensionRow({ dimension }: { dimension: DimensionStats }) {
+  const { label, bandShares, summary, isWorst } = dimension;
   const segments: { band: AuditBand; pct: number }[] = (
     ["strong", "good", "fair", "weak"] as AuditBand[]
   )
-    .map((band) => ({ band, pct: (bandCounts[band] / total) * 100 }))
+    .map((band) => ({ band, pct: bandShares[band] * 100 }))
     .filter((s) => s.pct > 0);
 
   return (
@@ -578,7 +576,7 @@ function DimensionRow({
         isWorst ? "border-amber-300" : "border-gray-200"
       }`}
     >
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-semibold text-gray-900">{label}</h3>
           {isWorst && (
@@ -587,24 +585,28 @@ function DimensionRow({
             </span>
           )}
         </div>
+        <span className="text-xs text-gray-600">{summary}</span>
       </div>
 
-      <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-gray-100">
+      <div
+        className="mt-3 flex h-2 overflow-hidden rounded-full bg-gray-100"
+        role="img"
+        aria-label={`${label}: ${summary}`}
+      >
         {segments.map(({ band, pct }) => (
           <div
             key={band}
             className={BAND_COLOR_DIM[band]}
             style={{ width: `${pct}%` }}
-            title={`${BAND_LABEL_DIM[band]}: ${bandCounts[band]} of ${totalVideos}`}
           />
         ))}
       </div>
 
-      <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-gray-600">
+      <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-gray-500">
         {(["strong", "good", "fair", "weak"] as AuditBand[]).map((band) => (
           <span key={band} className="inline-flex items-center gap-1">
             <span className={`inline-block h-2 w-2 rounded-sm ${BAND_COLOR_DIM[band]}`} />
-            {BAND_LABEL_DIM[band]}: {bandCounts[band]}
+            {BAND_LABEL_DIM[band]}
           </span>
         ))}
       </div>

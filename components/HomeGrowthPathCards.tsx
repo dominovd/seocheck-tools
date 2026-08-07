@@ -297,6 +297,7 @@ function WeakUploadsList() {
     { title: "How I Get More Views", label: "Description", tone: "amber" },
     { title: "Best Mic for YouTubers?", label: "Tags", tone: "orange" },
   ] as const;
+  // Heading stays qualitative: no self-computed count of affected uploads.
   const labelStyle = (tone: "red" | "amber" | "orange") => {
     if (tone === "red") return "bg-red-50 text-red-700 ring-red-100";
     if (tone === "amber") return "bg-amber-50 text-amber-700 ring-amber-100";
@@ -304,7 +305,7 @@ function WeakUploadsList() {
   };
   return (
     <div className="rounded-xl bg-white px-3 py-2.5 ring-1 ring-gray-100">
-      <p className="text-[11px] font-semibold text-gray-900">3 weak uploads</p>
+      <p className="text-[11px] font-semibold text-gray-900">Uploads to fix first</p>
       <ul className="mt-2 space-y-1.5">
         {rows.map((r) => (
           <li key={r.title} className="flex items-center gap-2">

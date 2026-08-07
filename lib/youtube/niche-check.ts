@@ -89,19 +89,74 @@ export type NicheCheckResult = {
   relatedKeywords: string[];
 };
 
+/** Qualitative bands for the competition and breakthrough signals. */
+export type CompetitionLevel = "dominated" | "mixed" | "open";
+export type BreakthroughLevel = "several" | "some" | "none";
+
+export const COMPETITION_LABEL: Record<CompetitionLevel, string> = {
+  dominated: "Dominated by large channels",
+  mixed: "Mix of large and small channels",
+  open: "Open to smaller channels",
+};
+
+export const BREAKTHROUGH_LABEL: Record<BreakthroughLevel, string> = {
+  several: "Several small channels breaking through",
+  some: "Some small channels breaking through",
+  none: "No small-channel breakthroughs found",
+};
+
 /**
- * Public-facing result. Strips the composite 0-10 opportunity score
- * to comply with YouTube API Services policy III.E.4h. The categorical
- * verdict (ENTER_NOW / OVERSATURATED / etc.) is kept as an editorial
- * classification, and the raw factual signals are all safe.
+ * Public-facing result.
+ *
+ * COMPLIANCE (policy III.E.4h): we must not publish figures we compute
+ * ourselves from YouTube data. The composite 0-10 score, the big-channel
+ * share percentage, and the small-channel outlier count were all removed
+ * and replaced with qualitative bands.
+ *
+ * What remains is either a direct API value or a trivial statistical
+ * aggregate of raw view counts:
+ *   - medianViews: median of the raw viewCount values in the window
+ *   - freshCount: count of results whose publishedAt falls in 30 days
+ *   - verdict / trendDirection: categorical editorial classifications
  */
-export type PublicNicheCheckResult = Omit<NicheCheckResult, "score">;
+export type PublicNicheCheckResult = Omit<
+  NicheCheckResult,
+  "score" | "signals"
+> & {
+  signals: {
+    medianViews: number;
+    freshCount: number;
+    competitionLevel: CompetitionLevel;
+    breakthroughLevel: BreakthroughLevel;
+    trendDirection: "rising" | "flat" | "declining" | "unknown";
+  };
+};
+
+function toCompetitionLevel(share: number): CompetitionLevel {
+  if (share >= 0.7) return "dominated";
+  if (share >= 0.4) return "mixed";
+  return "open";
+}
+
+function toBreakthroughLevel(count: number): BreakthroughLevel {
+  if (count >= 3) return "several";
+  if (count >= 1) return "some";
+  return "none";
+}
 
 export function toPublicNicheCheck(r: NicheCheckResult): PublicNicheCheckResult {
-  // Strip score from the wire response.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { score: _score, ...rest } = r;
-  return rest;
+  const { score: _score, signals, ...rest } = r;
+  void _score;
+  return {
+    ...rest,
+    signals: {
+      medianViews: signals.medianViews,
+      freshCount: signals.freshCount,
+      competitionLevel: toCompetitionLevel(signals.bigChannelShare),
+      breakthroughLevel: toBreakthroughLevel(signals.outlierCount),
+      trendDirection: signals.trendDirection,
+    },
+  };
 }
 
 // ─── Pipeline-level enrichment helpers ─────────────────────────────────
@@ -246,8 +301,8 @@ export function computeVerdict(
       windowSize: n,
       verdict: "ENTER_NOW",
       score: 9,
-      headline: "Strong opening — small channels are breaking through",
-      explanation: `${outlierCount} small channel${outlierCount === 1 ? "" : "s"} in the top results pulled views well above their subscriber base, which is the clearest signal the algorithm is promoting the topic itself rather than channel size. Median views in the top window: ${formatNumber(medianViews)}. Topic direction: ${trendDirection}. If you ship something here in the next 2-4 weeks you're competing against the algorithm rewarding the niche, not against established creators.`,
+      headline: "Strong opening, small channels are breaking through",
+      explanation: `Small channels in the top results pulled views well above their subscriber base, which is the clearest signal the algorithm is promoting the topic itself rather than channel size. Median views in the top window: ${formatNumber(medianViews)}. Topic direction: ${trendDirection}. If you ship something here soon you are competing against the algorithm rewarding the niche, not against established creators.`,
       signals,
       evidence,
       relatedKeywords,
@@ -266,8 +321,8 @@ export function computeVerdict(
       windowSize: n,
       verdict: "NICHE_GAP",
       score: 8,
-      headline: "Demand without supply — clean niche entry",
-      explanation: `Median views are healthy (${formatNumber(medianViews)}) and only ${freshCount} of the top ${n} videos were published in the last ${FRESH_DAYS} days. Big channels hold ${Math.round(bigChannelShare * 100)}% of the top results — there's clear room for a new entrant. Publish something focused and timely.`,
+      headline: "Demand without supply, clean niche entry",
+      explanation: `Median views are healthy (${formatNumber(medianViews)}) and very few of the top videos were published recently. Large channels do not hold most of the top results, so there is clear room for a new entrant. Publish something focused and timely.`,
       signals,
       evidence,
       relatedKeywords,
@@ -283,7 +338,7 @@ export function computeVerdict(
       verdict: "WEAK_DEMAND",
       score: 3,
       headline: "Audience is too small to justify the work",
-      explanation: `Median views in the top window: ${formatNumber(medianViews)}. Even the top results aren't pulling meaningful audience — either the topic is too narrow or the phrasing is off. Try one of the related keywords below for a tighter angle.`,
+      explanation: `Median views in the top window: ${formatNumber(medianViews)}. Even the top results are not pulling a meaningful audience, so either the topic is too narrow or the phrasing is off. Try one of the related keywords below for a tighter angle.`,
       signals,
       evidence,
       relatedKeywords,
@@ -299,7 +354,7 @@ export function computeVerdict(
       verdict: "OVERSATURATED",
       score: 3,
       headline: "Late to the trend",
-      explanation: `${freshCount} of the top ${n} videos went up in the last ${FRESH_DAYS} days while the recent-vs-older median view ratio is declining. Everyone already filmed it and the audience has moved on. Pick another angle.`,
+      explanation: `Most of the top videos went up very recently while median views on the newer ones are falling behind the older top performers. Everyone already filmed it and the audience has moved on. Pick another angle.`,
       signals,
       evidence,
       relatedKeywords,
@@ -315,7 +370,7 @@ export function computeVerdict(
       verdict: "HIGH_COMPETITION",
       score: 4,
       headline: "Top is locked by big channels",
-      explanation: `${Math.round(bigChannelShare * 100)}% of the top ${n} results are from channels above ${formatNumber(SMALL_CHANNEL_SUBS)} subscribers. New entrants struggle to break in unless they have a sharp differentiated angle. Look at sub-niches or a contrarian framing.`,
+      explanation: `Most of the top results come from established channels with large subscriber bases. New entrants struggle to break in unless they have a sharp differentiated angle. Look at sub-niches or a contrarian framing.`,
       signals,
       evidence,
       relatedKeywords,
@@ -330,7 +385,7 @@ export function computeVerdict(
     verdict: "NEUTRAL",
     score: 5,
     headline: "No clear opportunity signal",
-    explanation: `Median views ${formatNumber(medianViews)}, big-channel share ${Math.round(bigChannelShare * 100)}%, ${freshCount} fresh videos, ${outlierCount} outlier${outlierCount === 1 ? "" : "s"}. Nothing's obviously broken and nothing's obviously a gold mine — your decision depends on your specific positioning rather than market dynamics.`,
+    explanation: `Median views in the top window sit at ${formatNumber(medianViews)}, with a mix of large and small channels and no strong trend in either direction. Nothing is obviously broken and nothing is obviously a gold mine, so your decision depends on your specific positioning rather than market dynamics.`,
     signals,
     evidence,
     relatedKeywords,

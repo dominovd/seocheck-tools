@@ -30,12 +30,44 @@ import { auditVideo, type AuditBand } from "./video-audit";
 
 export type IssueSeverity = "high" | "medium" | "low" | "good";
 
+/**
+ * Qualitative scale describing how widespread an editorial pattern is.
+ *
+ * COMPLIANCE (policy III.E.4h): we must not publish counts we compute
+ * ourselves from YouTube data. Instead of "24 of 30 videos", the UI
+ * says "most uploads". The underlying count stays server-side.
+ */
+export type AffectedScale = "all" | "most" | "several" | "few";
+
+export const AFFECTED_SCALE_LABEL: Record<AffectedScale, string> = {
+  all: "Across every upload",
+  most: "Across most uploads",
+  several: "Across several uploads",
+  few: "Across a few uploads",
+};
+
+/** Map an internal ratio to the public qualitative scale. */
+export function toAffectedScale(affected: number, total: number): AffectedScale {
+  if (total <= 0) return "few";
+  const ratio = affected / total;
+  if (ratio >= 0.95) return "all";
+  if (ratio >= 0.6) return "most";
+  if (ratio >= 0.3) return "several";
+  return "few";
+}
+
 export type DimensionStats = {
   key: string;
   label: string;
-  /** Count of videos in each band. Factual — no derived numeric average. */
-  bandCounts: Record<AuditBand, number>;
-  /** Marked when this dimension has the most videos in weak/fair. Editorial callout, not a metric. */
+  /**
+   * Relative share of the analyzed window in each editorial band, 0 to 1.
+   * Used only to size the proportional bar. No count or percentage is
+   * rendered as text (policy III.E.4h).
+   */
+  bandShares: Record<AuditBand, number>;
+  /** Qualitative summary of the dominant band, for the text label. */
+  summary: string;
+  /** Marked when this dimension has the widest weak/fair spread. Editorial callout. */
   isWorst: boolean;
 };
 
@@ -59,8 +91,8 @@ export type RecurringIssue = {
   text: string;
   /** Editorial priority label. Not a numeric metric. */
   severity: IssueSeverity;
-  /** Raw count of videos this issue applies to. Factual aggregation over YouTube API data. */
-  affectedCount: number;
+  /** Qualitative spread of the pattern. Replaces the previous numeric count. */
+  affectedScale: AffectedScale;
   /** Dimension this issue is tied to ("title" | "description" | ...). */
   dimensionKey: string | null;
 };
@@ -136,47 +168,80 @@ export function topicCategoriesToNiche(topicCategories: string[]): string | null
   return null;
 }
 
+/** Internal-only band tallies. Never returned to the client. */
+export type InternalBandCounts = Record<AuditBand, number>;
+
 /**
- * Aggregate per-dimension band stats across audited videos. Returns
- * band counts only — no averageScore is computed for public display.
+ * Tally editorial bands per dimension. Server-side only — the counts
+ * drive severity ranking and bar proportions but are never published
+ * (policy III.E.4h).
+ */
+export function tallyBands(
+  audited: Array<{ audit: ReturnType<typeof auditVideo> }>
+): Array<{ key: string; counts: InternalBandCounts }> {
+  if (audited.length === 0) return [];
+  const dimKeys = audited[0].audit.dimensions.map((d) => d.key);
+  return dimKeys.map((key) => {
+    const counts: InternalBandCounts = { strong: 0, good: 0, fair: 0, weak: 0 };
+    for (const v of audited) {
+      const d = v.audit.dimensions.find((dd) => dd.key === key);
+      if (!d) continue;
+      counts[d.band] += 1;
+    }
+    return { key, counts };
+  });
+}
+
+/** Qualitative one-liner describing where a dimension mostly sits. */
+function describeBandSpread(counts: InternalBandCounts, total: number): string {
+  if (total <= 0) return "Not enough uploads to assess";
+  const solid = counts.strong + counts.good;
+  const shaky = counts.fair + counts.weak;
+  const solidRatio = solid / total;
+  const weakRatio = counts.weak / total;
+
+  if (weakRatio >= 0.95) return "Weak across every upload";
+  if (solidRatio >= 0.95) return "Strong across every upload";
+  if (solidRatio >= 0.6) return "Solid on most uploads";
+  if (shaky >= solid && weakRatio >= 0.5) return "Weak on most uploads";
+  if (shaky > solid) return "Needs work on most uploads";
+  return "Mixed across the channel";
+}
+
+/**
+ * Aggregate per-dimension stats for public display. Returns proportional
+ * band shares (used only to size the bar) plus a qualitative summary.
+ * No count or percentage is exposed as text.
  */
 export function aggregateDimensions(
   audited: Array<{ audit: ReturnType<typeof auditVideo> }>
 ): DimensionStats[] {
   if (audited.length === 0) return [];
-  const dimKeys = audited[0].audit.dimensions.map((d) => d.key);
-  const dimensions: DimensionStats[] = dimKeys.map((key) => {
-    const bandCounts: Record<AuditBand, number> = {
-      strong: 0,
-      good: 0,
-      fair: 0,
-      weak: 0,
-    };
-    for (const v of audited) {
-      const d = v.audit.dimensions.find((dd) => dd.key === key);
-      if (!d) continue;
-      bandCounts[d.band] += 1;
-    }
-    return {
-      key,
-      label: DIM_LABELS[key] ?? key,
-      bandCounts,
-      isWorst: false,
-    };
-  });
+  const total = audited.length;
+  const tallies = tallyBands(audited);
 
-  // Mark the dimension with the largest weak+fair share as "worst" for editorial callout.
-  if (dimensions.length > 0) {
-    const withWeakSum = dimensions.map((d) => ({
-      d,
-      badCount: d.bandCounts.weak + d.bandCounts.fair,
-    }));
-    const maxBad = Math.max(...withWeakSum.map((w) => w.badCount));
-    if (maxBad > 0) {
-      for (const w of withWeakSum) {
-        if (w.badCount === maxBad) w.d.isWorst = true;
-      }
-    }
+  const dimensions: DimensionStats[] = tallies.map(({ key, counts }) => ({
+    key,
+    label: DIM_LABELS[key] ?? key,
+    bandShares: {
+      strong: counts.strong / total,
+      good: counts.good / total,
+      fair: counts.fair / total,
+      weak: counts.weak / total,
+    },
+    summary: describeBandSpread(counts, total),
+    isWorst: false,
+  }));
+
+  // Mark the dimension with the widest weak+fair spread for the editorial callout.
+  const badShares = tallies.map(
+    ({ counts }) => (counts.weak + counts.fair) / total
+  );
+  const maxBad = Math.max(...badShares);
+  if (maxBad > 0) {
+    dimensions.forEach((d, i) => {
+      if (badShares[i] === maxBad) d.isWorst = true;
+    });
   }
   return dimensions;
 }
@@ -260,25 +325,26 @@ export function computeAggregations(videos: ChannelAuditVideo[]): ChannelAggrega
 export type IssueCandidate = {
   dimensionKey: string;
   dimensionLabel: string;
+  /** Internal only. Drives ranking and the qualitative scale, never published. */
   affectedCount: number;
+  affectedScale: AffectedScale;
   severity: IssueSeverity;
-  /** Default text used as fallback when the LLM doesn't rewrite it. */
+  /** Default text used as fallback when the LLM doesn't rewrite it. Contains no counts. */
   fallbackText: string;
 };
 
 export function rankIssueCandidates(
-  dimensions: DimensionStats[],
+  tallies: Array<{ key: string; counts: InternalBandCounts }>,
   windowSize: number
 ): IssueCandidate[] {
   if (windowSize === 0) return [];
 
   const candidates: IssueCandidate[] = [];
-  for (const d of dimensions) {
-    const weak = d.bandCounts.weak;
-    const fair = d.bandCounts.fair;
-    const affected = weak + fair;
+  for (const { key, counts } of tallies) {
+    const affected = counts.weak + counts.fair;
     const ratio = affected / windowSize;
-    const weakRatio = weak / windowSize;
+    const weakRatio = counts.weak / windowSize;
+    const label = DIM_LABELS[key] ?? key;
 
     let severity: IssueSeverity | null = null;
     if (weakRatio >= 0.4 || ratio >= 0.6) severity = "high";
@@ -286,12 +352,22 @@ export function rankIssueCandidates(
     else if (ratio >= 0.2) severity = "low";
 
     if (severity) {
+      const scale = toAffectedScale(affected, windowSize);
+      const spread =
+        scale === "all"
+          ? "Every upload has"
+          : scale === "most"
+          ? "Most uploads have"
+          : scale === "several"
+          ? "Several uploads have"
+          : "A few uploads have";
       candidates.push({
-        dimensionKey: d.key,
-        dimensionLabel: d.label,
+        dimensionKey: key,
+        dimensionLabel: label,
         affectedCount: affected,
+        affectedScale: scale,
         severity,
-        fallbackText: `${affected} of ${windowSize} videos have weak or missing ${d.label.toLowerCase()}.`,
+        fallbackText: `${spread} weak or missing ${label.toLowerCase()}.`,
       });
     }
   }
@@ -308,19 +384,35 @@ export function rankIssueCandidates(
 }
 
 /**
- * Identify any dimension that is uniformly strong (≥80% videos in strong/good).
+ * Identify any dimension that is uniformly strong (most videos in strong/good).
  * Used to append a "Keep it up" item to the recommended-fixes list.
  */
 export function findGoodDimension(
-  dimensions: DimensionStats[],
+  tallies: Array<{ key: string; counts: InternalBandCounts }>,
   windowSize: number
-): DimensionStats | null {
+): { key: string; label: string } | null {
   if (windowSize === 0) return null;
-  for (const d of dimensions) {
-    const strong = d.bandCounts.strong + d.bandCounts.good;
-    if (strong / windowSize >= 0.8) return d;
+  for (const { key, counts } of tallies) {
+    const solid = counts.strong + counts.good;
+    if (solid / windowSize >= 0.8) {
+      return { key, label: DIM_LABELS[key] ?? key };
+    }
   }
   return null;
+}
+
+/**
+ * Safety net for LLM output. Rewrites any "N of M videos" or "N videos"
+ * phrasing the model may still emit into qualitative language, so no
+ * self-computed count can reach the page (policy III.E.4h).
+ */
+export function stripCounts(text: string): string {
+  return text
+    .replace(/\b(all\s+)?\d+\s+of\s+\d+\s+(videos?|uploads?)\b/gi, "most uploads")
+    .replace(/\ball\s+\d+\s+(videos?|uploads?)\b/gi, "every upload")
+    .replace(/\b\d+\s+(videos?|uploads?)\b/gi, "several uploads")
+    .replace(/\b\d+\s*%\s*of\s+(videos?|uploads?|results?)\b/gi, "a large share of uploads")
+    .trim();
 }
 
 /**
@@ -402,8 +494,10 @@ export function computeChannelAudit(args: {
   const dimensions = aggregateDimensions(auditedInternal);
   const aggregations = computeAggregations(videos);
 
-  // Recurring issues
-  const candidates = rankIssueCandidates(dimensions, auditedInternal.length);
+  // Recurring issues. Band tallies stay server-side; only the qualitative
+  // scale reaches the client (policy III.E.4h).
+  const tallies = tallyBands(auditedInternal);
+  const candidates = rankIssueCandidates(tallies, auditedInternal.length);
   const llmIssuesByDim = new Map<string, string>();
   for (const li of args.llmIssues ?? []) {
     if (li && typeof li.text === "string" && typeof li.dimensionKey === "string") {
@@ -411,19 +505,19 @@ export function computeChannelAudit(args: {
     }
   }
   const recurringIssues: RecurringIssue[] = candidates.map((c) => ({
-    text: llmIssuesByDim.get(c.dimensionKey) || c.fallbackText,
+    text: stripCounts(llmIssuesByDim.get(c.dimensionKey) || c.fallbackText),
     severity: c.severity,
-    affectedCount: c.affectedCount,
+    affectedScale: c.affectedScale,
     dimensionKey: c.dimensionKey,
   }));
 
   // Optional "Keep it up" item.
-  const goodDim = findGoodDimension(dimensions, auditedInternal.length);
+  const goodDim = findGoodDimension(tallies, auditedInternal.length);
   if (goodDim) {
     recurringIssues.push({
-      text: `Strong ${goodDim.label.toLowerCase()} discipline across the channel — keep it up.`,
+      text: `Strong ${goodDim.label.toLowerCase()} discipline across the channel. Keep it up.`,
       severity: "good",
-      affectedCount: 0,
+      affectedScale: "most",
       dimensionKey: goodDim.key,
     });
   }
@@ -463,17 +557,27 @@ export const CHANNEL_AUDIT_SYSTEM_PROMPT = `You write creator-actionable recurri
 
 You receive:
   - The channel name
-  - Up to 3 issue candidates, each with: dimensionKey ("title" | "description" | "hashtags" | "chapters"), affectedCount, totalVideos, severity ("high" | "medium" | "low"), and a fallback sentence.
+  - Up to 3 issue candidates, each with: dimensionKey ("title" | "description" | "hashtags" | "chapters"), a qualitative spread ("all" | "most" | "several" | "few"), severity ("high" | "medium" | "low"), and a fallback sentence.
 
 For each candidate, return ONE sentence that:
-- Names the specific weakness pattern (not "improve descriptions" — say what to do)
-- References the actual counts ("12 of 30 videos…")
-- Is action-oriented ("Add a CTA line…", "Front-load the keyword…", "Drop generic tags…")
+- Names the specific weakness pattern (not "improve descriptions", say what to do)
+- Is action-oriented ("Add a CTA line...", "Front-load the keyword...", "Drop generic tags...")
 - Is 1-2 sentences, under 25 words
 - Avoids em-dashes (use commas, periods, or colons instead)
-- Uses no numeric scores — only counts of affected videos
 
-Return JSON only — no markdown fences, no preamble:
+CRITICAL CONSTRAINTS. The sentence must NOT contain:
+- Any digit at all. No counts, no percentages, no ratios, no scores.
+- Phrases like "12 of 30 videos", "24 videos", "80% of uploads".
+Describe spread qualitatively instead, using the provided scale:
+  all -> "every upload"
+  most -> "most uploads"
+  several -> "several uploads"
+  few -> "a few uploads"
+
+Good: "Most uploads skip chapters. Add timestamped markers so viewers can navigate long sections."
+Bad: "24 of 30 videos have no chapters."
+
+Return JSON only, no markdown fences, no preamble:
 {"issues": [{"dimensionKey": "title", "text": "your sentence here"}, ...]}
 
 If a candidate looks unhelpful or redundant, you may omit it and return fewer than the input set, but never invent new candidates.`;
@@ -481,16 +585,16 @@ If a candidate looks unhelpful or redundant, you may omit it and return fewer th
 export function buildChannelAuditUserMessage(
   channelTitle: string,
   candidates: IssueCandidate[],
-  totalVideos: number
+  _totalVideos: number
 ): string {
+  // Deliberately omits raw counts so the model cannot echo them back.
   const lines = candidates.map((c, i) => {
-    return `${i + 1}. dimensionKey=${c.dimensionKey} affectedCount=${c.affectedCount}/${totalVideos} severity=${c.severity} fallback="${c.fallbackText}"`;
+    return `${i + 1}. dimensionKey=${c.dimensionKey} spread=${c.affectedScale} severity=${c.severity} fallback="${c.fallbackText}"`;
   });
   return (
-    `Channel: ${channelTitle}\n` +
-    `Window size: ${totalVideos} videos\n\n` +
+    `Channel: ${channelTitle}\n\n` +
     `Candidates:\n${lines.join("\n")}\n\n` +
-    `Return the JSON now.`
+    `Return the JSON now. Remember: no digits anywhere in your sentences.`
   );
 }
 
@@ -498,36 +602,34 @@ export function buildChannelAuditUserMessage(
  * One-sentence editorial summary (Haiku). Purely textual — describes the
  * strongest and weakest patterns without any numbers.
  */
-export const CHANNEL_AUDIT_SUMMARY_SYSTEM_PROMPT = `You write one-sentence editorial summaries of a YouTube channel based on band counts across four packaging dimensions (title, description, hashtags, chapters).
+export const CHANNEL_AUDIT_SUMMARY_SYSTEM_PROMPT = `You write one-sentence editorial summaries of a YouTube channel based on qualitative assessments across four packaging dimensions (title, description, hashtags, chapters).
 
-You receive band counts (how many of N recent videos fall in strong/good/fair/weak for each dimension) and a publishing cadence label.
+You receive a qualitative verdict per dimension and a publishing cadence label.
 
-Return JSON only — no markdown, no preamble:
+Return JSON only, no markdown, no preamble:
 {"summary": "one quotable sentence"}
 
 The sentence must:
 - Be a single sentence, max 25 words
 - Name the channel's biggest editorial strength AND biggest gap, referencing the packaging dimensions
-- Be quotable — written as if for a Twitter share or a creator dashboard caption
+- Be quotable, written as if for a creator dashboard caption
 - Avoid em-dashes (use commas, periods, or colons instead)
-- Avoid numeric scores or grades — describe patterns qualitatively (e.g. "strong hashtag discipline", "most descriptions are weak or missing")
-- Avoid generic phrasing like "doing great with content" — reference the specific dimensions`;
+- Avoid generic phrasing like "doing great with content", reference the specific dimensions
+
+CRITICAL: The sentence must contain NO digits. No counts, no percentages, no scores, no grades. Describe everything qualitatively, for example "strong hashtag discipline but most descriptions are thin".`;
 
 export function buildChannelAuditSummaryMessage(
   channelTitle: string,
   dimensions: DimensionStats[],
-  windowSize: number,
+  _windowSize: number,
   cadence: string
 ): string {
-  const lines = dimensions.map((d) => {
-    const { strong, good, fair, weak } = d.bandCounts;
-    return `${d.label}: strong=${strong}, good=${good}, fair=${fair}, weak=${weak}`;
-  });
+  // Sends only qualitative summaries so the model has no counts to echo.
+  const lines = dimensions.map((d) => `${d.label}: ${d.summary}`);
   return (
     `Channel: ${channelTitle}\n` +
-    `Window: ${windowSize} recent uploads\n` +
     `Publishing cadence: ${cadence}\n\n` +
-    `Band counts per dimension:\n${lines.join("\n")}\n\n` +
-    `Return the one-sentence editorial summary as JSON now.`
+    `Per-dimension assessment:\n${lines.join("\n")}\n\n` +
+    `Return the one-sentence editorial summary as JSON now. No digits.`
   );
 }
