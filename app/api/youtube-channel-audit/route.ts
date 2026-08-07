@@ -208,11 +208,13 @@ export async function POST(req: NextRequest) {
 
       const finalResult: ChannelAuditResult = { ...partialResult, summary };
 
-      // Anonymous logging — only raw counts and factual aggregations, no derived scores.
+      // Anonymous logging. Only our own editorial counts are stored —
+      // never a YouTube-provided statistic (policy III.E.4a-g).
       await logAudit("channel-audit", channel.id, {
         windowSize: finalResult.windowSize,
-        medianViews: finalResult.aggregations.medianViews,
-        totalViews: finalResult.aggregations.totalViews,
+        issueCount: finalResult.recurringIssues.filter((i) => i.severity !== "good")
+          .length,
+        dimensionsFlagged: finalResult.dimensions.filter((d) => d.isWorst).length,
       }).catch(() => {});
 
       return { output: finalResult, costUsd: llmCostUsd };

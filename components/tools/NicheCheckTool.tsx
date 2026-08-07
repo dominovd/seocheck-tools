@@ -192,18 +192,18 @@ function Results({ result }: { result: PublicNicheCheckResult }) {
         />
         <Signal
           label="Big channel share"
-          value={`${Math.round(result.signals.bigChannelShare * 100)}%`}
-          hint="Top results > 50K subs"
+          value={`${Math.round(result.signals.bigChannelShare * 100)}% of top 20`}
+          hint="Results from channels above 50K subscribers"
         />
         <Signal
           label="Fresh videos"
           value={`${result.signals.freshCount}`}
-          hint={`Of last ${result.windowSize} in 30 days`}
+          hint={`Of the last ${result.windowSize} results, published in the past 30 days`}
         />
         <Signal
           label="Small-channel outliers"
           value={`${result.signals.outlierCount}`}
-          hint="≤50K subs, ≥3× views/subs"
+          hint="Channels under 50K subscribers whose views far exceed their subscriber count"
           emphasis={result.signals.outlierCount >= 2}
         />
       </div>
@@ -324,19 +324,20 @@ function EvidenceRow({ video }: { video: EnrichedNicheVideo }) {
           <span>{video.channelTitle}</span>
           {video.channelSubs !== null && (
             <span className="font-mono tabular-nums">
-              {formatNumber(video.channelSubs)} subs
+              {formatNumber(video.channelSubs)} subscribers
             </span>
           )}
           {video.viewCount !== null && (
             <span className="inline-flex items-center gap-1">
-              <Eye className="h-3 w-3 text-gray-400" strokeWidth={2} />
+              <Eye className="h-3 w-3 text-gray-400" strokeWidth={2} aria-hidden="true" />
               <span className="font-mono tabular-nums">{formatNumber(video.viewCount)}</span>
+              <span>views</span>
             </span>
           )}
           {video.publishedAt && (
             <span className="inline-flex items-center gap-1">
-              <Calendar className="h-3 w-3 text-gray-400" strokeWidth={2} />
-              {video.publishedAt.slice(0, 10)}
+              <Calendar className="h-3 w-3 text-gray-400" strokeWidth={2} aria-hidden="true" />
+              Published {video.publishedAt.slice(0, 10)}
             </span>
           )}
         </div>

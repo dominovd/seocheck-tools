@@ -644,32 +644,35 @@ function AuditedVideoRow({ video, rank }: { video: ChannelAuditVideo; rank: numb
         <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-600">
           {video.viewCount !== null && (
             <span className="inline-flex items-center gap-1">
-              <Eye className="h-3 w-3 text-gray-400" strokeWidth={2} />
+              <Eye className="h-3 w-3 text-gray-400" strokeWidth={2} aria-hidden="true" />
               <span className="font-mono tabular-nums">{formatNumber(video.viewCount)}</span>
+              <span>views</span>
             </span>
           )}
           {video.likeCount !== null && (
             <span className="inline-flex items-center gap-1">
-              <ThumbsUp className="h-3 w-3 text-gray-400" strokeWidth={2} />
+              <ThumbsUp className="h-3 w-3 text-gray-400" strokeWidth={2} aria-hidden="true" />
               <span className="font-mono tabular-nums">{formatNumber(video.likeCount)}</span>
+              <span>likes</span>
             </span>
           )}
           {video.commentCount !== null && (
             <span className="inline-flex items-center gap-1">
-              <MessageCircle className="h-3 w-3 text-gray-400" strokeWidth={2} />
+              <MessageCircle className="h-3 w-3 text-gray-400" strokeWidth={2} aria-hidden="true" />
               <span className="font-mono tabular-nums">{formatNumber(video.commentCount)}</span>
+              <span>comments</span>
             </span>
           )}
           {video.durationSec !== null && (
             <span className="inline-flex items-center gap-1">
-              <Clock className="h-3 w-3 text-gray-400" strokeWidth={2} />
+              <Clock className="h-3 w-3 text-gray-400" strokeWidth={2} aria-hidden="true" />
               {formatDuration(video.durationSec)}
             </span>
           )}
           {video.publishDate && (
             <span className="inline-flex items-center gap-1">
-              <Calendar className="h-3 w-3 text-gray-400" strokeWidth={2} />
-              {video.publishDate}
+              <Calendar className="h-3 w-3 text-gray-400" strokeWidth={2} aria-hidden="true" />
+              Published {video.publishDate}
             </span>
           )}
         </div>

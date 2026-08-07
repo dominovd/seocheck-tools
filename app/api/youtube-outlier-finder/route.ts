@@ -222,10 +222,10 @@ export async function POST(req: NextRequest) {
         analysisFailed,
       };
 
-      // Anonymous audit logging — foundation for YouTube Studies.
+      // Anonymous logging. Only our own editorial counts are stored —
+      // never a YouTube-provided statistic (policy III.E.4a-g).
       await logAudit("outlier-finder", channel.id, {
         windowSize: ids.length,
-        medianViews: Math.round(medianViews),
         outlierCount: outliers.length,
         megaOutlierCount: megaOutliers.length,
       }).catch(() => {});

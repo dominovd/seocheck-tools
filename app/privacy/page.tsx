@@ -266,13 +266,24 @@ export default function PrivacyPage() {
             requested it.
           </li>
           <li>
-            <strong>Channel snapshots for Historical Tracking (up to 26
-            weekly snapshots per channel).</strong> When a user opts into
-            tracking a channel, we run a weekly background re-audit and store
-            raw YouTube-provided metrics (subscriber count, view count,
-            per-video view counts, upload dates) so the trend chart can
+            <strong>Channel snapshots for Historical Tracking (up to 4
+            weekly snapshots per channel, 30 days maximum).</strong> When a
+            user opts into tracking a channel, we run a weekly background
+            refresh and store raw YouTube-provided metrics (subscriber count,
+            video count, view counts, upload dates) so the trend chart can
             render. These snapshots are keyed by channel ID, not by the user
-            who added the channel.
+            who added the channel. In line with the YouTube API Services
+            Developer Policies, no YouTube statistic is retained for longer
+            than 30 days: each snapshot key carries a hard 30-day expiry and
+            out-of-window snapshots are discarded automatically.
+          </li>
+          <li>
+            <strong>Anonymous editorial counts (30 days maximum).</strong> We
+            log a small anonymous record per audit containing only counts
+            produced by our own editorial checks, such as how many uploads had
+            a flagged dimension. Source channel and video IDs are SHA-256
+            hashed before writing, and no YouTube-provided statistic is
+            included. These records expire after 30 days.
           </li>
         </ul>
 
@@ -368,9 +379,13 @@ export default function PrivacyPage() {
             per query, keyed by query (not by requester)
           </li>
           <li>
-            <strong>Historical Tracking channel snapshots:</strong> up to 26
-            weekly snapshots per tracked channel, keyed by channel ID; purged
-            on email request within 7 days
+            <strong>Historical Tracking channel snapshots:</strong> up to 4
+            weekly snapshots per tracked channel and never longer than 30
+            days, keyed by channel ID; purged on email request within 7 days
+          </li>
+          <li>
+            <strong>Anonymous editorial audit counts:</strong> 30 days
+            maximum, hashed source ID, no YouTube statistics included
           </li>
           <li>
             <strong>Vercel Analytics events:</strong> per Vercel&apos;s
