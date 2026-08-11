@@ -255,6 +255,20 @@ export default function PrivacyPage() {
         </p>
 
         <h3 className="mt-5 text-base font-semibold text-gray-900">
+          Our assessments are not YouTube data
+        </h3>
+        <p className="mt-2 text-base text-gray-700 leading-relaxed">
+          Our tools produce editorial assessments of their own alongside the
+          public data retrieved from the API: recommendations, priority labels,
+          quality bands, verdicts, and similar judgements.{" "}
+          <strong>
+            These metrics are not related to YouTube and have been derived by
+            the API client ({siteConfig.name}).
+          </strong>{" "}
+          They are not endorsed by or sourced from YouTube.
+        </p>
+
+        <h3 className="mt-5 text-base font-semibold text-gray-900">
           What YouTube-derived data we store
         </h3>
         <ul className="mt-2 space-y-2 text-base text-gray-700 leading-relaxed">

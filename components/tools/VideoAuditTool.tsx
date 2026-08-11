@@ -24,6 +24,7 @@ import type { Signal, SignalKind } from "@/lib/youtube/title-score";
 import { track } from "@/lib/analytics/track";
 import type { FixPackage } from "@/app/api/youtube-audit-fix/route";
 import { TurnstileWidget } from "@/components/TurnstileWidget";
+import { DerivedMetricsNotice } from "@/components/DerivedMetricsNotice";
 
 const SIGNAL_ICON: Record<SignalKind, LucideIcon> = {
   good: Check,
@@ -264,14 +265,16 @@ function AuditResults({ result, mode }: { result: PublicVideoAuditResult; mode: 
                   }`}
             </p>
             <p className="mt-1 text-sm text-gray-700">
-              Editorial checks across {result.dimensions.length} packaging areas: title,
-              description, hashtags, chapters
+              Editorial checks across the video packaging: title, description,
+              hashtags, chapters
               {result.dimensions.some((d) => d.key === "tags") ? ", tags" : ""}.
-              Categorical suggestions, not YouTube metrics.
             </p>
           </div>
         </div>
       </div>
+
+      {/* Required disclaimer for every assessment we derive ourselves */}
+      <DerivedMetricsNotice className="mt-6" />
 
       {/* noTags banner — API rescue path */}
       {mode === "noTags" && (

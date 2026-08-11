@@ -14,6 +14,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { TurnstileWidget } from "@/components/TurnstileWidget";
+import { DerivedMetricsNotice } from "@/components/DerivedMetricsNotice";
 import { track } from "@/lib/analytics/track";
 import type {
   PublicCompetitorAnalysis,
@@ -204,6 +205,9 @@ function AnalysisResults({ result }: { result: PublicCompetitorAnalysis }) {
           Open on YouTube
         </a>
       </div>
+
+      {/* Required disclaimer for every assessment we derive ourselves */}
+      <DerivedMetricsNotice />
 
       {/* LLM analysis — patterns + direction side by side on desktop */}
       {(patterns.length > 0 || direction.length > 0) && (

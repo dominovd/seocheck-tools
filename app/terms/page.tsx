@@ -81,6 +81,24 @@ export default function TermsPage() {
         </p>
 
         <h2 className="mt-10 text-xl font-semibold text-gray-900">
+          Our assessments are not YouTube data
+        </h2>
+        <p className="mt-3 text-base text-gray-700 leading-relaxed">
+          Alongside the public data we retrieve from the YouTube API Services,
+          our tools produce editorial assessments of our own: recommendations,
+          priority labels, quality bands, verdicts, title angle
+          classifications, and similar judgements.{" "}
+          <strong>
+            These metrics are not related to YouTube and have been derived by
+            the API client ({siteConfig.name}).
+          </strong>{" "}
+          They are our own opinion, they are not endorsed by or sourced from
+          YouTube, and they should not be read as official YouTube measurements.
+          For official performance data about your own channel, use YouTube
+          Studio.
+        </p>
+
+        <h2 className="mt-10 text-xl font-semibold text-gray-900">
           Fair use limits
         </h2>
         <p className="mt-3 text-base text-gray-700 leading-relaxed">

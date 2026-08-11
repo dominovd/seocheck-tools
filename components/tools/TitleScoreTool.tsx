@@ -21,6 +21,7 @@ import {
   type SignalKind,
 } from "@/lib/youtube/title-score";
 import { track } from "@/lib/analytics/track";
+import { DerivedMetricsNotice } from "@/components/DerivedMetricsNotice";
 
 const SAMPLE_TITLES = [
   "I quit React after 8 years — here's what I switched to",
@@ -153,6 +154,9 @@ export function TitleScoreTool() {
 
   return (
     <div>
+      {/* Required disclaimer for every assessment we derive ourselves */}
+      {!allEmpty && <DerivedMetricsNotice className="mb-6" />}
+
       {/* Compare-mode ranking at top — by ascending issue count (fewer issues = better) */}
       {showCompareRanking && (
         <div className="mb-8 rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50/70 to-white p-5">

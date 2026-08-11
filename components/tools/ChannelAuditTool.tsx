@@ -23,6 +23,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { TurnstileWidget } from "@/components/TurnstileWidget";
+import { DerivedMetricsNotice } from "@/components/DerivedMetricsNotice";
 import { track } from "@/lib/analytics/track";
 import { AFFECTED_SCALE_LABEL } from "@/lib/youtube/channel-audit";
 import type {
@@ -277,6 +278,9 @@ function AuditResults({ result }: { result: ChannelAuditResult }) {
         </a>
       </div>
 
+      {/* Required disclaimer for every assessment we derive ourselves */}
+      <DerivedMetricsNotice />
+
       {/* Optional AI editorial summary (textual only) */}
       {summary && (
         <div className="flex items-start gap-3 rounded-2xl bg-brand-50/50 px-4 py-3 ring-1 ring-inset ring-brand-100">
@@ -297,16 +301,16 @@ function AuditResults({ result }: { result: ChannelAuditResult }) {
         <ChannelSnapshot channel={channel} windowSize={windowSize} />
       </div>
 
-      {/* Per-dimension breakdown — band counts only */}
+      {/* Per-dimension breakdown — proportional bars, no counts */}
       <div>
         <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
           Per-dimension breakdown
         </p>
         <p className="mt-1 text-xs text-gray-500">
           How the analyzed uploads sit across our editorial bands for title,
-          description, hashtags, and chapters. Categorical assessment, not a
-          YouTube metric.
+          description, hashtags, and chapters.
         </p>
+        <DerivedMetricsNotice variant="inline" />
         <div className="mt-3 space-y-3">
           {dimensions.map((d) => (
             <DimensionRow key={d.key} dimension={d} />
@@ -428,8 +432,9 @@ function RecommendedFixes({
         )}
       </div>
       <p className="mt-1 text-xs text-gray-500">
-        Editorial patterns identified across multiple videos. Priority reflects how many uploads are affected.
+        Editorial patterns identified across multiple videos. Priority reflects how widespread each pattern is.
       </p>
+      <DerivedMetricsNotice variant="inline" />
       {issues.length === 0 ? (
         <div className="mt-4 flex items-start gap-2 rounded-lg bg-brand-50/40 p-3 ring-1 ring-inset ring-brand-100">
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" strokeWidth={2.25} />

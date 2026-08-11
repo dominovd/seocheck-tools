@@ -14,6 +14,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { track } from "@/lib/analytics/track";
+import { DerivedMetricsNotice } from "@/components/DerivedMetricsNotice";
 import {
   BREAKTHROUGH_LABEL,
   COMPETITION_LABEL,
@@ -187,6 +188,9 @@ function Results({ result }: { result: PublicNicheCheckResult }) {
         </div>
       </div>
 
+      {/* Required disclaimer for every assessment we derive ourselves */}
+      <DerivedMetricsNotice />
+
       {/* Signal grid */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Signal
@@ -211,6 +215,7 @@ function Results({ result }: { result: PublicNicheCheckResult }) {
           emphasis={result.signals.breakthroughLevel === "several"}
         />
       </div>
+      <DerivedMetricsNotice variant="inline" />
 
       {/* Trend direction */}
       <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4">

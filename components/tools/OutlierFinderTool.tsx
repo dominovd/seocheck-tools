@@ -15,6 +15,7 @@ import {
   Info,
 } from "lucide-react";
 import { TurnstileWidget } from "@/components/TurnstileWidget";
+import { DerivedMetricsNotice } from "@/components/DerivedMetricsNotice";
 import { track } from "@/lib/analytics/track";
 import type {
   PublicOutlierAnalysis,
@@ -216,6 +217,9 @@ function OutlierResults({ result }: { result: PublicOutlierAnalysis }) {
           emphasis
         />
       </div>
+
+      {/* Required disclaimer for every assessment we derive ourselves */}
+      <DerivedMetricsNotice />
 
       {/* No outliers state */}
       {outliers.length === 0 && (
