@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   PenLine,
   Loader2,
@@ -24,6 +24,12 @@ const YT_DESCRIPTION_LIMIT = 5000;
 export function DescriptionGeneratorTool() {
   const [brief, setBrief] = useState("");
   const [channelName, setChannelName] = useState("");
+
+  // Prefill from ?brief= (the "Next step" link from other tools).
+  useEffect(() => {
+    const b = new URLSearchParams(window.location.search).get("brief");
+    if (b) setBrief(b.slice(0, 800));
+  }, []);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [description, setDescription] = useState<string>("");
   const [hashtags, setHashtags] = useState<string[]>([]);

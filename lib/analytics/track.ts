@@ -34,4 +34,5 @@ export type AnalyticsEvent =
   | "tool_result_copied"
   | "faq_expanded"
   | "external_link_clicked"
-  | "newsletter_signup";
+  | "newsletter_signup"
+  | "next_step_click";

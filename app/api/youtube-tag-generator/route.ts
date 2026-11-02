@@ -2,61 +2,91 @@ import type { NextRequest } from "next/server";
 import { protectAI } from "@/lib/ai/protect";
 import { callClaude } from "@/lib/anthropic-client";
 import { parseJsonOutput } from "@/lib/ai/parse-json";
-import { TAG_CHAR_LIMIT, totalTagChars } from "@/lib/youtube/extract-tags";
+import {
+  TAG_GROUP_LIMITS,
+  TAG_GROUP_ORDER,
+  type TagGroupId,
+  type TagGroups,
+} from "@/lib/youtube/tag-groups";
 
 export const runtime = "edge";
 
-type Input = { topic: string };
-type Output = { tags: string[] };
+/**
+ * `v` is part of the parsed input so it is part of the cache hash.
+ * Bump it whenever the output shape changes, otherwise cached v1
+ * responses ({ tags: string[] }) would be served to the v2 client.
+ */
+type Input = { v: 2; topic: string; title?: string };
+type Output = { groups: TagGroups };
 
-const SYSTEM_PROMPT = `You generate YouTube video tags. Output JSON only — no markdown, no preamble.
-Schema: {"tags": [20 to 30 strings]}
+const SYSTEM_PROMPT = `You generate YouTube video tags, grouped by the job each tag does. Output JSON only, no markdown, no preamble.
+Schema: {"primary": [strings], "specific": [strings], "broad": [strings], "variants": [strings]}
+Groups:
+- primary: 2-3 tags. The exact phrase the video answers and its closest rewordings.
+- specific: 5-8 tags. Long-tail searches (3-6 words) this exact video answers: skill level, tool, goal, format.
+- broad: 2-4 tags. 1-2 word category terms that place the video in its topic.
+- variants: 0-4 tags. Only real common misspellings, spacing variants, or British/American spellings of the primary keyword. Empty array if none exist.
 Rules:
-- Mix broad terms (1-2 words) and long-tail variants (3-5 words)
+- Every tag is a phrase a viewer would actually type into YouTube search
 - All lowercase except proper nouns and brand names
-- Each tag must be a phrase a viewer might actually search for on YouTube
-- No symbols, emoji, or commas inside tags
-- Comma-joined total length under 480 characters (YouTube caps at 500)
-- Include 2-3 common misspellings of the primary keyword if any exist
-- Order: most important / highest-volume tags first`;
+- No symbols, emoji, hashtags, or commas inside tags
+- No tag repeated across groups
+- If a video title is given, the primary group uses the same wording as the title for the main topic
+- Write tags in the language of the topic`;
+
+function clean(list: unknown, seen: Set<string>, max: number): string[] {
+  if (!Array.isArray(list)) return [];
+  const out: string[] = [];
+  for (const raw of list) {
+    if (typeof raw !== "string") continue;
+    const tag = raw.replace(/[,#]/g, "").replace(/\s+/g, " ").trim();
+    if (!tag || tag.length > 100) continue;
+    const key = tag.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(tag);
+    if (out.length >= max) break;
+  }
+  return out;
+}
 
 export async function POST(req: NextRequest) {
   return protectAI<Input, Output>(req, {
     tool: "youtube-tag-generator",
     parseInput: (body) => {
-      const b = (body ?? {}) as Partial<Input>;
+      const b = (body ?? {}) as { topic?: unknown; title?: unknown };
       if (!b.topic || typeof b.topic !== "string") {
         throw new Error("Provide a `topic` string.");
       }
       const topic = b.topic.trim();
       if (topic.length < 3) throw new Error("Topic is too short (minimum 3 characters).");
       if (topic.length > 200) throw new Error("Topic is too long (maximum 200 characters).");
-      return { topic };
+      const title = typeof b.title === "string" ? b.title.trim().slice(0, 100) : "";
+      return title ? { v: 2, topic, title } : { v: 2, topic };
     },
-    callModel: async ({ topic }) => {
+    callModel: async ({ topic, title }) => {
+      const user = title
+        ? `Topic: ${topic}\nVideo title: ${title}\n\nReturn the JSON now.`
+        : `Topic: ${topic}\n\nReturn the JSON now.`;
       const result = await callClaude<Output>({
         system: SYSTEM_PROMPT,
-        user: `Topic: ${topic}\n\nReturn the JSON now.`,
-        maxTokens: 500,
+        user,
+        maxTokens: 600,
         temperature: 0.7,
         parse: (raw) => {
-          const data = parseJsonOutput<Output>(raw);
-          if (!data || !Array.isArray(data.tags)) {
+          const data = parseJsonOutput<Record<TagGroupId, unknown>>(raw);
+          if (!data || typeof data !== "object") {
             throw new Error("Model returned an unexpected shape.");
           }
-          // Clean + trim to 500 chars worth of tags
-          const cleaned = data.tags
-            .filter((t): t is string => typeof t === "string" && t.trim().length > 0)
-            .map((t) => t.trim().replace(/,/g, "")); // strip stray commas
-
-          // Trim to fit the 500-char YouTube limit
-          const fit: string[] = [];
-          for (const tag of cleaned) {
-            const next = [...fit, tag];
-            if (totalTagChars(next) <= TAG_CHAR_LIMIT) fit.push(tag);
-            else break;
+          const seen = new Set<string>();
+          const groups = {} as TagGroups;
+          for (const id of TAG_GROUP_ORDER) {
+            groups[id] = clean(data[id], seen, TAG_GROUP_LIMITS[id]);
           }
-          return { tags: fit };
+          if (groups.primary.length === 0 && groups.specific.length === 0) {
+            throw new Error("Model returned no usable tags.");
+          }
+          return { groups };
         },
       });
       return { output: result.parsed, costUsd: result.costUsd };

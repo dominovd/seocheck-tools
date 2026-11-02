@@ -13,8 +13,10 @@ import { hasBudgetHeadroom, recordSpend } from "./budget";
  *     ↓
  *   1. Parse body (your `parseInput`)
  *   2. Verify Cloudflare Turnstile token
- *   3. Extract client IP and check per-IP daily rate limit
- *   4. Cache lookup by (tool, hash(input)) — return cached on hit
+ *   3. Cache lookup by (tool, hash(input)) — return cached on hit.
+ *      Runs before the rate limit: a cached answer costs nothing, so it
+ *      does not use one of the visitor's daily generations.
+ *   4. Extract client IP and check per-IP daily rate limit
  *   5. Check global daily budget headroom
  *   6. Call your `callModel`
  *   7. Record spend, store cache
@@ -86,7 +88,13 @@ export async function protectAI<TInput, TOutput>(
     return error("turnstile-failed", `Turnstile: ${turnstile.reason}`, 400);
   }
 
-  // ── 3. Rate limit ──
+  // ── 3. Cache (before the rate limit, a cache hit is free) ──
+  const cached = await getCachedOutput<TOutput>(opts.tool, input);
+  if (cached) {
+    return NextResponse.json({ output: cached, cached: true }, { status: 200 });
+  }
+
+  // ── 4. Rate limit ──
   const rl = await checkRateLimit(opts.tool, clientIp, limit);
   if (!rl.allowed) {
     return error(
@@ -94,15 +102,6 @@ export async function protectAI<TInput, TOutput>(
       `You've used your daily ${limit} generations for this tool. Resets at UTC midnight.`,
       429,
       { remaining: 0, resetAt: rl.resetAt, limit }
-    );
-  }
-
-  // ── 4. Cache ──
-  const cached = await getCachedOutput<TOutput>(opts.tool, input);
-  if (cached) {
-    return NextResponse.json(
-      { output: cached, cached: true, remaining: rl.remaining },
-      { status: 200 }
     );
   }
 
