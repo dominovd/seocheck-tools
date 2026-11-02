@@ -6,7 +6,7 @@ import { siteConfig } from "@/lib/site-config";
 import { allToolsSorted } from "@/lib/tools-catalog";
 
 const META_DESCRIPTION =
-  "SEO Check Tools is a free YouTube SEO platform with 21 creator tools for research, optimization, publishing, audits, competitor analysis, and channel growth.";
+  "SEO Check Tools is a free YouTube SEO platform with 20 creator tools for research, optimization, publishing, audits, competitor analysis, and channel growth.";
 const OG_DESCRIPTION =
   "Free YouTube SEO tools for creators: research, optimize, publish, analyze, audit channels, find outliers, and improve metadata without signup.";
 
@@ -80,7 +80,7 @@ export default function AboutPage() {
           Research, Optimize, Publish, and Analyze. You can research
           keywords and niches, inspect competitors, generate titles and
           tags, preview thumbnails, audit videos, estimate earnings, find
-          outlier videos, and track channel visibility signals.
+          outlier videos, and audit whole channels.
         </p>
         <p className="mt-4 text-base text-gray-700 leading-relaxed">
           The core idea is simple: YouTube creators should be able to make
@@ -111,7 +111,7 @@ export default function AboutPage() {
         </p>
         <p className="mt-4 text-base text-gray-700 leading-relaxed">
           {siteConfig.name} sits between those worlds. The goal is to keep
-          the useful measurement layer free, make the interface calm and
+          the useful part free, make the interface calm and
           fast, and use AI only where it improves the result.
         </p>
 
@@ -162,7 +162,7 @@ export default function AboutPage() {
           </h3>
           <ul className="mt-2 space-y-1.5 text-sm text-gray-700 leading-relaxed">
             <li>
-              Score and generate{" "}
+              Generate and analyze{" "}
               <Link href="/tools/youtube-title-generator" className="link">
                 YouTube titles
               </Link>
@@ -209,11 +209,11 @@ export default function AboutPage() {
             </li>
             <li>Estimate revenue.</li>
             <li>
-              Check{" "}
+              Audit a{" "}
               <Link href="/tools/youtube-channel-audit" className="link">
-                visibility signals
+                whole channel
               </Link>{" "}
-              and track channel progress over time.
+              and track its raw metrics over time.
             </li>
           </ul>
         </div>
@@ -250,7 +250,7 @@ export default function AboutPage() {
             <dd className="mt-2 leading-relaxed">
               We do not use AI just to make a tool sound impressive. Simple
               utilities like thumbnail downloads, embed code, chapter
-              formatting, title scoring, and thumbnail previews stay
+              formatting, title analysis, and thumbnail previews stay
               lightweight and browser-side where possible.
             </dd>
           </div>
@@ -274,7 +274,7 @@ export default function AboutPage() {
             <dd className="mt-1.5 leading-relaxed">
               The most useful parts of the platform are not hidden behind a
               paid tier. Tools like tag extraction, competitor research,
-              video audits, and visibility checks are free because the site
+              video audits, and channel audits are free because the site
               is designed to be useful without a sales wall in the middle of
               the workflow.
             </dd>

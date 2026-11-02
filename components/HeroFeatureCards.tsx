@@ -17,17 +17,17 @@ const FEATURES: Feature[] = [
   {
     Icon: Check,
     label: "100% Free",
-    subtitle: "No signup, no limits",
+    subtitle: "No signup, no card",
   },
   {
     Icon: Sparkles,
     label: "AI-Powered",
-    subtitle: "Smarter insights",
+    subtitle: "Where it helps",
   },
   {
     Icon: Shield,
-    label: "Secure & Private",
-    subtitle: "No data collection",
+    label: "Privacy first",
+    subtitle: "No account, no profile",
   },
   {
     Icon: Zap,

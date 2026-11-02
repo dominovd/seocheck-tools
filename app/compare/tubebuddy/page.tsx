@@ -483,7 +483,7 @@ export default function TubeBuddyCompareePage() {
                 href="/tools/youtube-channel-audit"
                 className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-md bg-white px-5 py-2.5 text-sm font-medium text-gray-900 ring-1 ring-gray-200 shadow-sm hover:bg-gray-50 transition"
               >
-                Score my channel
+                Audit my channel
               </Link>
             </div>
           </div>

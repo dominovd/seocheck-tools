@@ -2,7 +2,7 @@ import Link from "next/link";
 import {
   TrendingUp,
   Compass,
-  Gauge,
+  ClipboardCheck,
   PlayCircle,
   Users,
   TrendingUp as TrendingUpChip,
@@ -10,6 +10,7 @@ import {
   Lightbulb,
   ArrowRight,
 } from "lucide-react";
+import { DerivedMetricsNotice } from "@/components/DerivedMetricsNotice";
 
 /**
  * Two-segment growth-path block. Replaces the older "I have a channel"
@@ -77,7 +78,7 @@ function ExistingChannelsCard() {
 
       {/* Feature chips */}
       <div className="mt-5 flex flex-wrap gap-2.5">
-        <FeatureChip Icon={Gauge} tone="brand">
+        <FeatureChip Icon={ClipboardCheck} tone="brand">
           Editorial audit
         </FeatureChip>
         <FeatureChip Icon={PlayCircle} tone="brand">
@@ -185,7 +186,7 @@ function NewCreatorsCard() {
 
 // ─── REUSABLE CHIP ────────────────────────────────────────────────────────
 
-type LucideIcon = typeof Gauge;
+type LucideIcon = typeof ClipboardCheck;
 
 function FeatureChip({
   Icon,
@@ -324,6 +325,7 @@ function WeakUploadsList() {
           </li>
         ))}
       </ul>
+      <DerivedMetricsNotice variant="inline" />
     </div>
   );
 }
@@ -331,49 +333,36 @@ function WeakUploadsList() {
 // ─── MOCKUP WIDGETS (right card) ──────────────────────────────────────────
 
 function NicheDemandGauge() {
-  // Half-arc gauge. 0% at left (180°), 100% at right (0°).
-  // Indicator at ~75% → angle = 180 - (0.75 * 180) = 45° from positive x axis.
-  // We use SVG with two arcs: gray full + orange portion, then needle.
-  // Arc center at (50, 50), radius 40.
-  // 100% full = path from (10,50) to (90,50) sweeping clockwise across top.
-  // For 75% filled, end angle = 180 - 135 = 45° from x.
-  // Point at angle 45°: (50 + 40*cos(45°), 50 - 40*sin(45°)) = (78.28, 21.72)
+  // Verdict card. This used to be a half-arc gauge with a needle at 75%,
+  // which is a meter of a figure we computed ourselves. Removed under
+  // docs/redesign-requirements.md section 2.1: no gauge, dial, or meter,
+  // even without a printed number. Niche Check reports verdict labels
+  // and qualitative signals, so the mockup shows exactly that.
+  const signals = [
+    { label: "Competition", value: "Mixed" },
+    { label: "Recent uploads", value: "Picking up views" },
+    { label: "Topic direction", value: "Rising" },
+  ];
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl bg-white px-3 py-4 ring-1 ring-gray-100">
-      <p className="self-start text-[11px] font-semibold text-gray-900">
-        Niche demand
-      </p>
-      <svg viewBox="0 0 100 60" className="mt-1 w-full max-w-[10rem]" aria-hidden="true">
-        {/* gray full arc */}
-        <path
-          d="M 10 50 A 40 40 0 0 1 90 50"
-          fill="none"
-          stroke="#e5e7eb"
-          strokeWidth="8"
-          strokeLinecap="round"
-        />
-        {/* orange portion (75%) */}
-        <path
-          d="M 10 50 A 40 40 0 0 1 78.28 21.72"
-          fill="none"
-          stroke="#f97316"
-          strokeWidth="8"
-          strokeLinecap="round"
-        />
-        {/* needle */}
-        <line
-          x1="50"
-          y1="50"
-          x2="78"
-          y2="22"
-          stroke="#1f2937"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <circle cx="50" cy="50" r="3" fill="#1f2937" />
-      </svg>
-      <p className="mt-1 text-xs font-semibold text-orange-600">High demand</p>
-      <p className="text-[10px] text-gray-500">Plenty of room to grow</p>
+    <div className="flex flex-col rounded-xl bg-white px-3 py-3 ring-1 ring-gray-100">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[11px] font-semibold text-gray-900">Niche check</p>
+        <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gray-600">
+          Example
+        </span>
+      </div>
+      <span className="mt-2 inline-flex w-fit items-center rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-semibold text-orange-700 ring-1 ring-inset ring-orange-100">
+        High demand
+      </span>
+      <ul className="mt-2 space-y-1">
+        {signals.map((sg) => (
+          <li key={sg.label} className="flex items-baseline justify-between gap-2 text-[10px]">
+            <span className="text-gray-500">{sg.label}</span>
+            <span className="font-medium text-gray-800">{sg.value}</span>
+          </li>
+        ))}
+      </ul>
+      <DerivedMetricsNotice variant="inline" />
     </div>
   );
 }

@@ -1,14 +1,81 @@
-# YouTube API Services — Audit & Quota Extension
+# YouTube API Services, audit and quota extension
 
-Forms to fill out at:
-- Main entry point: https://support.google.com/youtube/contact/yt_api_form
-- Detailed audit form (after initial outreach Google sends): a multi-page Google Form covering each topic below.
+## APPROVED 2026-09-17
 
-Default project quota is 10,000 units/day. Audit + extension is **free**. Approval requires a clear, legitimate use case and demonstrated compliance with YouTube API Terms of Service. Live working product strengthens the application significantly — we ship it before applying.
+Project `380359419674`. Granted for **6 months**, so it lapses around
+**2027-03-17** unless we reapply.
+
+| Bucket | Was | Granted | Now |
+|---|---|---|---|
+| Default | 10,000/day | +150,000 | **160,000/day** |
+| `search.list` | shared with default | +30,000 | **30,100/day** (separate bucket) |
+
+`search.list` now has its own pool. That is the important detail: the
+two search-backed tools no longer compete with everything else, but
+they still compete with each other.
+
+### What each tool can serve per day
+
+| Tool | Units per uncached call | Bucket | Ceiling |
+|---|---|---|---|
+| Video Audit | 1 | default | ~160,000 |
+| Channel Audit | 3 | default | ~53,000 |
+| Outlier Finder | 5 | default | ~32,000 |
+| Channel ID Finder | 1 | default | ~160,000 |
+| Niche Check | 100 + 2 | search.list | ~301 combined |
+| Competitor Analyzer | 100 + 3 | search.list | ~301 combined |
+
+Niche Check and Competitor Analyzer **share** the ~301 daily figure.
+That is still the binding constraint on the whole site, just three
+times higher than before. Caching is what stretches it: each unique
+query costs units once per cache window, repeat visitors cost nothing.
+
+### Conditions attached to the grant
+
+Read these as ongoing obligations, not paperwork:
+
+- **Use case is locked.** The grant covers the use case described in
+  the application. A materially new kind of tool requires a fresh
+  quota request.
+- **A compliance audit may be requested at any time.** Keep
+  `docs/youtube-api-compliance.md` accurate and keep shipping against
+  it. That document is the audit answer.
+- **Branding Guidelines apply.** Any reference to YouTube must comply.
+  This is why the logo does not use the play-button mark, and why the
+  footer carries the "not affiliated" line.
+- **Quota can be reduced** based on actual usage or any compliance
+  lapse.
+- **Do not reply to the approval email.** Use the forms linked in it.
+
+### Calendar
+
+- **2027-02-17**: start the renewal, one month of runway before lapse
+- **Ongoing**: if usage approaches either ceiling, revisit caching
+  before requesting more
 
 ---
 
-## Draft answers (copy/adapt for each field)
+## History
+
+Forms used:
+- Main entry point: https://support.google.com/youtube/contact/yt_api_form
+- Detailed audit form (sent by Google after initial outreach): a multi-page Google Form covering each topic below.
+
+Default project quota is 10,000 units/day. Audit and extension are **free**. Approval requires a clear, legitimate use case and demonstrated compliance with YouTube API Terms of Service. A live working product strengthens the application significantly, so we shipped before applying.
+
+The review ran from 2026-06 to 2026-09 and included four violation reports. All resulting rules live in `docs/youtube-api-compliance.md`.
+
+---
+
+## Draft answers (archival, as submitted)
+
+> **Do not reuse verbatim.** This is the record of what we submitted
+> before the four violation reports. Several statements no longer match
+> shipped code: the Visibility Score tool was merged into Channel Audit,
+> tracking history is now four snapshots capped at 30 days rather than
+> 26 weekly ones, and no composite score is stored anywhere. For a
+> renewal, rewrite from `docs/youtube-api-compliance.md` and the current
+> tool catalog.
 
 ### Project details
 

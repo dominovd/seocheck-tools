@@ -14,12 +14,12 @@ import {
 } from "@/lib/tools-catalog";
 
 const META_DESCRIPTION =
-  "Use 21 free YouTube SEO tools to research keywords, check niches, analyze competitors, generate titles and tags, audit videos, preview thumbnails, and grow your channel.";
+  "Use 20 free YouTube SEO tools to research keywords, check niches, analyze competitors, generate titles and tags, audit videos, preview thumbnails, and grow your channel.";
 const OG_DESCRIPTION =
   "Free YouTube SEO tools for every creator workflow: research topics, optimize metadata, publish faster, audit videos, and analyze channel growth.";
 
 const base = buildMetadata({
-  title: "Free YouTube SEO Tools | 21 Tools for Creators",
+  title: "Free YouTube SEO Tools | 20 Tools for Creators",
   description: META_DESCRIPTION,
   path: "tools",
   noBrand: true,

@@ -26,7 +26,7 @@ import {
  *  - small tools list with chevrons
  *  - bottom CTA link + tool count
  *
- * Final centered "View all 21 tools" button below the grid.
+ * Final centered "View all 20 tools" button below the grid.
  *
  * Layout pattern from the approved mockup. All mockup widgets are static
  * JSX/SVG with illustrative numbers (no live data).
@@ -215,7 +215,7 @@ export function HomeCreatorPipeline() {
         </div>
       </div>
 
-      {/* Final "View all 21 tools" bordered CTA */}
+      {/* Final "View all 20 tools" bordered CTA */}
       <div className="mt-12 flex justify-center">
         <Link
           href="/tools"
@@ -226,7 +226,7 @@ export function HomeCreatorPipeline() {
             strokeWidth={2}
             aria-hidden="true"
           />
-          View all 21 tools
+          View all 20 tools
           <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
         </Link>
       </div>
@@ -309,7 +309,7 @@ function OptimizeMockup() {
             <div className="text-white">
               <p className="text-[8px] font-bold leading-none">useEffect</p>
               <p className="text-[11px] font-extrabold leading-none">HOOK</p>
-              <p className="mt-0.5 inline-block bg-red-500 px-1 text-[6px] font-bold leading-tight">
+              <p className="mt-0.5 inline-block bg-white/90 px-1 text-[6px] font-bold leading-tight text-gray-900">
                 TUTORIAL
               </p>
             </div>
@@ -323,7 +323,7 @@ function OptimizeMockup() {
           Title signals
         </p>
         <ul className="space-y-1">
-          <SignalLine ok label="Length 41c" />
+          <SignalLine ok label="Length fits" />
           <SignalLine ok label="Angle clear" />
           <SignalLine label="Add keyword" />
         </ul>
@@ -351,9 +351,9 @@ function SignalLine({ ok = false, label }: { ok?: boolean; label: string }) {
 
 function PublishMockup() {
   const items = [
-    { label: "Description", status: "Optimized" },
-    { label: "Chapters", status: "Added" },
-    { label: "Hashtags", status: "Optimized" },
+    { label: "Description", status: "Ready" },
+    { label: "Chapters", status: "Ready" },
+    { label: "Hashtags", status: "Ready" },
   ];
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-3">
